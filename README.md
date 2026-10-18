@@ -1,6 +1,6 @@
 # Gabaritou
 
-App de gamificação de estudos para alunos do ensino médio — começando pelos cursos técnicos de Eletroeletrônica (DEE) do IFMA – Campus São Luís – Monte Castelo, com planos de atender também o ensino médio regular.
+App de gamificação de estudos para alunos do ensino médio — começando pelos cursos técnicos, com planos de atender também o ensino médio regular.
 
 A ideia central: o aluno não só joga, ele **domina** o conteúdo. Cada desafio, trilha e medalha empurra o estudante da primeira faísca de curiosidade até o domínio da matéria.
 
@@ -54,4 +54,4 @@ Os arquivos `.dc.html` são o código-fonte do canvas de design feito no Claude;
 
 ## Autor
 
-Francisco — Departamento de Eletroeletrônica (DEE-MTC), IFMA – Campus São Luís – Monte Castelo.
+Francisco
