@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Painel do professor</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E3A8A}
+</style>
+</helmet>
+<div style="width: 100%; min-height: 1040px; box-sizing: border-box; display: flex; flex-wrap: wrap; background: #F3F5F1; color: #13211C; font-family: 'IBM Plex Sans', sans-serif">
+
+<nav aria-label="Menu do professor" style="flex: 1 1 220px; max-width: 100%; box-sizing: border-box; background: #13211C; color: #FFFFFF; padding: 24px 16px; display: flex; flex-direction: column; gap: 24px">
+<div style="display: flex; align-items: center; gap: 10px; padding: 0 8px">
+<span style="width: 36px; height: 36px; border-radius: 10px; background: #F59E0B; color: #13211C; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"></path></svg></span>
+<span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 18px">Gabaritou</span>
+</div>
+<ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px">
+<li><a href="#" aria-current="page" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; background: #2C3B35; color: #FFFFFF; text-decoration: none; font-weight: 600; font-size: 14px">Visão geral</a></li>
+<li><a href="#" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; color: #B9C6BF; text-decoration: none; font-size: 14px">Turmas</a></li>
+<li><a href="#" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; color: #B9C6BF; text-decoration: none; font-size: 14px">Trilhas e módulos</a></li>
+<li><a href="#" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; color: #B9C6BF; text-decoration: none; font-size: 14px">Banco de questões</a></li>
+<li><a href="#" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; color: #B9C6BF; text-decoration: none; font-size: 14px">Desafios</a></li>
+<li><a href="#" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; color: #B9C6BF; text-decoration: none; font-size: 14px">Medalhas e regras de XP</a></li>
+<li><a href="#" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; color: #B9C6BF; text-decoration: none; font-size: 14px">Relatórios</a></li>
+</ul>
+</nav>
+
+<main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 32px; display: flex; flex-direction: column; gap: 24px">
+<header style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 14px; color: #55635D">Eletrotécnica · 2º A · 32 alunos</span>
+<h1 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 32px; letter-spacing: -0.5px">Visão geral da turma</h1>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px">
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #55635D">Turma
+<select style="min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1px solid #DCE2DD; background: #FFFFFF; font: 500 14px 'IBM Plex Sans', sans-serif; color: #13211C">
+<option>Eletrotécnica 2º A</option>
+<option>Eletrotécnica 2º B</option>
+<option>Eletrônica 1º A</option>
+</select>
+</label>
+<button style="align-self: flex-end; min-height: 44px; padding: 0 18px; border-radius: 10px; border: 0; background: #1D4ED8; color: #FFFFFF; font: 600 14px 'IBM Plex Sans', sans-serif; cursor: pointer">+ Novo desafio</button>
+</div>
+</header>
+
+<section aria-label="Indicadores da semana" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px">
+<div style="background: #FFFFFF; border: 1px solid #DCE2DD; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 6px"><span style="font-size: 13px; color: #55635D">Alunos ativos na semana</span><span style="font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 28px">27 / 32</span><span style="font-size: 12px; color: #15803D">+3 em relação à semana anterior</span></div>
+<div style="background: #FFFFFF; border: 1px solid #DCE2DD; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 6px"><span style="font-size: 13px; color: #55635D">Média de acerto</span><span style="font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 28px">71%</span><span style="font-size: 12px; color: #55635D">meta da turma: 70%</span></div>
+<div style="background: #FFFFFF; border: 1px solid #DCE2DD; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 6px"><span style="font-size: 13px; color: #55635D">Desafios concluídos</span><span style="font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 28px">184</span><span style="font-size: 12px; color: #55635D">5,8 por aluno ativo</span></div>
+<div style="background: #FFFFFF; border: 1px solid #DCE2DD; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 6px"><span style="font-size: 13px; color: #55635D">Sequência média</span><span style="font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 28px">6 dias</span><span style="font-size: 12px; color: #B91C1C">5 alunos perderam a sequência</span></div>
+</section>
+
+<div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+<div style="flex: 2 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+
+<section aria-labelledby="topicos" style="background: #FFFFFF; border: 1px solid #DCE2DD; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap">
+<h2 id="topicos" style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 600; font-size: 19px">Acerto por tópico</h2>
+<span style="font-size: 12px; color: #55635D">Abaixo de 60% sugere retomar em aula</span>
+</div>
+<sc-for list="{{topics}}" as="t" hint-placeholder-count="5">
+<div style="display: grid; grid-template-columns: minmax(140px, 220px) minmax(0, 1fr) 48px; gap: 12px; align-items: center">
+<span style="font-size: 14px">{{t.name}}</span>
+<div style="height: 14px; border-radius: 7px; background: #E6EBE7; overflow: hidden">
+<sc-if value="{{t.low}}" hint-placeholder-val="{{ false }}"><div style="height: 14px; border-radius: 7px; background: #B45309; width: {{t.pct}}"></div></sc-if>
+<sc-if value="{{t.ok}}" hint-placeholder-val="{{ true }}"><div style="height: 14px; border-radius: 7px; background: #1D4ED8; width: {{t.pct}}"></div></sc-if>
+</div>
+<span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; text-align: right">{{t.pct}}</span>
+</div>
+</sc-for>
+</section>
+
+<section aria-labelledby="atencao" style="background: #FFFFFF; border: 1px solid #DCE2DD; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+<h2 id="atencao" style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 600; font-size: 19px">Alunos que precisam de atenção</h2>
+<div style="overflow-x: auto">
+<table style="width: 100%; min-width: 560px; border-collapse: collapse; font-size: 14px">
+<thead>
+<tr style="text-align: left; color: #55635D; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px">
+<th scope="col" style="padding: 8px 8px 8px 0; font-weight: 600">Aluno</th>
+<th scope="col" style="padding: 8px; font-weight: 600">Último acesso</th>
+<th scope="col" style="padding: 8px; font-weight: 600">Acerto</th>
+<th scope="col" style="padding: 8px; font-weight: 600">Motivo</th>
+<th scope="col" style="padding: 8px 0 8px 8px; font-weight: 600"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Ação</span></th>
+</tr>
+</thead>
+<tbody>
+<sc-for list="{{students}}" as="s" hint-placeholder-count="4">
+<tr style="border-top: 1px solid #E6EBE7">
+<td style="padding: 12px 8px 12px 0; font-weight: 600">{{s.name}}</td>
+<td style="padding: 12px 8px; color: #55635D">{{s.last}}</td>
+<td style="padding: 12px 8px; font-family: 'IBM Plex Mono', monospace">{{s.acc}}</td>
+<td style="padding: 12px 8px; color: #55635D">{{s.reason}}</td>
+<td style="padding: 12px 0 12px 8px; text-align: right"><button style="min-height: 40px; padding: 0 12px; border-radius: 10px; border: 1px solid #DCE2DD; background: #FFFFFF; color: #13211C; font: 600 13px 'IBM Plex Sans', sans-serif; cursor: pointer; white-space: nowrap">Enviar lembrete</button></td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+
+<div style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+<section aria-labelledby="criar" style="background: #FFFFFF; border: 2px solid #1D4ED8; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+<h2 id="criar" style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 600; font-size: 19px">Desafio rápido</h2>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600">Título
+<input type="text" value="Revisão: associação em paralelo" style="min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1px solid #C9D1CC; font: 400 14px 'IBM Plex Sans', sans-serif; color: #13211C">
+</label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600">Trilha e módulo
+<select style="min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1px solid #C9D1CC; background: #FFFFFF; font: 400 14px 'IBM Plex Sans', sans-serif; color: #13211C">
+<option>Eletricidade Básica · Módulo 4</option>
+<option>Eletricidade Básica · Módulo 5</option>
+</select>
+</label>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600">Questões
+<input type="number" value="8" style="min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1px solid #C9D1CC; font: 400 14px 'IBM Plex Mono', monospace; color: #13211C">
+</label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600">Recompensa
+<input type="text" value="120 XP" style="min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1px solid #C9D1CC; font: 400 14px 'IBM Plex Mono', monospace; color: #13211C">
+</label>
+</div>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600">Prazo
+<input type="text" value="25/10/2026, 23:59" style="min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1px solid #C9D1CC; font: 400 14px 'IBM Plex Mono', monospace; color: #13211C">
+</label>
+<label style="display: flex; align-items: center; gap: 10px; font-size: 14px; min-height: 44px">
+<input type="checkbox" checked style="width: 20px; height: 20px; accent-color: #1D4ED8">
+Liberar medalha "Rei do Paralelo" com 90% ou mais
+</label>
+<button style="min-height: 48px; border-radius: 12px; border: 0; background: #1D4ED8; color: #FFFFFF; font: 600 15px 'IBM Plex Sans', sans-serif; cursor: pointer">Publicar para a turma</button>
+</section>
+
+<section aria-labelledby="ativos" style="background: #FFFFFF; border: 1px solid #DCE2DD; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+<h2 id="ativos" style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 600; font-size: 19px">Desafios ativos</h2>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; justify-content: space-between; gap: 8px"><span style="font-weight: 600; font-size: 14px">Código de cores de resistores</span><span style="font-size: 12px; color: #55635D; white-space: nowrap">até 20/10</span></div>
+<div style="height: 8px; border-radius: 4px; background: #E6EBE7; overflow: hidden"><div style="width: 69%; height: 8px; background: #1D4ED8"></div></div>
+<span style="font-size: 12px; color: #55635D">22 de 32 alunos concluíram</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; justify-content: space-between; gap: 8px"><span style="font-weight: 600; font-size: 14px">Potência em circuitos residenciais</span><span style="font-size: 12px; color: #55635D; white-space: nowrap">até 24/10</span></div>
+<div style="height: 8px; border-radius: 4px; background: #E6EBE7; overflow: hidden"><div style="width: 28%; height: 8px; background: #1D4ED8"></div></div>
+<span style="font-size: 12px; color: #55635D">9 de 32 alunos concluíram</span>
+</div>
+</section>
+</div>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1040}}'>
+class Component extends DCLogic {
+renderVals() {
+const topics = [
+{ name: 'Lei de Ohm', v: 81 },
+{ name: 'Potência e energia', v: 74 },
+{ name: 'Código de cores', v: 62 },
+{ name: 'Potência em circuitos mistos', v: 55 },
+{ name: 'Associação em paralelo', v: 48 }
+];
+return {
+topics: topics.map((t) => ({ name: t.name, pct: t.v + '%', low: t.v < 60, ok: t.v >= 60 })),
+students: [
+{ name: 'Pedro H.', last: 'há 6 dias', acc: '58%', reason: 'Sem acesso desde terça' },
+{ name: 'Larissa N.', last: 'ontem', acc: '41%', reason: 'Acerto baixo em paralelo' },
+{ name: 'Mateus O.', last: 'há 4 dias', acc: '66%', reason: 'Perdeu sequência de 15 dias' },
+{ name: 'Júlia V.', last: 'hoje', acc: '49%', reason: 'Usou dica em 80% das questões' }
+]
+};
+}
+}
+</script>
+</body>
+</html>
