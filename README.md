@@ -11,6 +11,7 @@ Protótipo funcional em Flutter rodando no Android, com dados de exemplo em mem�
 - [x] Mockup das telas do aluno (celular) e do painel do professor (desktop)
 - [x] Definição da stack e da arquitetura (Flutter + camadas domínio/dados/telas)
 - [x] Protótipo navegável: início, trilhas, desafio, resultado, ranking, perfil e painel do professor
+- [x] Laboratório de eletricidade: circuito animado com Lei de Ohm, série, paralelo e potência
 - [ ] Banco de questões e XP salvos de verdade (backend)
 - [ ] Piloto com uma turma de Eletrotécnica
 
@@ -82,9 +83,9 @@ O mockup é uma inspiração: o app pode (e deve) ir além dele.
 ### Identidade visual
 
 - Símbolo: a bolha do gabarito marcada — círculo âmbar com ✓ sobre fundo escuro. Desenhado em código (`app/lib/shared/brand.dart`), gera o ícone e o splash
-- Fundo `#F3F5F1`, escuro da marca `#13211C`
-- Ação: azul `#1D4ED8`
-- XP, sequência e conquistas: âmbar `#F59E0B` / `#B45309`
+- App todo escuro, estilo "planta técnica": fundo azul-marinho `#0F1D33` com grade fina, cartões `#1A2A45`
+- Ação: azul `#3B6EF5`; destaques e itens ativos: azul-claro `#93B4FA`
+- XP, sequência e conquistas: âmbar `#F59E0B` / `#FBBF24`
 - Tipografia: Bricolage Grotesque (títulos e números em destaque) e IBM Plex Sans (texto), embutidas no app
 
 ## Autor

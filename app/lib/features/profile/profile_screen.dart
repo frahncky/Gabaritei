@@ -222,7 +222,7 @@ class _MedalTile extends StatelessWidget {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: earned ? AppColors.ink : AppColors.muted,
+              color: earned ? AppColors.text : AppColors.muted,
             ),
           ),
         ],

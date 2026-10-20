@@ -7,6 +7,7 @@ import '../../domain/models/gamification.dart';
 import '../../domain/models/student.dart';
 import '../../shared/level_card.dart';
 import '../../shared/widgets.dart';
+import '../lab/lab_screen.dart';
 import '../quiz/quiz_screen.dart';
 
 typedef _HomeData = ({
@@ -140,6 +141,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     : () => _startQuiz(flash.quizId!),
               ),
             ],
+            const SizedBox(height: 16),
+            _LabCard(
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const LabScreen()),
+              ),
+            ),
             if (current != null) ...[
               const SizedBox(height: 16),
               _ContinueTrailCard(
@@ -186,13 +193,13 @@ class _MissionTile extends StatelessWidget {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: done ? const Color(0xFFDCFCE7) : AppColors.blueSoft,
+                  color: done ? AppColors.successSoft : AppColors.blueSoft,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   done ? Icons.check : Icons.flag_outlined,
                   size: 20,
-                  color: done ? AppColors.success : AppColors.blue,
+                  color: done ? AppColors.success : AppColors.skyOnInk,
                 ),
               ),
               const SizedBox(width: 12),
@@ -293,8 +300,8 @@ class _FlashCard extends StatelessWidget {
           const SizedBox(height: 12),
           FilledButton(
             style: FilledButton.styleFrom(
-              backgroundColor: AppColors.ink,
-              foregroundColor: Colors.white,
+              backgroundColor: AppColors.amber,
+              foregroundColor: AppColors.ink,
             ),
             onPressed: onStart,
             child: Text(mission.isDone ? 'Concluído' : 'Começar'),
@@ -346,6 +353,80 @@ class _ContinueTrailCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               const Icon(Icons.chevron_right, color: AppColors.muted),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Atalho para o Laboratório.
+class _LabCard extends StatelessWidget {
+  const _LabCard({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.blueSoft,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: AppColors.skyOnInk.withValues(alpha: 0.5)),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(18),
+          child: Row(
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: AppColors.inkRaised,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: AppColors.skyOnInk, width: 1.5),
+                ),
+                child: const Icon(Icons.electric_bolt,
+                    color: AppColors.amberOnInk, size: 28),
+              ),
+              const SizedBox(width: 14),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'LABORATÓRIO',
+                      style: TextStyle(
+                        color: AppColors.skyOnInk,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                    SizedBox(height: 2),
+                    Text(
+                      'Veja a eletricidade em movimento',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: AppFonts.display,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 18,
+                      ),
+                    ),
+                    SizedBox(height: 2),
+                    Text(
+                      'Ohm, série, paralelo e potência',
+                      style:
+                          TextStyle(color: AppColors.mutedOnInk, fontSize: 13),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right, color: AppColors.mutedOnInk),
             ],
           ),
         ),

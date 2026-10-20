@@ -8,7 +8,8 @@ void main() {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
-    await tester.pumpWidget(GabariteiApp(dependencies: AppDependencies.inMemory()));
+    await tester
+        .pumpWidget(GabariteiApp(dependencies: AppDependencies.inMemory()));
     await tester.pumpAndSettle();
   }
 
@@ -22,7 +23,8 @@ void main() {
 
     await tester.tap(find.text('Trilhas').last);
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(find.text('4. Associação de resistores'), 200);
+    await tester.scrollUntilVisible(
+        find.text('4. Associação de resistores'), 200);
     expect(find.text('4. Associação de resistores'), findsOneWidget);
     await tester.drag(find.byType(ListView), const Offset(0, 2000));
     await tester.pumpAndSettle();
@@ -90,10 +92,40 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Enviado'), findsOneWidget);
 
-    await tester.enterText(find.widgetWithText(TextField, 'Título'), 'Paralelo turbo');
+    await tester.enterText(
+        find.widgetWithText(TextField, 'Título'), 'Paralelo turbo');
     await tester.pump();
     await tester.tap(find.text('Publicar para a turma'));
     await tester.pumpAndSettle();
     expect(find.text('Paralelo turbo'), findsOneWidget);
+  });
+
+  testWidgets('laboratório anima o circuito e troca de assunto',
+      (tester) async {
+    await pumpApp(tester, const Size(400, 860));
+    await tester.tap(find.text('Entrar como aluno'));
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+        find.text('Veja a eletricidade em movimento'), 200);
+    await tester.tap(find.text('Veja a eletricidade em movimento'));
+    // O laboratório anima sem parar: avança quadros em vez de pumpAndSettle.
+    for (var i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.text('1 · LEI DE OHM'), findsOneWidget);
+    expect(find.text('0,60 A'), findsWidgets);
+    expect(find.text('seguro'), findsOneWidget);
+
+    await tester.tap(find.text('4 · Potência'));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('P = V × I = V² ÷ R'), findsOneWidget);
+    expect(find.text('7,2 W'), findsWidgets);
+
+    await tester.tap(find.byType(BackButton));
+    for (var i = 0; i < 5; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.text('Veja a eletricidade em movimento'), findsOneWidget);
   });
 }

@@ -42,7 +42,7 @@ class StatTile extends StatelessWidget {
     required this.value,
     required this.label,
     this.icon,
-    this.iconColor = AppColors.blue,
+    this.iconColor = AppColors.skyOnInk,
     this.iconBackground = AppColors.blueSoft,
   });
 
@@ -124,7 +124,7 @@ class Avatar extends StatelessWidget {
     required this.initials,
     this.size = 40,
     this.background = AppColors.track,
-    this.foreground = AppColors.ink,
+    this.foreground = AppColors.text,
   });
 
   final String initials;
@@ -182,4 +182,39 @@ class AsyncView<T> extends StatelessWidget {
       },
     );
   }
+}
+
+/// Grade fina de "planta técnica" desenhada por cima de todas as telas.
+class BlueprintGrid extends StatelessWidget {
+  const BlueprintGrid({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const IgnorePointer(
+      child: ExcludeSemantics(
+        child: CustomPaint(painter: _GridPainter(), size: Size.infinite),
+      ),
+    );
+  }
+}
+
+class _GridPainter extends CustomPainter {
+  const _GridPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.03)
+      ..strokeWidth = 1;
+    const step = 22.0;
+    for (var x = 0.0; x < size.width; x += step) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+    for (var y = 0.0; y < size.height; y += step) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_GridPainter oldDelegate) => false;
 }
