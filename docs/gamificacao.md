@@ -1,6 +1,6 @@
 # Regras de gamificação
 
-Rascunho das regras do Gabaritou. Os números são pontos de partida para calibrar no piloto.
+Rascunho das regras do Gabaritei. Os números são pontos de partida para calibrar no piloto.
 
 ## Níveis
 

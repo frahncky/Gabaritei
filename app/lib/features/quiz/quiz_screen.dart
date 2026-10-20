@@ -103,12 +103,12 @@ class _QuizBodyState extends State<_QuizBody> {
             title: Text(widget.quiz.title, style: const TextStyle(fontSize: 16)),
             actions: [
               if (c.comboActive)
-                Padding(
-                  padding: const EdgeInsets.only(right: 12),
+                const Padding(
+                  padding: EdgeInsets.only(right: 12),
                   child: Chip(
-                    avatar: const Icon(Icons.bolt, size: 16, color: AppColors.amberOnInk),
-                    label: const Text('Combo x2'),
-                    labelStyle: const TextStyle(
+                    avatar: Icon(Icons.bolt, size: 16, color: AppColors.amberOnInk),
+                    label: Text('Combo x2'),
+                    labelStyle: TextStyle(
                       color: AppColors.amberOnInk,
                       fontWeight: FontWeight.w600,
                     ),

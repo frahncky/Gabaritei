@@ -1,4 +1,4 @@
-/// Regras de níveis do Gabaritou.
+/// Regras de níveis do Gabaritei.
 ///
 /// Cinco grandes níveis (Faísca → Aprendiz → Afiado → Craque → Domínio).
 /// Os quatro primeiros têm três subníveis (I, II, III); Domínio é único.

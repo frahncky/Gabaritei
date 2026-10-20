@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Cores do Gabaritou (vindas do mockup em `design/mockup/`).
+/// Cores do Gabaritei (vindas do mockup em `design/mockup/`).
 class AppColors {
   AppColors._();
 
