@@ -152,7 +152,7 @@ class _PodiumPlace extends StatelessWidget {
           initials: entry.initials,
           size: first ? 56 : 48,
           background: entry.isCurrentStudent ? AppColors.blue : AppColors.track,
-          foreground: entry.isCurrentStudent ? Colors.white : AppColors.ink,
+          foreground: entry.isCurrentStudent ? Colors.white : AppColors.text,
         ),
         const SizedBox(height: 6),
         Text(
@@ -176,10 +176,11 @@ class _PodiumPlace extends StatelessWidget {
           ),
           child: Text(
             '${entry.position}',
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: AppFonts.display,
               fontSize: 22,
               fontWeight: FontWeight.w800,
+              color: first ? AppColors.ink : AppColors.text,
             ),
           ),
         ),
@@ -221,7 +222,7 @@ class _RankingRow extends StatelessWidget {
             initials: entry.initials,
             size: 36,
             background: me ? AppColors.blue : AppColors.track,
-            foreground: me ? Colors.white : AppColors.ink,
+            foreground: me ? Colors.white : AppColors.text,
           ),
           const SizedBox(width: 12),
           Expanded(

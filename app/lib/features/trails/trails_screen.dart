@@ -158,7 +158,7 @@ class _ModuleTile extends StatelessWidget {
     } else {
       leading = switch (status) {
         ModuleStatus.done => const _Badge(
-            background: Color(0xFFDCFCE7),
+            background: AppColors.successSoft,
             child: Icon(Icons.check, size: 20, color: AppColors.success),
           ),
         ModuleStatus.current => _Badge(
@@ -217,7 +217,7 @@ class _ModuleTile extends StatelessWidget {
                           title,
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
-                            color: isLocked ? AppColors.muted : AppColors.ink,
+                            color: isLocked ? AppColors.muted : AppColors.text,
                           ),
                         ),
                         const SizedBox(height: 2),

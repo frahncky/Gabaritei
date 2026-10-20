@@ -291,7 +291,7 @@ class _TopicsCard extends StatelessWidget {
                 formatPercent(topic.accuracy),
                 style: TextStyle(
                   fontWeight: FontWeight.w700,
-                  color: topic.needsReview ? AppColors.error : AppColors.ink,
+                  color: topic.needsReview ? AppColors.error : AppColors.text,
                 ),
               ),
             ],

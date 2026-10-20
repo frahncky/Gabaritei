@@ -1,35 +1,52 @@
 import 'package:flutter/material.dart';
 
-/// Cores do Gabaritei (vindas do mockup em `design/mockup/`).
+/// Cores do Gabaritei: azul-marinho de "planta técnica", azul de ação e âmbar.
+///
+/// O app é todo escuro. `ink` é o fundo mais profundo (e o texto sobre
+/// âmbar); `text` é o texto principal.
 class AppColors {
   AppColors._();
 
-  static const ground = Color(0xFFF3F5F1);
-  static const surface = Color(0xFFFFFFFF);
-  static const ink = Color(0xFF13211C);
-  static const inkSoft = Color(0xFF2C3B35);
-  static const muted = Color(0xFF55635D);
-  static const mutedOnInk = Color(0xFFB9C6BF);
+  /// Fundo das telas.
+  static const ground = Color(0xFF0F1D33);
 
-  /// Cartões e trilhos sobre fundo escuro.
-  static const inkRaised = Color(0xFF1F302A);
-  static const inkLine = Color(0xFF36493F);
-  static const line = Color(0xFFDCE2DD);
-  static const track = Color(0xFFE6EBE7);
+  /// Cartões e campos.
+  static const surface = Color(0xFF1A2A45);
 
-  /// Cor de ação (botões, item ativo).
-  static const blue = Color(0xFF1D4ED8);
-  static const blueSoft = Color(0xFFE3EBFD);
+  /// Azul-marinho da marca: fundos de destaque e texto sobre âmbar.
+  static const ink = Color(0xFF0F1D33);
+  static const inkSoft = Color(0xFF26344D);
+
+  /// Texto principal e secundário.
+  static const text = Color(0xFFF1F5FB);
+  static const muted = Color(0xFFAEBBD0);
+  static const mutedOnInk = muted;
+
+  /// Bordas e trilhos de barras.
+  static const line = Color(0xFF33456A);
+  static const track = Color(0xFF26385C);
+
+  /// Nomes antigos dos mesmos tons, usados nas telas que já eram escuras.
+  static const inkRaised = surface;
+  static const inkLine = line;
+
+  /// Ação (botões, barras, item ativo) e o tom claro dela para texto e ícones.
+  static const blue = Color(0xFF3B6EF5);
+  static const blueSoft = Color(0xFF1C3263);
+  static const skyOnInk = Color(0xFF93B4FA);
 
   /// XP, sequência e conquistas.
   static const amber = Color(0xFFF59E0B);
-  static const amberText = Color(0xFFB45309);
-  static const amberOnInk = Color(0xFFFBBF24);
-  static const amberSoft = Color(0xFFFFF1DC);
+  static const amberText = Color(0xFFFBBF24);
+  static const amberOnInk = amberText;
+  static const amberSoft = Color(0xFF3B2F12);
 
-  static const success = Color(0xFF15803D);
-  static const error = Color(0xFFB91C1C);
-  static const errorSoft = Color(0xFFFDE2E2);
+  static const success = Color(0xFF4ADE80);
+  static const successSoft = Color(0xFF173B2A);
+  static const successOnInk = success;
+  static const error = Color(0xFFF87171);
+  static const errorSoft = Color(0xFF3F1D27);
+  static const errorOnInk = error;
 }
 
 /// Fontes embutidas em `assets/fonts/` (SIL Open Font License).
@@ -46,19 +63,24 @@ class AppFonts {
 class AppTheme {
   AppTheme._();
 
-  static ThemeData light() {
+  static ThemeData dark() {
     final scheme = ColorScheme.fromSeed(
       seedColor: AppColors.blue,
-      brightness: Brightness.light,
+      brightness: Brightness.dark,
     ).copyWith(
-      primary: AppColors.blue,
-      onPrimary: Colors.white,
+      primary: AppColors.skyOnInk,
+      onPrimary: AppColors.ink,
       secondary: AppColors.amber,
       onSecondary: AppColors.ink,
+      secondaryContainer: AppColors.blueSoft,
+      onSecondaryContainer: AppColors.text,
       surface: AppColors.surface,
-      onSurface: AppColors.ink,
+      onSurface: AppColors.text,
+      onSurfaceVariant: AppColors.muted,
+      surfaceContainerHighest: AppColors.track,
       error: AppColors.error,
       outline: AppColors.line,
+      outlineVariant: AppColors.line,
     );
 
     final base = ThemeData(
@@ -69,29 +91,31 @@ class AppTheme {
     );
 
     return base.copyWith(
-      textTheme: base.textTheme.copyWith(
-        headlineMedium: base.textTheme.headlineMedium?.copyWith(
-          fontFamily: AppFonts.display,
-          fontWeight: FontWeight.w800,
-          color: AppColors.ink,
-          letterSpacing: -0.5,
-        ),
-        titleLarge: base.textTheme.titleLarge?.copyWith(
-          fontFamily: AppFonts.display,
-          fontWeight: FontWeight.w700,
-          color: AppColors.ink,
-        ),
-        titleMedium: base.textTheme.titleMedium?.copyWith(
-          fontFamily: AppFonts.display,
-          fontWeight: FontWeight.w600,
-          color: AppColors.ink,
-        ),
-        bodyMedium: base.textTheme.bodyMedium?.copyWith(color: AppColors.ink),
-        bodySmall: base.textTheme.bodySmall?.copyWith(color: AppColors.muted),
-      ),
+      textTheme: base.textTheme
+          .apply(bodyColor: AppColors.text, displayColor: AppColors.text)
+          .copyWith(
+            headlineMedium: base.textTheme.headlineMedium?.copyWith(
+              fontFamily: AppFonts.display,
+              fontWeight: FontWeight.w800,
+              color: AppColors.text,
+              letterSpacing: -0.5,
+            ),
+            titleLarge: base.textTheme.titleLarge?.copyWith(
+              fontFamily: AppFonts.display,
+              fontWeight: FontWeight.w700,
+              color: AppColors.text,
+            ),
+            titleMedium: base.textTheme.titleMedium?.copyWith(
+              fontFamily: AppFonts.display,
+              fontWeight: FontWeight.w600,
+              color: AppColors.text,
+            ),
+            bodySmall:
+                base.textTheme.bodySmall?.copyWith(color: AppColors.muted),
+          ),
       appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.ground,
-        foregroundColor: AppColors.ink,
+        backgroundColor: Colors.transparent,
+        foregroundColor: AppColors.text,
         elevation: 0,
         scrolledUnderElevation: 0,
       ),
@@ -106,6 +130,10 @@ class AppTheme {
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
+          backgroundColor: AppColors.blue,
+          foregroundColor: Colors.white,
+          disabledBackgroundColor: AppColors.track,
+          disabledForegroundColor: AppColors.muted,
           minimumSize: const Size.fromHeight(48),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -115,11 +143,21 @@ class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           minimumSize: const Size(44, 44),
-          foregroundColor: AppColors.ink,
+          foregroundColor: AppColors.text,
           side: const BorderSide(color: AppColors.line),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
+      ),
+      chipTheme: base.chipTheme.copyWith(
+        backgroundColor: AppColors.surface,
+        side: const BorderSide(color: AppColors.line),
+        labelStyle: const TextStyle(color: AppColors.text),
+      ),
+      dividerTheme: const DividerThemeData(color: AppColors.line),
+      snackBarTheme: const SnackBarThemeData(
+        backgroundColor: AppColors.skyOnInk,
+        contentTextStyle: TextStyle(color: AppColors.ink),
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.surface,
@@ -131,14 +169,14 @@ class AppTheme {
                 ? FontWeight.w600
                 : FontWeight.w500,
             color: states.contains(WidgetState.selected)
-                ? AppColors.blue
+                ? AppColors.skyOnInk
                 : AppColors.muted,
           ),
         ),
         iconTheme: WidgetStateProperty.resolveWith(
           (states) => IconThemeData(
             color: states.contains(WidgetState.selected)
-                ? AppColors.blue
+                ? AppColors.skyOnInk
                 : AppColors.muted,
           ),
         ),
@@ -146,6 +184,7 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.surface,
+        labelStyle: const TextStyle(color: AppColors.muted),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: const BorderSide(color: AppColors.line),

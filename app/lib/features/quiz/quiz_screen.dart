@@ -114,7 +114,7 @@ class _QuizBodyState extends State<_QuizBody> {
                       color: AppColors.amberOnInk,
                       fontWeight: FontWeight.w600,
                     ),
-                    backgroundColor: AppColors.ink,
+                    backgroundColor: AppColors.amberSoft,
                     side: BorderSide.none,
                   ),
                 ),
@@ -137,7 +137,7 @@ class _QuizBodyState extends State<_QuizBody> {
                           fontSize: 11,
                           letterSpacing: 1,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.blue,
+                          color: AppColors.skyOnInk,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -287,8 +287,8 @@ class _OptionTile extends StatelessWidget {
       _OptionState.idle => (
           AppColors.line,
           AppColors.surface,
-          AppColors.ground,
-          AppColors.ink
+          AppColors.track,
+          AppColors.text
         ),
       _OptionState.selected => (
           AppColors.blue,
@@ -298,15 +298,15 @@ class _OptionTile extends StatelessWidget {
         ),
       _OptionState.correct => (
           AppColors.success,
-          const Color(0xFFDCFCE7),
+          AppColors.successSoft,
           AppColors.success,
-          Colors.white
+          AppColors.ink
         ),
       _OptionState.wrong => (
           AppColors.error,
           AppColors.errorSoft,
           AppColors.error,
-          Colors.white
+          AppColors.ink
         ),
     };
     return Semantics(
@@ -377,7 +377,7 @@ class _Feedback extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: correct ? const Color(0xFFDCFCE7) : AppColors.errorSoft,
+        color: correct ? AppColors.successSoft : AppColors.errorSoft,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(

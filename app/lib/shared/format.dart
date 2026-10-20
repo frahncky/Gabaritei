@@ -13,6 +13,10 @@ String formatNumber(int value) {
   return buffer.toString();
 }
 
+/// Número com casas decimais e vírgula (ex.: 0.6, 2 → "0,60").
+String formatDecimal(double value, int digits) =>
+    value.toStringAsFixed(digits).replaceAll('.', ',');
+
 /// Fração de 0 a 1 como porcentagem inteira (ex.: 0.74 → "74%").
 String formatPercent(double fraction) => '${(fraction * 100).round()}%';
 

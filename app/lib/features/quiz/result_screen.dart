@@ -375,7 +375,7 @@ class _Piece {
     AppColors.amber,
     AppColors.amberOnInk,
     AppColors.blue,
-    Color(0xFF93B4FA),
+    AppColors.skyOnInk,
     Colors.white,
   ];
 

@@ -14,7 +14,7 @@ class LevelCard extends StatelessWidget {
     super.key,
     required this.level,
     this.animateFromXp,
-    this.color = AppColors.ink,
+    this.color = AppColors.blueSoft,
   });
 
   final LevelProgress level;
@@ -35,9 +35,7 @@ class LevelCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(20),
-        border: color == AppColors.ink
-            ? null
-            : Border.all(color: AppColors.inkLine),
+        border: Border.all(color: AppColors.inkLine),
       ),
       child: animate
           ? TweenAnimationBuilder<double>(
