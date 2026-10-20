@@ -27,6 +27,9 @@ abstract interface class StudentRepository {
 
   /// Catálogo de medalhas (conquistadas e por conquistar).
   Future<List<Medal>> getAllMedals();
+
+  /// Apaga o progresso do aluno conectado (XP, sequência, medalhas...).
+  Future<void> resetProgress();
 }
 
 abstract interface class ContentRepository {

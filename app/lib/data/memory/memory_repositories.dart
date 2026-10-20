@@ -1,7 +1,7 @@
 /// Implementações em memória dos repositórios.
 ///
-/// Guardam tudo enquanto o app está aberto (sem servidor e sem
-/// persistência). Servem para desenvolver as telas e para os testes.
+/// Guardam tudo enquanto o app está aberto. Sozinhas não persistem nada;
+/// `lib/data/local/` as restaura e salva no aparelho via `onChanged`.
 library;
 
 import '../../domain/models/content.dart';
@@ -19,17 +19,62 @@ import 'sample_content.dart';
 typedef Clock = DateTime Function();
 
 class MemoryStudentRepository implements StudentRepository {
-  MemoryStudentRepository({Clock? clock, Student? initial})
-      : _clock = clock ?? DateTime.now {
+  MemoryStudentRepository({
+    Clock? clock,
+    Student? initial,
+    Map<String, int>? missionProgress,
+    DateTime? missionsDay,
+    this.weeklyXp = 515,
+    this.onChanged,
+  }) : _clock = clock ?? DateTime.now {
     _student = initial ?? _sampleStudent(_clock());
+    _missionsDay = missionsDay ?? _today();
+    _missions = [
+      for (final m in SampleContent.dailyMissions)
+        _withProgress(m, missionProgress?[m.id] ?? m.progress),
+    ];
   }
 
   final Clock _clock;
   late Student _student;
-  List<Mission> _missions = List.of(SampleContent.dailyMissions);
+  late List<Mission> _missions;
+  late DateTime _missionsDay;
 
   /// XP ganho na semana corrente (usado pelo ranking semanal).
-  int weeklyXp = 515;
+  int weeklyXp;
+
+  /// Chamado após cada alteração, para quem quiser salvar o estado.
+  final void Function(MemoryStudentRepository repo)? onChanged;
+
+  /// Estado atual, exposto para a persistência.
+  Student get student => _student;
+  DateTime get missionsDay => _missionsDay;
+  Map<String, int> get missionProgress =>
+      {for (final m in _missions) m.id: m.progress};
+
+  DateTime _today() {
+    final now = _clock();
+    return DateTime(now.year, now.month, now.day);
+  }
+
+  /// Missões são diárias: num dia novo, voltam ao início.
+  void _resetMissionsIfNewDay() {
+    final today = _today();
+    if (_missionsDay == today) return;
+    _missionsDay = today;
+    _missions = List.of(SampleContent.dailyMissions);
+    onChanged?.call(this);
+  }
+
+  static Mission _withProgress(Mission m, int progress) => Mission(
+        id: m.id,
+        title: m.title,
+        rewardXp: m.rewardXp,
+        progress: progress,
+        goal: m.goal,
+        quizId: m.quizId,
+        isFlash: m.isFlash,
+      );
 
   static Student _sampleStudent(DateTime now) {
     final today = DateTime(now.year, now.month, now.day);
@@ -59,19 +104,55 @@ class MemoryStudentRepository implements StudentRepository {
   }
 
   @override
-  Future<Student> getCurrentStudent() async => _student;
+  Future<Student> getCurrentStudent() async {
+    // Sequência perdida não deve continuar aparecendo como ativa.
+    if (_student.streakDays > 0 &&
+        StreakRules.isBroken(
+            lastStudyDay: _student.lastStudyDay, today: _clock())) {
+      _student = _student.copyWith(streakDays: 0);
+      onChanged?.call(this);
+    }
+    return _student;
+  }
 
   @override
-  Future<List<Mission>> getDailyMissions() async =>
-      List.unmodifiable(_missions);
+  Future<List<Mission>> getDailyMissions() async {
+    _resetMissionsIfNewDay();
+    return List.unmodifiable(_missions);
+  }
 
   @override
   Future<List<Medal>> getAllMedals() async => SampleContent.medals;
 
   @override
+  Future<void> resetProgress() async {
+    _student = Student(
+      id: _student.id,
+      name: _student.name,
+      className: _student.className,
+      courseName: _student.courseName,
+      totalXp: 0,
+      streakDays: 0,
+      lastStudyDay: null,
+      league: League.cobre,
+      questionsAnswered: 0,
+      correctAnswers: 0,
+      earnedBadgeIds: const {},
+      studyDays: const {},
+    );
+    _missionsDay = _today();
+    _missions = [
+      for (final m in SampleContent.dailyMissions) _withProgress(m, 0),
+    ];
+    weeklyXp = 0;
+    onChanged?.call(this);
+  }
+
+  @override
   Future<QuizResult> submitQuiz(Quiz quiz, List<AnswerRecord> answers) async {
     final now = _clock();
     final today = DateTime(now.year, now.month, now.day);
+    _resetMissionsIfNewDay();
     final before = _student;
 
     final xp = XpRules.score(answers, completionReward: quiz.rewardXp);
@@ -106,6 +187,7 @@ class MemoryStudentRepository implements StudentRepository {
     );
     weeklyXp += xp.total;
     _completeMissionsFor(quiz.id);
+    onChanged?.call(this);
 
     return QuizResult(
       quiz: quiz,
@@ -123,24 +205,19 @@ class MemoryStudentRepository implements StudentRepository {
   void _completeMissionsFor(String quizId) {
     _missions = [
       for (final m in _missions)
-        if (m.quizId == quizId && !m.isDone)
-          Mission(
-            id: m.id,
-            title: m.title,
-            rewardXp: m.rewardXp,
-            progress: m.goal,
-            goal: m.goal,
-            quizId: m.quizId,
-            isFlash: m.isFlash,
-          )
-        else
-          m,
+        if (m.quizId == quizId && !m.isDone) _withProgress(m, m.goal) else m,
     ];
   }
 }
 
 class MemoryContentRepository implements ContentRepository {
-  final List<Question> _createdQuestions = [];
+  MemoryContentRepository({List<Question>? createdQuestions, this.onChanged})
+      : _createdQuestions = List.of(createdQuestions ?? const []);
+
+  final List<Question> _createdQuestions;
+
+  /// Chamado após salvar uma questão, para quem quiser persistir.
+  final void Function(List<Question> createdQuestions)? onChanged;
 
   @override
   Future<List<Trail>> getTrails() async => SampleContent.trails;
@@ -161,6 +238,7 @@ class MemoryContentRepository implements ContentRepository {
   Future<void> saveQuestion(Question question) async {
     _createdQuestions.removeWhere((item) => item.id == question.id);
     _createdQuestions.add(question);
+    onChanged?.call(List.unmodifiable(_createdQuestions));
   }
 }
 

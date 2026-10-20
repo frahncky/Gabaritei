@@ -120,10 +120,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 );
               },
             ),
+            const SizedBox(height: 24),
+            Center(
+              child: TextButton.icon(
+                onPressed: _confirmReset,
+                icon: const Icon(Icons.restart_alt),
+                label: const Text('Recomeçar progresso'),
+              ),
+            ),
           ],
         );
       },
     );
+  }
+
+  Future<void> _confirmReset() async {
+    final deps = Dependencies.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Recomeçar progresso?'),
+        content:
+            const Text('XP, sequência, medalhas e missões voltam ao início. '
+                'Não dá para desfazer.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Recomeçar'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    await deps.students.resetProgress();
+    if (!mounted) return;
+    setState(() => _data = _load(deps));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Progresso recomeçado.')));
   }
 
   static String _streakText(Student student) {
