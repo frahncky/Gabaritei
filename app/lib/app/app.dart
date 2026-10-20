@@ -4,8 +4,8 @@ import '../features/start/start_screen.dart';
 import 'dependencies.dart';
 import 'theme.dart';
 
-class GabaritouApp extends StatelessWidget {
-  const GabaritouApp({super.key, required this.dependencies});
+class GabariteiApp extends StatelessWidget {
+  const GabariteiApp({super.key, required this.dependencies});
 
   final AppDependencies dependencies;
 
@@ -14,7 +14,7 @@ class GabaritouApp extends StatelessWidget {
     return Dependencies(
       value: dependencies,
       child: MaterialApp(
-        title: 'Gabaritou',
+        title: 'Gabaritei',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light(),
         home: const StartScreen(),

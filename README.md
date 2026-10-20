@@ -1,4 +1,4 @@
-# Gabaritou
+# Gabaritei
 
 App de gamificação de estudos para alunos do ensino médio — começando pelos cursos técnicos, com planos de atender também o ensino médio regular.
 
@@ -6,12 +6,44 @@ A ideia central: o aluno não só joga, ele **domina** o conteúdo. Cada desafio
 
 ## Status
 
-Fase de design. Este repositório guarda o conceito, as regras de gamificação e o mockup das telas.
+Protótipo funcional em Flutter rodando no Android, com dados de exemplo em memória.
 
 - [x] Mockup das telas do aluno (celular) e do painel do professor (desktop)
-- [ ] Definição da stack e da arquitetura
-- [ ] Protótipo funcional (banco de questões + XP salvo)
+- [x] Definição da stack e da arquitetura (Flutter + camadas domínio/dados/telas)
+- [x] Protótipo navegável: início, trilhas, desafio, resultado, ranking, perfil e painel do professor
+- [ ] Banco de questões e XP salvos de verdade (backend)
 - [ ] Piloto com uma turma de Eletrotécnica
+
+## Instalar no celular (Android)
+
+Baixe o `app-release.apk` na página de [Releases](https://github.com/frahncky/Gabaritei/releases/latest) e abra no celular. O Android vai pedir para permitir a instalação de fontes desconhecidas.
+
+## Rodar o projeto
+
+Requer [Flutter](https://docs.flutter.dev/get-started/install) 3.27 ou mais recente.
+
+```bash
+cd app
+flutter pub get
+flutter run            # roda no celular conectado ou no emulador
+flutter test           # testes de tela
+flutter build apk      # gera o APK em build/app/outputs/flutter-apk/
+```
+
+## Estrutura
+
+```text
+app/            App Flutter
+  lib/
+    app/        Tema, injeção de dependências e raiz do app
+    domain/     Modelos, regras de XP, nível e sequência, contratos de repositório
+    data/       Repositórios em memória e conteúdo de exemplo
+    features/   Telas (início, trilhas, quiz, ranking, perfil, professor)
+    shared/     Widgets e formatação reutilizáveis
+  test/         Testes de tela
+design/mockup/  Mockup das telas
+docs/           Regras de gamificação
+```
 
 ## Mecânicas de gamificação
 
