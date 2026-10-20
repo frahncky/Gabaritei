@@ -8,44 +8,44 @@ class AppColors {
   AppColors._();
 
   /// Fundo das telas.
-  static const ground = Color(0xFF0F1D33);
+  static const ground = Color(0xFF121A26);
 
   /// Cartões e campos.
-  static const surface = Color(0xFF1A2A45);
+  static const surface = Color(0xFF1B2635);
 
   /// Azul-marinho da marca: fundos de destaque e texto sobre âmbar.
-  static const ink = Color(0xFF0F1D33);
-  static const inkSoft = Color(0xFF26344D);
+  static const ink = Color(0xFF121A26);
+  static const inkSoft = Color(0xFF293548);
 
   /// Texto principal e secundário.
-  static const text = Color(0xFFF1F5FB);
-  static const muted = Color(0xFFAEBBD0);
+  static const text = Color(0xFFEEF1F5);
+  static const muted = Color(0xFFA7B0BD);
   static const mutedOnInk = muted;
 
   /// Bordas e trilhos de barras.
-  static const line = Color(0xFF33456A);
-  static const track = Color(0xFF26385C);
+  static const line = Color(0xFF314054);
+  static const track = Color(0xFF263447);
 
   /// Nomes antigos dos mesmos tons, usados nas telas que já eram escuras.
   static const inkRaised = surface;
   static const inkLine = line;
 
   /// Ação (botões, barras, item ativo) e o tom claro dela para texto e ícones.
-  static const blue = Color(0xFF3B6EF5);
-  static const blueSoft = Color(0xFF1C3263);
-  static const skyOnInk = Color(0xFF93B4FA);
+  static const blue = Color(0xFF5274B8);
+  static const blueSoft = Color(0xFF273A59);
+  static const skyOnInk = Color(0xFFA9BFE8);
 
   /// XP, sequência e conquistas.
-  static const amber = Color(0xFFF59E0B);
-  static const amberText = Color(0xFFFBBF24);
+  static const amber = Color(0xFFD09A3A);
+  static const amberText = Color(0xFFE4B85B);
   static const amberOnInk = amberText;
-  static const amberSoft = Color(0xFF3B2F12);
+  static const amberSoft = Color(0xFF352C1D);
 
-  static const success = Color(0xFF4ADE80);
-  static const successSoft = Color(0xFF173B2A);
+  static const success = Color(0xFF69C58A);
+  static const successSoft = Color(0xFF1C3829);
   static const successOnInk = success;
-  static const error = Color(0xFFF87171);
-  static const errorSoft = Color(0xFF3F1D27);
+  static const error = Color(0xFFE47B7B);
+  static const errorSoft = Color(0xFF3A242A);
   static const errorOnInk = error;
 }
 
@@ -124,7 +124,7 @@ class AppTheme {
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(18),
           side: const BorderSide(color: AppColors.line),
         ),
       ),
@@ -136,7 +136,7 @@ class AppTheme {
           disabledForegroundColor: AppColors.muted,
           minimumSize: const Size.fromHeight(48),
           shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
         ),
       ),
@@ -146,7 +146,7 @@ class AppTheme {
           foregroundColor: AppColors.text,
           side: const BorderSide(color: AppColors.line),
           shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         ),
       ),
       chipTheme: base.chipTheme.copyWith(
@@ -186,11 +186,11 @@ class AppTheme {
         fillColor: AppColors.surface,
         labelStyle: const TextStyle(color: AppColors.muted),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.line),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.line),
         ),
       ),

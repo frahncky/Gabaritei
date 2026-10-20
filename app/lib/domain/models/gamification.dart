@@ -38,6 +38,7 @@ class Medal {
     required this.name,
     required this.description,
     required this.icon,
+    this.iconLabel,
   });
 
   final String id;
@@ -46,6 +47,9 @@ class Medal {
 
   /// Ícone que representa a conquista, independente do desenho da medalha.
   final MedalIcon icon;
+
+  /// Complemento curto do ícone, como 7, 30 ou 100 dias de sequência.
+  final String? iconLabel;
 }
 
 enum MedalIcon {

@@ -61,6 +61,33 @@ class GabariteiMarkPainter extends CustomPainter {
     }
 
     final radius = side * bubbleScale / 2;
+
+    // Trilhas e nós: o conhecimento se conecta até fechar o gabarito.
+    final trace = Paint()
+      ..color = AppColors.skyOnInk.withValues(alpha: 0.72)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = side * 0.025
+      ..strokeCap = StrokeCap.round;
+    final node = Paint()..color = AppColors.skyOnInk;
+    final paths = [
+      Path()
+        ..moveTo(side * 0.06, center.dy)
+        ..lineTo(center.dx - radius, center.dy),
+      Path()
+        ..moveTo(center.dx + radius * 0.72, center.dy - radius * 0.7)
+        ..lineTo(side * 0.82, side * 0.2)
+        ..lineTo(side * 0.94, side * 0.2),
+      Path()
+        ..moveTo(center.dx, center.dy + radius)
+        ..lineTo(center.dx, side * 0.9),
+    ];
+    for (final path in paths) {
+      canvas.drawPath(path, trace);
+    }
+    canvas.drawCircle(Offset(side * 0.06, center.dy), side * 0.04, node);
+    canvas.drawCircle(Offset(side * 0.94, side * 0.2), side * 0.04, node);
+    canvas.drawCircle(Offset(center.dx, side * 0.9), side * 0.04, node);
+
     canvas.drawCircle(center, radius, Paint()..color = AppColors.amber);
 
     // ✓ desenhado em coordenadas relativas ao raio da bolha.

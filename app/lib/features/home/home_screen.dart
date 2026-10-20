@@ -339,7 +339,7 @@ class _ContinueTrailCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Continuar trilha · ${trail.title}',
+                      'PRÓXIMA CONEXÃO · ${trail.title}',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(height: 2),

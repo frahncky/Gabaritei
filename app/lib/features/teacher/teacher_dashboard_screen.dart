@@ -391,14 +391,27 @@ class _QuestionGeneratorCard extends StatefulWidget {
 }
 
 class _QuestionGeneratorCardState extends State<_QuestionGeneratorCard> {
-  String _topic = QuestionGenerator.topics.first;
+  TechnicalCourse _course = TechnicalCourse.electronics;
+  late String _topic = QuestionGenerator.topicsFor(_course).first;
+  late String _unit = QuestionGenerator.unitsFor(_topic).first.label;
   int _sequence = 1;
   Question? _draft;
   bool _saving = false;
 
+  Color get _courseColor => switch (_course) {
+        TechnicalCourse.electronics => const Color(0xFFA78BCA),
+        TechnicalCourse.electrotechnics => AppColors.amberText,
+        TechnicalCourse.automation => const Color(0xFF72B7C5),
+        TechnicalCourse.mechatronics => const Color(0xFF7EBC91),
+      };
+
   void _generate() {
     setState(() {
-      _draft = QuestionGenerator.generate(topic: _topic, sequence: _sequence++);
+      _draft = QuestionGenerator.generate(
+        topic: _topic,
+        unit: _unit,
+        sequence: _sequence++,
+      );
     });
   }
 
@@ -416,19 +429,106 @@ class _QuestionGeneratorCardState extends State<_QuestionGeneratorCard> {
     return _Panel(
       title: 'Motor de criação de questões',
       children: [
+        Align(
+          alignment: Alignment.centerLeft,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: _courseColor.withValues(alpha: 0.13),
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(color: _courseColor.withValues(alpha: 0.45)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                      color: _courseColor, shape: BoxShape.circle),
+                ),
+                const SizedBox(width: 7),
+                Text(
+                  _course.label,
+                  style: TextStyle(
+                      color: _courseColor,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
         const Text(
           'Gere um rascunho com gabarito, explicação e recurso visual. Revise antes de publicar.',
           style: TextStyle(color: AppColors.muted),
         ),
         const SizedBox(height: 12),
-        DropdownButtonFormField<String>(
-          initialValue: _topic,
-          decoration: const InputDecoration(labelText: 'Tema'),
+        DropdownButtonFormField<TechnicalCourse>(
+          initialValue: _course,
+          isExpanded: true,
+          decoration: InputDecoration(
+            labelText: 'Curso técnico',
+            prefixIcon: Icon(Icons.hub_outlined, color: _courseColor),
+          ),
           items: [
-            for (final topic in QuestionGenerator.topics)
-              DropdownMenuItem(value: topic, child: Text(topic)),
+            for (final course in TechnicalCourse.values)
+              DropdownMenuItem(
+                value: course,
+                child: Text(course.label, overflow: TextOverflow.ellipsis),
+              ),
           ],
-          onChanged: (topic) => setState(() => _topic = topic ?? _topic),
+          onChanged: (course) {
+            if (course == null) return;
+            setState(() {
+              _course = course;
+              _topic = QuestionGenerator.topicsFor(course).first;
+              _unit = QuestionGenerator.unitsFor(_topic).first.label;
+              _draft = null;
+            });
+          },
+        ),
+        const SizedBox(height: 12),
+        DropdownButtonFormField<String>(
+          key: ValueKey(_course),
+          initialValue: _topic,
+          isExpanded: true,
+          decoration: const InputDecoration(labelText: 'Disciplina'),
+          items: [
+            for (final topic in QuestionGenerator.topicsFor(_course))
+              DropdownMenuItem(
+                value: topic,
+                child: Text(topic, overflow: TextOverflow.ellipsis),
+              ),
+          ],
+          onChanged: (topic) {
+            if (topic == null) return;
+            setState(() {
+              _topic = topic;
+              _unit = QuestionGenerator.unitsFor(topic).first.label;
+              _draft = null;
+            });
+          },
+        ),
+        const SizedBox(height: 12),
+        DropdownButtonFormField<String>(
+          key: ValueKey('$_course-$_topic'),
+          initialValue: _unit,
+          isExpanded: true,
+          decoration: const InputDecoration(labelText: 'Assunto'),
+          items: [
+            for (final unit in QuestionGenerator.unitsFor(_topic))
+              DropdownMenuItem(
+                value: unit.label,
+                child: Text(unit.label, overflow: TextOverflow.ellipsis),
+              ),
+          ],
+          onChanged: (unit) => setState(() {
+            _unit = unit ?? _unit;
+            _draft = null;
+          }),
         ),
         const SizedBox(height: 12),
         OutlinedButton.icon(

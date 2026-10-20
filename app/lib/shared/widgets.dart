@@ -234,9 +234,9 @@ class _GridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.03)
+      ..color = Colors.white.withValues(alpha: 0.012)
       ..strokeWidth = 1;
-    const step = 22.0;
+    const step = 28.0;
     for (var x = 0.0; x < size.width; x += step) {
       canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
     }

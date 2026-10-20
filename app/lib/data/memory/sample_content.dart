@@ -385,6 +385,7 @@ class SampleContent {
       name: '7 dias seguidos',
       description: 'Estudou 7 dias sem interrupção',
       icon: MedalIcon.streak,
+      iconLabel: '7',
     ),
     Medal(
       id: 'mestre-cores',
@@ -403,6 +404,7 @@ class SampleContent {
       name: '30 dias seguidos',
       description: 'Estudou 30 dias sem interrupção',
       icon: MedalIcon.streak,
+      iconLabel: '30',
     ),
     Medal(
       id: 'primeira-trilha',
@@ -421,6 +423,7 @@ class SampleContent {
       name: '100 dias seguidos',
       description: 'Estudou 100 dias sem interrupção',
       icon: MedalIcon.streak,
+      iconLabel: '100',
     ),
   ];
 }
