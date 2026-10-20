@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../app/theme.dart';
 import '../domain/models/gamification.dart';
 
-/// Emblema de uma medalha: roseta âmbar com fitas e o símbolo no centro.
+/// Emblema de uma medalha: roseta âmbar com fitas e ícone semântico no centro.
 /// Bloqueada, aparece apagada e com cadeado.
 class MedalBadge extends StatelessWidget {
   const MedalBadge(
@@ -17,9 +17,6 @@ class MedalBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Símbolos longos ("100") encolhem para caber no miolo.
-    final glyphSize = size * (medal.glyph.length >= 3 ? 0.22 : 0.3);
-
     return SizedBox(
       width: size,
       height: size * 1.15,
@@ -35,15 +32,10 @@ class MedalBadge extends StatelessWidget {
             height: size,
             child: Center(
               child: earned
-                  ? Text(
-                      medal.glyph,
-                      style: TextStyle(
-                        fontFamily: AppFonts.display,
-                        fontWeight: FontWeight.w800,
-                        fontSize: glyphSize,
-                        height: 1,
-                        color: AppColors.ink,
-                      ),
+                  ? Icon(
+                      _iconFor(medal.icon),
+                      size: size * 0.38,
+                      color: AppColors.ink,
                     )
                   : Icon(Icons.lock_outline,
                       size: size * 0.3, color: AppColors.muted),
@@ -54,6 +46,16 @@ class MedalBadge extends StatelessWidget {
     );
   }
 }
+
+IconData _iconFor(MedalIcon icon) => switch (icon) {
+      MedalIcon.ohm => Icons.electric_bolt,
+      MedalIcon.bolt => Icons.bolt,
+      MedalIcon.streak => Icons.local_fire_department,
+      MedalIcon.resistor => Icons.memory,
+      MedalIcon.parallel => Icons.account_tree_outlined,
+      MedalIcon.electrician => Icons.engineering_outlined,
+      MedalIcon.kirchhoff => Icons.hub_outlined,
+    };
 
 class _MedalPainter extends CustomPainter {
   const _MedalPainter({required this.earned});

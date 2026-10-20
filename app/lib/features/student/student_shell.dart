@@ -18,24 +18,42 @@ class StudentShell extends StatefulWidget {
 
 class _StudentShellState extends State<StudentShell> {
   int _tab = 0;
-  int _version = 0;
+  final List<int> _revisions = List<int>.filled(4, 0);
 
   void _goTo(int tab) => setState(() => _tab = tab);
 
-  void _refresh() => setState(() => _version++);
+  /// Recria somente a aba cuja atividade alterou os dados. As demais mantêm
+  /// rolagem e estado local quando o aluno alterna pela navegação inferior.
+  void _refresh() => setState(() => _revisions[_tab]++);
 
   @override
   Widget build(BuildContext context) {
-    final Widget page = switch (_tab) {
-      0 => HomeScreen(onDataChanged: _refresh, onOpenTrails: () => _goTo(1)),
-      1 => TrailsScreen(onDataChanged: _refresh),
-      2 => const RankingScreen(),
-      _ => const ProfileScreen(),
-    };
-
     return Scaffold(
       body: SafeArea(
-        child: KeyedSubtree(key: ValueKey('$_tab-$_version'), child: page),
+        child: IndexedStack(
+          index: _tab,
+          children: [
+            KeyedSubtree(
+              key: ValueKey('home-${_revisions[0]}'),
+              child: HomeScreen(
+                onDataChanged: _refresh,
+                onOpenTrails: () => _goTo(1),
+              ),
+            ),
+            KeyedSubtree(
+              key: ValueKey('trails-${_revisions[1]}'),
+              child: TrailsScreen(onDataChanged: _refresh),
+            ),
+            KeyedSubtree(
+              key: ValueKey('ranking-${_revisions[2]}'),
+              child: const RankingScreen(),
+            ),
+            KeyedSubtree(
+              key: ValueKey('profile-${_revisions[3]}'),
+              child: const ProfileScreen(),
+            ),
+          ],
+        ),
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _tab,

@@ -140,6 +140,8 @@ class MemoryStudentRepository implements StudentRepository {
 }
 
 class MemoryContentRepository implements ContentRepository {
+  final List<Question> _createdQuestions = [];
+
   @override
   Future<List<Trail>> getTrails() async => SampleContent.trails;
 
@@ -149,6 +151,16 @@ class MemoryContentRepository implements ContentRepository {
       (q) => q.id == quizId,
       orElse: () => throw ArgumentError('Desafio não encontrado: $quizId'),
     );
+  }
+
+  @override
+  Future<List<Question>> getCreatedQuestions() async =>
+      List.unmodifiable(_createdQuestions);
+
+  @override
+  Future<void> saveQuestion(Question question) async {
+    _createdQuestions.removeWhere((item) => item.id == question.id);
+    _createdQuestions.add(question);
   }
 }
 

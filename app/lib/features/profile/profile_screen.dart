@@ -41,6 +41,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return AsyncView<_ProfileData>(
       future: _data!,
+      onRetry: () => setState(() => _data = _load(Dependencies.of(context))),
       builder: (context, data) {
         final student = data.student;
         final medals = data.medals;

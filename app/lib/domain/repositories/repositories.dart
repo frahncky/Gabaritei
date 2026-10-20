@@ -33,6 +33,10 @@ abstract interface class ContentRepository {
   Future<List<Trail>> getTrails();
 
   Future<Quiz> getQuiz(String quizId);
+
+  Future<List<Question>> getCreatedQuestions();
+
+  Future<void> saveQuestion(Question question);
 }
 
 abstract interface class RankingRepository {

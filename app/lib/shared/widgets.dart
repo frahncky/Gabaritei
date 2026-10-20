@@ -154,10 +154,16 @@ class Avatar extends StatelessWidget {
 /// Carrega dados assíncronos mostrando "carregando" e erros de forma
 /// padronizada. Evita repetir FutureBuilder em todas as telas.
 class AsyncView<T> extends StatelessWidget {
-  const AsyncView({super.key, required this.future, required this.builder});
+  const AsyncView({
+    super.key,
+    required this.future,
+    required this.builder,
+    this.onRetry,
+  });
 
   final Future<T> future;
   final Widget Function(BuildContext context, T data) builder;
+  final VoidCallback? onRetry;
 
   @override
   Widget build(BuildContext context) {
@@ -168,15 +174,39 @@ class AsyncView<T> extends StatelessWidget {
           return Center(
             child: Padding(
               padding: const EdgeInsets.all(24),
-              child: Text(
-                'Não foi possível carregar.\n${snapshot.error}',
-                textAlign: TextAlign.center,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.cloud_off_outlined, size: 36),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Não foi possível carregar este conteúdo.',
+                    textAlign: TextAlign.center,
+                  ),
+                  if (onRetry != null) ...[
+                    const SizedBox(height: 12),
+                    OutlinedButton.icon(
+                      onPressed: onRetry,
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Tentar novamente'),
+                    ),
+                  ],
+                ],
               ),
             ),
           );
         }
         if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 12),
+                Text('Carregando…'),
+              ],
+            ),
+          );
         }
         return builder(context, snapshot.requireData);
       },

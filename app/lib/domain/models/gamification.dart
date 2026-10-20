@@ -37,15 +37,25 @@ class Medal {
     required this.id,
     required this.name,
     required this.description,
-    required this.glyph,
+    required this.icon,
   });
 
   final String id;
   final String name;
   final String description;
 
-  /// Símbolo curto exibido no círculo da medalha (ex.: "Ω").
-  final String glyph;
+  /// Ícone que representa a conquista, independente do desenho da medalha.
+  final MedalIcon icon;
+}
+
+enum MedalIcon {
+  ohm,
+  bolt,
+  streak,
+  resistor,
+  parallel,
+  electrician,
+  kirchhoff,
 }
 
 enum RankingPeriod {

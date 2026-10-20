@@ -36,6 +36,8 @@ class _TrailsScreenState extends State<TrailsScreen> {
   Widget build(BuildContext context) {
     return AsyncView<List<Trail>>(
       future: _trails!,
+      onRetry: () => setState(
+          () => _trails = Dependencies.of(context).content.getTrails()),
       builder: (context, trails) {
         final trail = trails.firstWhere(
           (t) => t.id == _selectedId,
@@ -62,6 +64,8 @@ class _TrailsScreenState extends State<TrailsScreen> {
                         ? null
                         : const Icon(Icons.lock_outline, size: 16),
                     selected: t.id == trail.id,
+                    // Trilhas bloqueadas continuam consultáveis para que o
+                    // aluno veja claramente qual requisito falta.
                     onSelected: (_) => setState(() => _selectedId = t.id),
                   ),
               ],

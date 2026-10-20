@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../app/dependencies.dart';
 import '../../app/theme.dart';
+import '../../domain/models/content.dart';
 import '../../domain/models/teacher.dart';
+import '../../domain/services/question_generator.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets.dart';
 
@@ -27,6 +29,7 @@ class TeacherDashboardScreen extends StatefulWidget {
 
 class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
   Future<_DashboardData>? _data;
+  String? _classId;
   final Set<String> _reminded = {};
 
   @override
@@ -55,7 +58,8 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
 
   void _selectClass(String classId) {
     setState(() {
-      _data = _load(Dependencies.of(context), classId);
+      _classId = classId;
+      _data = _load(Dependencies.of(context), _classId);
     });
   }
 
@@ -81,12 +85,23 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
     });
   }
 
+  Future<void> _saveGeneratedQuestion(Question question) async {
+    await Dependencies.of(context).content.saveQuestion(question);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Questão adicionada ao banco da sessão.')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Painel do professor')),
       body: AsyncView<_DashboardData>(
         future: _data!,
+        onRetry: () => setState(
+          () => _data = _load(Dependencies.of(context), _classId),
+        ),
         builder: (context, data) => LayoutBuilder(
           builder: (context, constraints) {
             final wide = constraints.maxWidth >= 900;
@@ -102,6 +117,8 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
               ),
             ];
             final right = [
+              _QuestionGeneratorCard(onSave: _saveGeneratedQuestion),
+              const SizedBox(height: 16),
               _QuickChallengeCard(
                 modules: data.modules,
                 onPublish: (draft) => _publish(overview.classId, draft),
@@ -361,6 +378,115 @@ class _AlertsCard extends StatelessWidget {
       ],
     );
   }
+}
+
+/// Área de autoria assistida: gera um rascunho revisável antes de salvá-lo.
+class _QuestionGeneratorCard extends StatefulWidget {
+  const _QuestionGeneratorCard({required this.onSave});
+
+  final Future<void> Function(Question question) onSave;
+
+  @override
+  State<_QuestionGeneratorCard> createState() => _QuestionGeneratorCardState();
+}
+
+class _QuestionGeneratorCardState extends State<_QuestionGeneratorCard> {
+  String _topic = QuestionGenerator.topics.first;
+  int _sequence = 1;
+  Question? _draft;
+  bool _saving = false;
+
+  void _generate() {
+    setState(() {
+      _draft = QuestionGenerator.generate(topic: _topic, sequence: _sequence++);
+    });
+  }
+
+  Future<void> _save() async {
+    final draft = _draft;
+    if (draft == null || _saving) return;
+    setState(() => _saving = true);
+    await widget.onSave(draft);
+    if (mounted) setState(() => _saving = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final draft = _draft;
+    return _Panel(
+      title: 'Motor de criação de questões',
+      children: [
+        const Text(
+          'Gere um rascunho com gabarito, explicação e recurso visual. Revise antes de publicar.',
+          style: TextStyle(color: AppColors.muted),
+        ),
+        const SizedBox(height: 12),
+        DropdownButtonFormField<String>(
+          initialValue: _topic,
+          decoration: const InputDecoration(labelText: 'Tema'),
+          items: [
+            for (final topic in QuestionGenerator.topics)
+              DropdownMenuItem(value: topic, child: Text(topic)),
+          ],
+          onChanged: (topic) => setState(() => _topic = topic ?? _topic),
+        ),
+        const SizedBox(height: 12),
+        OutlinedButton.icon(
+          onPressed: _generate,
+          icon: const Icon(Icons.auto_awesome_outlined),
+          label: const Text('Gerar questão'),
+        ),
+        if (draft != null) ...[
+          const SizedBox(height: 14),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.ground,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.line),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(draft.prompt,
+                    style: const TextStyle(fontWeight: FontWeight.w600)),
+                const SizedBox(height: 10),
+                for (var i = 0; i < draft.options.length; i++)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text(
+                      '${String.fromCharCode(65 + i)}. ${draft.options[i]}${i == draft.correctIndex ? '  ✓ gabarito' : ''}',
+                      style: TextStyle(
+                          color: i == draft.correctIndex
+                              ? AppColors.success
+                              : AppColors.text),
+                    ),
+                  ),
+                const SizedBox(height: 8),
+                Text('Visual: ${_visualLabel(draft.visual)}',
+                    style: Theme.of(context).textTheme.bodySmall),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          FilledButton.icon(
+            onPressed: _saving ? null : _save,
+            icon: const Icon(Icons.add_task_outlined),
+            label: Text(_saving ? 'Salvando…' : 'Adicionar ao banco'),
+          ),
+        ],
+      ],
+    );
+  }
+
+  String _visualLabel(QuestionVisual? visual) => switch (visual) {
+        QuestionVisual.circuitSeries => 'circuito em série',
+        QuestionVisual.circuitParallel => 'circuito em paralelo',
+        QuestionVisual.resistorBands => 'faixas de resistor',
+        QuestionVisual.electricalPlan => 'planta elétrica',
+        QuestionVisual.processControl => 'controle de processo',
+        null => 'sem recurso visual',
+      };
 }
 
 class _QuickChallengeCard extends StatefulWidget {

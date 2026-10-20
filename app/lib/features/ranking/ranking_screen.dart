@@ -62,6 +62,9 @@ class _RankingScreenState extends State<RankingScreen> {
         const SizedBox(height: 20),
         AsyncView<_RankingData>(
           future: _data!,
+          onRetry: () => setState(
+            () => _data = _load(Dependencies.of(context), _period),
+          ),
           builder: (context, data) => _RankingBody(
             student: data.student,
             entries: data.entries,

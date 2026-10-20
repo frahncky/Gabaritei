@@ -60,6 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return AsyncView<_HomeData>(
       future: _data!,
+      onRetry: () => setState(() => _data = _load(Dependencies.of(context))),
       builder: (context, data) {
         final student = data.student;
         final missions = data.missions.where((m) => !m.isFlash).toList();

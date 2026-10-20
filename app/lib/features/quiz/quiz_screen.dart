@@ -4,6 +4,7 @@ import '../../app/dependencies.dart';
 import '../../app/theme.dart';
 import '../../domain/models/content.dart';
 import '../../shared/widgets.dart';
+import 'question_visual.dart';
 import 'quiz_controller.dart';
 import 'result_screen.dart';
 
@@ -52,6 +53,9 @@ class _QuizScreenState extends State<QuizScreen> {
       color: AppColors.ground,
       child: AsyncView<Quiz>(
         future: _quiz!,
+        onRetry: () => setState(
+          () => _quiz = Dependencies.of(context).content.getQuiz(widget.quizId),
+        ),
         builder: (context, quiz) => _QuizBody(
           quiz: quiz,
           submitting: _submitting,
@@ -86,6 +90,34 @@ class _QuizBodyState extends State<_QuizBody> {
     super.dispose();
   }
 
+  Future<void> _leaveQuiz() async {
+    final hasStarted =
+        _controller.selected != null || _controller.answers.isNotEmpty;
+    if (!hasStarted) {
+      Navigator.of(context).pop();
+      return;
+    }
+
+    final leave = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Sair do desafio?'),
+        content: const Text('Seu progresso desta tentativa será perdido.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Continuar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Sair'),
+          ),
+        ],
+      ),
+    );
+    if (leave == true && mounted) Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
@@ -98,7 +130,7 @@ class _QuizBodyState extends State<_QuizBody> {
             leading: IconButton(
               tooltip: 'Sair do desafio',
               icon: const Icon(Icons.close),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: _leaveQuiz,
             ),
             title:
                 Text(widget.quiz.title, style: const TextStyle(fontSize: 16)),
@@ -169,6 +201,13 @@ class _QuizBodyState extends State<_QuizBody> {
                 ),
               ),
               const SizedBox(height: 16),
+              if (question.visual != null) ...[
+                QuestionVisualCard(
+                  key: ValueKey(question.id),
+                  visual: question.visual!,
+                ),
+                const SizedBox(height: 16),
+              ],
               for (var i = 0; i < question.options.length; i++) ...[
                 _OptionTile(
                   letter: String.fromCharCode(65 + i),
