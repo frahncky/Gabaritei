@@ -8,6 +8,7 @@ import '../../domain/models/student.dart';
 import '../../shared/level_card.dart';
 import '../../shared/widgets.dart';
 import '../lab/lab_screen.dart';
+import '../lab/process_lab_screen.dart';
 import '../quiz/quiz_screen.dart';
 
 typedef _HomeData = ({
@@ -60,6 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return AsyncView<_HomeData>(
       future: _data!,
+      onRetry: () => setState(() => _data = _load(Dependencies.of(context))),
       builder: (context, data) {
         final student = data.student;
         final missions = data.missions.where((m) => !m.isFlash).toList();
@@ -145,6 +147,13 @@ class _HomeScreenState extends State<HomeScreen> {
             _LabCard(
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute<void>(builder: (_) => const LabScreen()),
+              ),
+            ),
+            const SizedBox(height: 12),
+            _ProcessLabCard(
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                    builder: (_) => const ProcessLabScreen()),
               ),
             ),
             if (current != null) ...[
@@ -338,7 +347,7 @@ class _ContinueTrailCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Continuar trilha · ${trail.title}',
+                      'PRÓXIMA CONEXÃO · ${trail.title}',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(height: 2),
@@ -433,4 +442,40 @@ class _LabCard extends StatelessWidget {
       ),
     );
   }
+}
+
+class _ProcessLabCard extends StatelessWidget {
+  const _ProcessLabCard({required this.onTap});
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Card(
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: const Padding(
+            padding: EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Icon(Icons.account_tree_outlined, color: AppColors.blue),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Laboratório de automação',
+                          style: TextStyle(fontWeight: FontWeight.w700)),
+                      SizedBox(height: 2),
+                      Text('Controle de nível com sensor, CLP e válvula',
+                          style:
+                              TextStyle(color: AppColors.muted, fontSize: 13)),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right, color: AppColors.muted),
+              ],
+            ),
+          ),
+        ),
+      );
 }

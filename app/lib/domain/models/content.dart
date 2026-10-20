@@ -10,6 +10,7 @@ class Question {
     required this.correctIndex,
     required this.explanation,
     this.hint,
+    this.visual,
   });
 
   final String id;
@@ -24,7 +25,20 @@ class Question {
   final String explanation;
   final String? hint;
 
+  /// Recurso visual opcional exibido antes das alternativas.
+  final QuestionVisual? visual;
+
   bool isCorrect(int selectedIndex) => selectedIndex == correctIndex;
+}
+
+/// Diagramas nativos que uma questão pode apresentar. Novos tipos podem ser
+/// acrescentados sem misturar widgets à camada de conteúdo.
+enum QuestionVisual {
+  circuitSeries,
+  circuitParallel,
+  resistorBands,
+  electricalPlan,
+  processControl,
 }
 
 /// Um desafio (quiz) com várias questões.

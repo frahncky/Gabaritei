@@ -49,6 +49,40 @@ void main() {
         512,
         const GabariteiMarkPainter(withBackground: false, bubbleScale: 0.9),
       );
+
+      // Recursos efetivamente usados pelo launcher Android. Mantê-los aqui
+      // evita que o PNG-fonte mude sem atualizar o ícone instalado.
+      const launcherSizes = {
+        'mdpi': 48,
+        'hdpi': 72,
+        'xhdpi': 96,
+        'xxhdpi': 144,
+        'xxxhdpi': 192,
+      };
+      const foregroundSizes = {
+        'mdpi': 108,
+        'hdpi': 162,
+        'xhdpi': 216,
+        'xxhdpi': 324,
+        'xxxhdpi': 432,
+      };
+      for (final entry in launcherSizes.entries) {
+        await _render(
+          'android/app/src/main/res/mipmap-${entry.key}/ic_launcher.png',
+          entry.value,
+          const GabariteiMarkPainter(fullBleed: true),
+        );
+      }
+      for (final entry in foregroundSizes.entries) {
+        await _render(
+          'android/app/src/main/res/drawable-${entry.key}/ic_launcher_foreground.png',
+          entry.value,
+          const GabariteiMarkPainter(
+            withBackground: false,
+            bubbleScale: 0.46,
+          ),
+        );
+      }
     });
   });
 }

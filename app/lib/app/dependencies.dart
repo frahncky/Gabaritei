@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+import '../data/local/local_store.dart';
 import '../data/memory/memory_repositories.dart';
 import '../domain/repositories/repositories.dart';
 
@@ -22,6 +23,18 @@ class AppDependencies {
     return AppDependencies(
       students: students,
       content: MemoryContentRepository(),
+      ranking: MemoryRankingRepository(students),
+      teacher: MemoryTeacherRepository(),
+    );
+  }
+
+  /// Mesmos dados de exemplo, mas o progresso fica salvo no aparelho.
+  static Future<AppDependencies> local() async {
+    final store = await LocalStore.open();
+    final students = store.studentRepository();
+    return AppDependencies(
+      students: students,
+      content: store.contentRepository(),
       ranking: MemoryRankingRepository(students),
       teacher: MemoryTeacherRepository(),
     );

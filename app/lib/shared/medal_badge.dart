@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../app/theme.dart';
 import '../domain/models/gamification.dart';
 
-/// Emblema de uma medalha: roseta âmbar com fitas e o símbolo no centro.
+/// Emblema de uma medalha: roseta âmbar com fitas e ícone semântico no centro.
 /// Bloqueada, aparece apagada e com cadeado.
 class MedalBadge extends StatelessWidget {
   const MedalBadge(
@@ -17,48 +17,86 @@ class MedalBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Símbolos longos ("100") encolhem para caber no miolo.
-    final glyphSize = size * (medal.glyph.length >= 3 ? 0.22 : 0.3);
-
-    return SizedBox(
-      width: size,
-      height: size * 1.15,
-      child: Stack(
-        alignment: Alignment.topCenter,
-        children: [
-          CustomPaint(
-            size: Size(size, size * 1.15),
-            painter: _MedalPainter(earned: earned),
-          ),
-          SizedBox(
-            width: size,
-            height: size,
-            child: Center(
-              child: earned
-                  ? Text(
-                      medal.glyph,
-                      style: TextStyle(
-                        fontFamily: AppFonts.display,
-                        fontWeight: FontWeight.w800,
-                        fontSize: glyphSize,
-                        height: 1,
-                        color: AppColors.ink,
-                      ),
-                    )
-                  : Icon(Icons.lock_outline,
-                      size: size * 0.3, color: AppColors.muted),
+    return Semantics(
+      label: '${medal.name}, ${earned ? 'conquistada' : 'bloqueada'}',
+      image: true,
+      child: SizedBox(
+        width: size,
+        height: size * 1.15,
+        child: Stack(
+          alignment: Alignment.topCenter,
+          children: [
+            CustomPaint(
+              size: Size(size, size * 1.15),
+              painter: _MedalPainter(earned: earned, icon: medal.icon),
             ),
-          ),
-        ],
+            SizedBox(
+              width: size,
+              height: size,
+              child: Center(
+                child: Icon(
+                  _iconFor(medal.icon),
+                  size: size * 0.38,
+                  color: earned ? AppColors.ink : AppColors.muted,
+                ),
+              ),
+            ),
+            if (medal.iconLabel != null)
+              Positioned(
+                top: size * 0.58,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  decoration: BoxDecoration(
+                    color: earned ? AppColors.ink : AppColors.surface,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    medal.iconLabel!,
+                    style: TextStyle(
+                      color: earned ? AppColors.amberText : AppColors.muted,
+                      fontSize: size * 0.14,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ),
+            if (!earned)
+              Positioned(
+                right: size * 0.04,
+                top: size * 0.57,
+                child: Container(
+                  padding: EdgeInsets.all(size * 0.05),
+                  decoration: const BoxDecoration(
+                    color: AppColors.surface,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.lock,
+                      size: size * 0.18, color: AppColors.muted),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
 }
 
+IconData _iconFor(MedalIcon icon) => switch (icon) {
+      MedalIcon.ohm => Icons.functions,
+      MedalIcon.bolt => Icons.speed,
+      MedalIcon.streak => Icons.local_fire_department,
+      MedalIcon.resistor => Icons.visibility_outlined,
+      MedalIcon.parallel => Icons.call_split,
+      MedalIcon.electrician => Icons.electrical_services,
+      MedalIcon.kirchhoff => Icons.device_hub,
+    };
+
 class _MedalPainter extends CustomPainter {
-  const _MedalPainter({required this.earned});
+  const _MedalPainter({required this.earned, required this.icon});
 
   final bool earned;
+  final MedalIcon icon;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -111,8 +149,22 @@ class _MedalPainter extends CustomPainter {
         ..style = PaintingStyle.stroke
         ..strokeWidth = s * 0.025,
     );
+
+    // Cada família de conquista ganha uma cadência própria de nós no anel.
+    final marks = 3 + icon.index;
+    final markPaint = Paint()
+      ..color = earned ? AppColors.inkSoft : AppColors.line;
+    for (var i = 0; i < marks; i++) {
+      final angle = -math.pi / 2 + (math.pi * 2 * i / marks);
+      canvas.drawCircle(
+        center + Offset(math.cos(angle), math.sin(angle)) * s * 0.31,
+        s * 0.018,
+        markPaint,
+      );
+    }
   }
 
   @override
-  bool shouldRepaint(_MedalPainter oldDelegate) => oldDelegate.earned != earned;
+  bool shouldRepaint(_MedalPainter oldDelegate) =>
+      oldDelegate.earned != earned || oldDelegate.icon != icon;
 }

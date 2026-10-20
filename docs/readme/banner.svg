@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 400" width="1280" height="400" role="img" aria-label="Gabaritei — estude, jogue e domine o conteúdo">
+  <defs>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="#93B4FA" stroke-opacity="0.08" stroke-width="1"/>
+    </pattern>
+    <pattern id="grid-major" width="160" height="160" patternUnits="userSpaceOnUse">
+      <path d="M160 0H0V160" fill="none" stroke="#93B4FA" stroke-opacity="0.14" stroke-width="1"/>
+    </pattern>
+    <radialGradient id="glow" cx="78%" cy="50%" r="45%">
+      <stop offset="0" stop-color="#3B6EF5" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#3B6EF5" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="xp" x1="0" x2="1">
+      <stop offset="0" stop-color="#F59E0B"/>
+      <stop offset="1" stop-color="#FBBF24"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1280" height="400" rx="24" fill="#0F1D33"/>
+  <rect width="1280" height="400" rx="24" fill="url(#grid)"/>
+  <rect width="1280" height="400" rx="24" fill="url(#grid-major)"/>
+  <rect width="1280" height="400" rx="24" fill="url(#glow)"/>
+
+  <!-- Texto -->
+  <g font-family="'Bricolage Grotesque', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+    <text x="88" y="150" fill="#93B4FA" font-size="22" font-weight="700" letter-spacing="6">ESTUDE · JOGUE · DOMINE</text>
+    <text x="84" y="236" fill="#FFFFFF" font-size="96" font-weight="800" letter-spacing="-2">Gabaritei</text>
+    <text x="88" y="288" fill="#C9D6EE" font-size="26" font-weight="500">Gamificação de estudos para o ensino médio técnico e regular</text>
+  </g>
+
+  <!-- Barra de XP -->
+  <g transform="translate(88 322)">
+    <rect width="420" height="14" rx="7" fill="#1A2A45"/>
+    <rect width="290" height="14" rx="7" fill="url(#xp)"/>
+    <text x="436" y="13" fill="#FBBF24" font-family="'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="700">+120 XP</text>
+  </g>
+
+  <!-- Cartão de gabarito -->
+  <g transform="translate(860 70) rotate(4 170 130)">
+    <rect width="340" height="260" rx="20" fill="#1A2A45" stroke="#93B4FA" stroke-opacity="0.25"/>
+    <g font-family="'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="18" font-weight="700" fill="#93B4FA">
+      <text x="34" y="66">1</text><text x="34" y="122">2</text><text x="34" y="178">3</text><text x="34" y="234">4</text>
+    </g>
+    <g fill="none" stroke="#93B4FA" stroke-opacity="0.5" stroke-width="2.5">
+      <circle cx="94" cy="60" r="16"/><circle cx="144" cy="60" r="16"/><circle cx="244" cy="60" r="16"/><circle cx="294" cy="60" r="16"/>
+      <circle cx="94" cy="116" r="16"/><circle cx="194" cy="116" r="16"/><circle cx="244" cy="116" r="16"/><circle cx="294" cy="116" r="16"/>
+      <circle cx="144" cy="172" r="16"/><circle cx="194" cy="172" r="16"/><circle cx="244" cy="172" r="16"/><circle cx="294" cy="172" r="16"/>
+      <circle cx="94" cy="228" r="16"/><circle cx="144" cy="228" r="16"/><circle cx="194" cy="228" r="16"/><circle cx="294" cy="228" r="16"/>
+    </g>
+    <g fill="#F59E0B">
+      <circle cx="194" cy="60" r="16"/><circle cx="144" cy="116" r="16"/><circle cx="94" cy="172" r="16"/>
+    </g>
+    <!-- Bolha em destaque com ✓ -->
+    <circle cx="244" cy="228" r="26" fill="#F59E0B"/>
+    <path d="M232 228l9 9 17-18" fill="none" stroke="#0F1D33" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

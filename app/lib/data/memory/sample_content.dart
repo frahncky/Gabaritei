@@ -31,6 +31,7 @@ class SampleContent {
         correctIndex: 1,
         explanation: 'I = V / R = 12 / 220 ≈ 0,0545 A, ou seja, 54,5 mA.',
         hint: 'Use I = V / R e converta o resultado para mA.',
+        visual: QuestionVisual.circuitSeries,
       ),
       Question(
         id: 'ohm-2',
@@ -75,6 +76,7 @@ class SampleContent {
         correctIndex: 0,
         explanation: 'P = V · I, então I = P / V = 60 / 127 ≈ 0,47 A.',
         hint: 'Relacione potência, tensão e corrente: P = V · I.',
+        visual: QuestionVisual.electricalPlan,
       ),
     ],
   );
@@ -97,6 +99,7 @@ class SampleContent {
         explanation: 'Marrom = 1, preto = 0, vermelho = ×100: '
             '10 × 100 = 1000 Ω = 1 kΩ.',
         hint: 'A terceira faixa é o multiplicador.',
+        visual: QuestionVisual.resistorBands,
       ),
       Question(
         id: 'cores-2',
@@ -163,6 +166,7 @@ class SampleContent {
             'Em paralelo, somam-se os inversos: 1/Req = 1/100 + 1/100, '
             'então Req = 50 Ω.',
         hint: 'Resistores iguais em paralelo: divida o valor pela quantidade.',
+        visual: QuestionVisual.circuitParallel,
       ),
       Question(
         id: 'assoc-3',
@@ -186,6 +190,7 @@ class SampleContent {
         correctIndex: 2,
         explanation: 'Em série há um único caminho: a mesma corrente '
             'atravessa todos os resistores.',
+        visual: QuestionVisual.processControl,
       ),
     ],
   );
@@ -367,55 +372,58 @@ class SampleContent {
       id: 'mestre-ohm',
       name: 'Mestre de Ohm',
       description: 'Desafio de Lei de Ohm com 80% ou mais de acerto',
-      glyph: 'Ω',
+      icon: MedalIcon.ohm,
     ),
     Medal(
       id: 'potencia-total',
       name: 'Potência Total',
       description: 'Concluiu o módulo de Potência e energia com 3 estrelas',
-      glyph: 'W',
+      icon: MedalIcon.bolt,
     ),
     Medal(
       id: 'streak-7',
       name: '7 dias seguidos',
       description: 'Estudou 7 dias sem interrupção',
-      glyph: '7',
+      icon: MedalIcon.streak,
+      iconLabel: '7',
     ),
     Medal(
       id: 'mestre-cores',
       name: 'Olho de Resistor',
       description: 'Desafio de código de cores com 80% ou mais de acerto',
-      glyph: 'R',
+      icon: MedalIcon.resistor,
     ),
     Medal(
       id: 'rei-paralelo',
       name: 'Rei do Paralelo',
       description: 'Desafio de associação de resistores com 80% ou mais',
-      glyph: '∥',
+      icon: MedalIcon.parallel,
     ),
     Medal(
       id: 'streak-30',
       name: '30 dias seguidos',
       description: 'Estudou 30 dias sem interrupção',
-      glyph: '30',
+      icon: MedalIcon.streak,
+      iconLabel: '30',
     ),
     Medal(
       id: 'primeira-trilha',
       name: 'Eletricista de Base',
       description: 'Concluiu a trilha de Eletricidade Básica',
-      glyph: '★',
+      icon: MedalIcon.electrician,
     ),
     Medal(
       id: 'kirchhoff',
       name: 'Kirchhoff',
       description: 'Concluiu o módulo de Leis de Kirchhoff',
-      glyph: 'K',
+      icon: MedalIcon.kirchhoff,
     ),
     Medal(
       id: 'streak-100',
       name: '100 dias seguidos',
       description: 'Estudou 100 dias sem interrupção',
-      glyph: '100',
+      icon: MedalIcon.streak,
+      iconLabel: '100',
     ),
   ];
 }

@@ -41,6 +41,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return AsyncView<_ProfileData>(
       future: _data!,
+      onRetry: () => setState(() => _data = _load(Dependencies.of(context))),
       builder: (context, data) {
         final student = data.student;
         final medals = data.medals;
@@ -101,28 +102,65 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 24),
             SectionHeader('Medalhas', trailing: '$earned de ${medals.length}'),
             const SizedBox(height: 10),
-            GridView(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                mainAxisSpacing: 16,
+            GridView.builder(
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 180,
+                mainAxisSpacing: 12,
                 crossAxisSpacing: 12,
-                // Emblema (60 x 69) + nome em até duas linhas.
-                mainAxisExtent: 116,
+                mainAxisExtent: 166,
               ),
+              itemCount: medals.length,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              children: [
-                for (final medal in medals)
-                  _MedalTile(
-                    medal: medal,
-                    earned: student.earnedBadgeIds.contains(medal.id),
-                  ),
-              ],
+              itemBuilder: (context, index) {
+                final medal = medals[index];
+                return _MedalTile(
+                  medal: medal,
+                  earned: student.earnedBadgeIds.contains(medal.id),
+                );
+              },
+            ),
+            const SizedBox(height: 24),
+            Center(
+              child: TextButton.icon(
+                onPressed: _confirmReset,
+                icon: const Icon(Icons.restart_alt),
+                label: const Text('Recomeçar progresso'),
+              ),
             ),
           ],
         );
       },
     );
+  }
+
+  Future<void> _confirmReset() async {
+    final deps = Dependencies.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Recomeçar progresso?'),
+        content:
+            const Text('XP, sequência, medalhas e missões voltam ao início. '
+                'Não dá para desfazer.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Recomeçar'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    await deps.students.resetProgress();
+    if (!mounted) return;
+    setState(() => _data = _load(deps));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Progresso recomeçado.')));
   }
 
   static String _streakText(Student student) {
@@ -210,23 +248,59 @@ class _MedalTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Tooltip(
       message: medal.description,
-      child: Column(
-        children: [
-          MedalBadge(medal: medal, earned: earned, size: 60),
-          const SizedBox(height: 6),
-          Text(
-            medal.name,
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: earned ? AppColors.text : AppColors.muted,
+      child: Card(
+        color: earned ? AppColors.surface : AppColors.ground,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => _showDetails(context),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(8, 10, 8, 8),
+            child: Column(
+              children: [
+                MedalBadge(medal: medal, earned: earned, size: 62),
+                const SizedBox(height: 5),
+                Text(
+                  medal.name,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: earned ? AppColors.text : AppColors.muted,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  earned ? 'Conquistada' : 'Bloqueada',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: earned ? AppColors.success : AppColors.muted,
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
+
+  Future<void> _showDetails(BuildContext context) => showDialog<void>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          icon: MedalBadge(medal: medal, earned: earned, size: 72),
+          title: Text(medal.name, textAlign: TextAlign.center),
+          content: Text(
+            medal.description,
+            textAlign: TextAlign.center,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Fechar'),
+            ),
+          ],
+        ),
+      );
 }

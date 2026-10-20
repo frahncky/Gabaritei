@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/dependencies.dart';
 import '../../app/theme.dart';
 import '../../domain/models/content.dart';
+import '../../domain/services/question_generator.dart';
 import '../../shared/widgets.dart';
 import '../quiz/quiz_screen.dart';
 
@@ -20,6 +21,8 @@ class TrailsScreen extends StatefulWidget {
 class _TrailsScreenState extends State<TrailsScreen> {
   Future<List<Trail>>? _trails;
   String? _selectedId;
+  TechnicalCourse _course = TechnicalCourse.electronics;
+  String? _selectedDiscipline;
 
   @override
   void didChangeDependencies() {
@@ -36,6 +39,8 @@ class _TrailsScreenState extends State<TrailsScreen> {
   Widget build(BuildContext context) {
     return AsyncView<List<Trail>>(
       future: _trails!,
+      onRetry: () => setState(
+          () => _trails = Dependencies.of(context).content.getTrails()),
       builder: (context, trails) {
         final trail = trails.firstWhere(
           (t) => t.id == _selectedId,
@@ -47,10 +52,13 @@ class _TrailsScreenState extends State<TrailsScreen> {
             Text('Trilhas', style: Theme.of(context).textTheme.headlineMedium),
             const SizedBox(height: 4),
             Text(
-              'Complete módulos para desbloquear as próximas disciplinas.',
+              'Escolha seu curso e avance disciplina por disciplina.',
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 16),
+            Text('Desafios disponíveis',
+                style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 10),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -62,11 +70,12 @@ class _TrailsScreenState extends State<TrailsScreen> {
                         ? null
                         : const Icon(Icons.lock_outline, size: 16),
                     selected: t.id == trail.id,
+                    // Trilhas bloqueadas continuam consultáveis para que o
+                    // aluno veja claramente qual requisito falta.
                     onSelected: (_) => setState(() => _selectedId = t.id),
                   ),
               ],
             ),
-            const SizedBox(height: 20),
             Row(
               children: [
                 Expanded(
@@ -96,9 +105,178 @@ class _TrailsScreenState extends State<TrailsScreen> {
               ),
               const SizedBox(height: 10),
             ],
+            const SizedBox(height: 10),
+            _CourseMap(
+              course: _course,
+              selectedDiscipline: _selectedDiscipline,
+              onCourseChanged: (course) => setState(() {
+                _course = course;
+                _selectedDiscipline = null;
+              }),
+              onDisciplineSelected: (discipline) => setState(
+                () => _selectedDiscipline =
+                    _selectedDiscipline == discipline ? null : discipline,
+              ),
+            ),
+            if (_selectedDiscipline != null) ...[
+              const SizedBox(height: 16),
+              _DisciplineOutline(discipline: _selectedDiscipline!),
+            ],
           ],
         );
       },
+    );
+  }
+}
+
+/// Mapa curricular consultável antes de uma disciplina ganhar suas lições.
+/// A fonte é a mesma matriz usada pelo gerador de questões do professor.
+class _CourseMap extends StatelessWidget {
+  const _CourseMap({
+    required this.course,
+    required this.selectedDiscipline,
+    required this.onCourseChanged,
+    required this.onDisciplineSelected,
+  });
+
+  final TechnicalCourse course;
+  final String? selectedDiscipline;
+  final ValueChanged<TechnicalCourse> onCourseChanged;
+  final ValueChanged<String> onDisciplineSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final disciplines = QuestionGenerator.topicsFor(course);
+    final unitCount = disciplines.fold<int>(
+      0,
+      (total, discipline) =>
+          total + QuestionGenerator.unitsFor(discipline).length,
+    );
+    return Material(
+      color: AppColors.blueSoft,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: BorderSide(color: AppColors.blue.withValues(alpha: .18)),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.account_tree_outlined, color: AppColors.blue),
+                const SizedBox(width: 9),
+                Expanded(
+                  child: Text('Mapa do curso',
+                      style: Theme.of(context).textTheme.titleMedium),
+                ),
+                Text('$unitCount unidades',
+                    style: Theme.of(context).textTheme.bodySmall),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Toque em uma disciplina para ver o que será estudado.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final item in TechnicalCourse.values)
+                  ChoiceChip(
+                    label: Text(item.label.replaceFirst('Técnico em ', '')),
+                    selected: item == course,
+                    onSelected: (_) => onCourseChanged(item),
+                  ),
+              ],
+            ),
+            Theme(
+              data:
+                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              child: ExpansionTile(
+                tilePadding: EdgeInsets.zero,
+                title: const Text('Ver disciplinas e unidades'),
+                childrenPadding: const EdgeInsets.only(bottom: 4),
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Wrap(
+                      spacing: 7,
+                      runSpacing: 7,
+                      children: [
+                        for (final discipline in disciplines)
+                          FilterChip(
+                            label: Text(discipline),
+                            selected: discipline == selectedDiscipline,
+                            onSelected: (_) => onDisciplineSelected(discipline),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DisciplineOutline extends StatelessWidget {
+  const _DisciplineOutline({required this.discipline});
+
+  final String discipline;
+
+  @override
+  Widget build(BuildContext context) {
+    final units = QuestionGenerator.unitsFor(discipline);
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(discipline, style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 4),
+            Text('${units.length} unidades previstas na matriz curricular',
+                style: Theme.of(context).textTheme.bodySmall),
+            const SizedBox(height: 12),
+            for (var index = 0; index < units.length; index++) ...[
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CircleAvatar(
+                    radius: 12,
+                    backgroundColor: AppColors.track,
+                    child: Text('${index + 1}',
+                        style: Theme.of(context).textTheme.labelSmall),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(units[index].label,
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w600)),
+                        const SizedBox(height: 2),
+                        Text(units[index].objective,
+                            style: Theme.of(context).textTheme.bodySmall),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              if (index < units.length - 1) const SizedBox(height: 12),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }
