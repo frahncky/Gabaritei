@@ -35,7 +35,8 @@ class QuizController extends ChangeNotifier {
 
   bool get canUseHint => current.hint != null && !_hintUsed && !_revealed;
 
-  bool? get lastAnswerCorrect => _answers.isEmpty ? null : _answers.last.correct;
+  bool? get lastAnswerCorrect =>
+      _answers.isEmpty ? null : _answers.last.correct;
 
   /// Acertos seguidos até agora.
   int get currentStreak {

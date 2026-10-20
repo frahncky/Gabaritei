@@ -58,7 +58,9 @@ class _TrailsScreenState extends State<TrailsScreen> {
                 for (final t in trails)
                   ChoiceChip(
                     label: Text(t.title),
-                    avatar: t.unlocked ? null : const Icon(Icons.lock_outline, size: 16),
+                    avatar: t.unlocked
+                        ? null
+                        : const Icon(Icons.lock_outline, size: 16),
                     selected: t.id == trail.id,
                     onSelected: (_) => setState(() => _selectedId = t.id),
                   ),
@@ -68,7 +70,8 @@ class _TrailsScreenState extends State<TrailsScreen> {
             Row(
               children: [
                 Expanded(
-                  child: Text(trail.title, style: Theme.of(context).textTheme.titleLarge),
+                  child: Text(trail.title,
+                      style: Theme.of(context).textTheme.titleLarge),
                 ),
                 Text(
                   '${trail.modulesDone} de ${trail.modulesTotal} módulos',
@@ -86,7 +89,8 @@ class _TrailsScreenState extends State<TrailsScreen> {
             for (final module in trail.modules) ...[
               _ModuleTile(
                 module: module,
-                onStart: module.quizId == null || module.status == ModuleStatus.locked
+                onStart: module.quizId == null ||
+                        module.status == ModuleStatus.locked
                     ? null
                     : () => _startQuiz(module.quizId!),
               ),
@@ -107,7 +111,8 @@ class _LockedTrailNotice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final required = trails.where((t) => t.id == trail.requiresTrailId).firstOrNull;
+    final required =
+        trails.where((t) => t.id == trail.requiresTrailId).firstOrNull;
     final message = required == null
         ? 'Conclua a trilha anterior para desbloquear esta.'
         : 'Conclua a trilha ${required.title} para desbloquear esta.';
@@ -160,7 +165,8 @@ class _ModuleTile extends StatelessWidget {
             background: AppColors.blue,
             child: Text(
               '${module.order}',
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.w700),
             ),
           ),
         ModuleStatus.locked => const _Badge(
@@ -170,7 +176,8 @@ class _ModuleTile extends StatelessWidget {
       };
     }
 
-    final title = module.isFinalExam ? module.title : '${module.order}. ${module.title}';
+    final title =
+        module.isFinalExam ? module.title : '${module.order}. ${module.title}';
     final subtitle = switch (status) {
       _ when module.isFinalExam => module.subtitle,
       ModuleStatus.done =>
@@ -214,7 +221,8 @@ class _ModuleTile extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 2),
-                        Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+                        Text(subtitle,
+                            style: Theme.of(context).textTheme.bodySmall),
                       ],
                     ),
                   ),
@@ -230,7 +238,8 @@ class _ModuleTile extends StatelessWidget {
                 const SizedBox(height: 12),
                 FilledButton(
                   onPressed: onStart,
-                  child: Text(onStart == null ? 'Lições em breve' : 'Continuar lição'),
+                  child: Text(
+                      onStart == null ? 'Lições em breve' : 'Continuar lição'),
                 ),
               ],
             ],

@@ -10,6 +10,10 @@ class AppColors {
   static const inkSoft = Color(0xFF2C3B35);
   static const muted = Color(0xFF55635D);
   static const mutedOnInk = Color(0xFFB9C6BF);
+
+  /// Cartões e trilhos sobre fundo escuro.
+  static const inkRaised = Color(0xFF1F302A);
+  static const inkLine = Color(0xFF36493F);
   static const line = Color(0xFFDCE2DD);
   static const track = Color(0xFFE6EBE7);
 
@@ -26,6 +30,17 @@ class AppColors {
   static const success = Color(0xFF15803D);
   static const error = Color(0xFFB91C1C);
   static const errorSoft = Color(0xFFFDE2E2);
+}
+
+/// Fontes embutidas em `assets/fonts/` (SIL Open Font License).
+class AppFonts {
+  AppFonts._();
+
+  /// Títulos, nomes de nível e números em destaque (com algarismos tabulares).
+  static const display = 'BricolageGrotesque';
+
+  /// Texto corrido (padrão do app).
+  static const body = 'IBMPlexSans';
 }
 
 class AppTheme {
@@ -50,20 +65,24 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: scheme,
       scaffoldBackgroundColor: AppColors.ground,
+      fontFamily: AppFonts.body,
     );
 
     return base.copyWith(
       textTheme: base.textTheme.copyWith(
         headlineMedium: base.textTheme.headlineMedium?.copyWith(
+          fontFamily: AppFonts.display,
           fontWeight: FontWeight.w800,
           color: AppColors.ink,
           letterSpacing: -0.5,
         ),
         titleLarge: base.textTheme.titleLarge?.copyWith(
+          fontFamily: AppFonts.display,
           fontWeight: FontWeight.w700,
           color: AppColors.ink,
         ),
         titleMedium: base.textTheme.titleMedium?.copyWith(
+          fontFamily: AppFonts.display,
           fontWeight: FontWeight.w600,
           color: AppColors.ink,
         ),
@@ -88,7 +107,8 @@ class AppTheme {
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           minimumSize: const Size.fromHeight(48),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
         ),
       ),
@@ -97,7 +117,8 @@ class AppTheme {
           minimumSize: const Size(44, 44),
           foregroundColor: AppColors.ink,
           side: const BorderSide(color: AppColors.line),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(

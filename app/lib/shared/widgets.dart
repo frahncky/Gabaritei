@@ -80,6 +80,7 @@ class StatTile extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
+                      fontFamily: AppFonts.display,
                       fontFeatures: [FontFeature.tabularFigures()],
                     ),
                   ),

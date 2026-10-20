@@ -62,7 +62,8 @@ class MemoryStudentRepository implements StudentRepository {
   Future<Student> getCurrentStudent() async => _student;
 
   @override
-  Future<List<Mission>> getDailyMissions() async => List.unmodifiable(_missions);
+  Future<List<Mission>> getDailyMissions() async =>
+      List.unmodifiable(_missions);
 
   @override
   Future<List<Medal>> getAllMedals() async => SampleContent.medals;
