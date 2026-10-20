@@ -7,6 +7,8 @@ import 'package:flutter/services.dart';
 import '../../app/theme.dart';
 import '../../shared/format.dart';
 import 'circuit.dart';
+import 'color_code.dart';
+import 'color_code_view.dart';
 
 /// Laboratório de eletricidade: um circuito "vivo", com elétrons andando,
 /// amperímetro, controles e gráfico no tempo.
@@ -29,6 +31,13 @@ class _LabScreenState extends State<LabScreen>
   final _motion = _LabMotion();
   Ticker? _ticker;
   Duration _lastTick = Duration.zero;
+
+  // Código de cores: faixas montadas e a meta do desafio.
+  ResistorBands _bands = const ResistorBands();
+  double _target = 4700;
+  final _random = math.Random();
+
+  bool get _matched => _bands.matches(_target);
 
   CircuitReading get _reading => CircuitReading.solve(_mode, _input);
 
@@ -63,6 +72,23 @@ class _LabScreenState extends State<LabScreen>
   void _update(CircuitInput input) {
     setState(() => _input = input);
     if (_ticker == null) _motion.snap(_gaugeTarget);
+  }
+
+  void _setBands(ResistorBands bands) {
+    final wasMatched = _matched;
+    HapticFeedback.selectionClick();
+    setState(() => _bands = bands);
+    if (!wasMatched && _matched) HapticFeedback.mediumImpact();
+  }
+
+  void _nextTarget() {
+    setState(() {
+      double next;
+      do {
+        next = resistorTargets[_random.nextInt(resistorTargets.length)];
+      } while (next == _target || _bands.matches(next));
+      _target = next;
+    });
   }
 
   void _setMode(LabMode mode) {
@@ -114,20 +140,33 @@ class _LabScreenState extends State<LabScreen>
                     children: [
                       _FormulaBox(formula: mode.formula),
                       const SizedBox(height: 8),
-                      SizedBox(
-                        height: 190,
-                        width: double.infinity,
-                        child: CustomPaint(
-                          painter: _CircuitPainter(
-                            mode: mode,
-                            input: _input,
-                            reading: reading,
-                            motion: _motion,
+                      if (mode.hasCircuit) ...[
+                        SizedBox(
+                          height: 190,
+                          width: double.infinity,
+                          child: CustomPaint(
+                            painter: _CircuitPainter(
+                              mode: mode,
+                              input: _input,
+                              reading: reading,
+                              motion: _motion,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      _Readout(reading: reading, motion: _motion),
+                        const SizedBox(height: 4),
+                        _Readout(reading: reading, motion: _motion),
+                      ] else ...[
+                        SizedBox(
+                          height: 190,
+                          child: ResistorView(bands: _bands, matched: _matched),
+                        ),
+                        const SizedBox(height: 4),
+                        ColorReadout(
+                          bands: _bands,
+                          target: _target,
+                          matched: _matched,
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -174,16 +213,77 @@ class _LabScreenState extends State<LabScreen>
           ),
         ),
         const SizedBox(height: 18),
-        ..._controls(mode),
-        const SizedBox(height: 10),
-        for (final row in _outputs(mode, reading)) ...[
-          row,
+        if (mode.hasCircuit) ...[
+          ..._controls(mode),
           const SizedBox(height: 10),
-        ],
-        const SizedBox(height: 8),
-        _HistoryChart(mode: mode, motion: _motion),
+          for (final row in _outputs(mode, reading)) ...[
+            row,
+            const SizedBox(height: 10),
+          ],
+          const SizedBox(height: 8),
+          _HistoryChart(mode: mode, motion: _motion),
+        ] else
+          ..._colorControls(),
       ],
     );
+  }
+
+  List<Widget> _colorControls() {
+    String digit(BandColor c) => '${c.digit}';
+    String multiplier(BandColor c) {
+      final e = c.exponent!;
+      return e >= 0
+          ? '× ${formatNumber(math.pow(10, e).toInt())}'
+          : '× ${formatDecimal(math.pow(10, e).toDouble(), -e)}';
+    }
+
+    String tolerance(BandColor c) {
+      final t = c.tolerance!;
+      final text = t == t.roundToDouble()
+          ? t.toInt().toString()
+          : t.toString().replaceAll('.', ',');
+      return '±$text%';
+    }
+
+    return [
+      ColorChallengeCard(
+        target: _target,
+        matched: _matched,
+        onNext: _nextTarget,
+      ),
+      const SizedBox(height: 20),
+      BandPicker(
+        label: '1ª faixa · 1º dígito',
+        meaning: digit,
+        options: BandColor.firstDigits,
+        selected: _bands.first,
+        onSelect: (c) => _setBands(_bands.copyWith(first: c)),
+      ),
+      const SizedBox(height: 18),
+      BandPicker(
+        label: '2ª faixa · 2º dígito',
+        meaning: digit,
+        options: BandColor.digits,
+        selected: _bands.second,
+        onSelect: (c) => _setBands(_bands.copyWith(second: c)),
+      ),
+      const SizedBox(height: 18),
+      BandPicker(
+        label: '3ª faixa · multiplicador',
+        meaning: multiplier,
+        options: BandColor.multipliers,
+        selected: _bands.multiplier,
+        onSelect: (c) => _setBands(_bands.copyWith(multiplier: c)),
+      ),
+      const SizedBox(height: 18),
+      BandPicker(
+        label: '4ª faixa · tolerância',
+        meaning: tolerance,
+        options: BandColor.tolerances,
+        selected: _bands.tolerance,
+        onSelect: (c) => _setBands(_bands.copyWith(tolerance: c)),
+      ),
+    ];
   }
 
   List<Widget> _controls(LabMode mode) {
@@ -220,6 +320,7 @@ class _LabScreenState extends State<LabScreen>
           ohms('Resistência da lâmpada', _input.r1,
               (v) => _update(_input.copyWith(r1: v))),
         ],
+      LabMode.cores => const <Widget>[],
       LabMode.serie || LabMode.paralelo => [
           volts,
           ohms('R₁', _input.r1, (v) => _update(_input.copyWith(r1: v))),
@@ -235,6 +336,7 @@ class _LabScreenState extends State<LabScreen>
     String ohms(double o) => '${formatDecimal(o, o < 10 ? 1 : 0)} Ω';
 
     return switch (mode) {
+      LabMode.cores => const <Widget>[],
       LabMode.ohm => [
           _OutputBar('Corrente', r.total / ampScale, amps(r.total),
               AppColors.amberOnInk),
@@ -468,6 +570,8 @@ class _CircuitPainter extends CustomPainter {
         _text(canvas, '${formatDecimal(reading.v2, 1)} V',
             Offset(r - 30, my + 26),
             color: AppColors.skyOnInk, size: 11);
+      case LabMode.cores:
+        break;
       case LabMode.paralelo:
         for (final node in [Offset(x1, t), Offset(x1, b)]) {
           canvas.drawCircle(node, 4.5, Paint()..color = Colors.white);
@@ -821,7 +925,7 @@ class _ModeTabs extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: Text(
-                        '${mode.index + 1} · ${mode.tab}',
+                        mode.tab,
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 13,

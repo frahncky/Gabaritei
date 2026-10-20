@@ -30,7 +30,18 @@ enum LabMode {
     formula: 'P = V × I = V² ÷ R',
     idea: 'Mais potência, mais luz e mais calor',
     tip: 'Acima da potência nominal, a lâmpada queima',
+  ),
+  cores(
+    tab: 'Cores',
+    title: 'Código de cores',
+    formula: 'R = (1º 2º) × 10^3º',
+    idea: 'Cada cor é um número: as faixas escrevem o valor do resistor',
+    tip:
+        'Preto 0, marrom 1, vermelho 2, laranja 3… a 3ª faixa diz quantos zeros',
   );
+
+  /// Abas que mostram um circuito (todas menos o código de cores).
+  bool get hasCircuit => this != cores;
 
   const LabMode({
     required this.tab,
@@ -95,6 +106,18 @@ class CircuitReading {
   factory CircuitReading.solve(LabMode mode, CircuitInput input) {
     final v = input.volts;
     switch (mode) {
+      // O código de cores não tem circuito: circuito desligado.
+      case LabMode.cores:
+        return CircuitReading._(
+          mode: mode,
+          total: 0,
+          i1: 0,
+          i2: 0,
+          v1: 0,
+          v2: 0,
+          req: 0,
+          power: 0,
+        );
       case LabMode.ohm:
       case LabMode.potencia:
         final i = v / input.r1;

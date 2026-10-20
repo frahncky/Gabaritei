@@ -117,10 +117,33 @@ void main() {
     expect(find.text('0,60 A'), findsWidgets);
     expect(find.text('seguro'), findsOneWidget);
 
-    await tester.tap(find.text('4 · Potência'));
+    await tester.tap(find.text('Potência'));
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.text('P = V × I = V² ÷ R'), findsOneWidget);
     expect(find.text('7,2 W'), findsWidgets);
+
+    await tester.tap(find.text('Cores'));
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.text('1 kΩ'), findsOneWidget);
+    expect(find.text('meta: 4,7 kΩ'), findsOneWidget);
+
+    // Monta 4,7 kΩ: amarelo, violeta e o vermelho que já está no multiplicador.
+    final semantics = tester.ensureSemantics();
+    Future<void> pick(String band, String color, {int index = 0}) async {
+      await tester.scrollUntilVisible(find.text(band), 80,
+          scrollable: find.byType(Scrollable).last);
+      final swatch = find.bySemanticsLabel(color).at(index);
+      await tester.ensureVisible(swatch);
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.tap(swatch);
+      await tester.pump(const Duration(milliseconds: 400));
+    }
+
+    await pick('1ª faixa · 1º dígito', 'Amarelo, 4');
+    await pick('2ª faixa · 2º dígito', 'Violeta, 7', index: 1);
+    expect(find.text('4,7 kΩ'), findsWidgets);
+    expect(find.text('acertou o desafio!'), findsOneWidget);
+    semantics.dispose();
 
     await tester.tap(find.byType(BackButton));
     for (var i = 0; i < 5; i++) {
