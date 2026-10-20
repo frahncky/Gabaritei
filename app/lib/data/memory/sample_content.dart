@@ -104,7 +104,8 @@ class SampleContent {
         prompt: 'Faixas vermelho, vermelho e marrom. Qual é o valor?',
         options: ['220 Ω', '22 Ω', '2,2 kΩ', '221 Ω'],
         correctIndex: 0,
-        explanation: 'Vermelho = 2, vermelho = 2, marrom = ×10: 22 × 10 = 220 Ω.',
+        explanation:
+            'Vermelho = 2, vermelho = 2, marrom = ×10: 22 × 10 = 220 Ω.',
       ),
       Question(
         id: 'cores-3',
@@ -158,7 +159,8 @@ class SampleContent {
             'equivalente de:',
         options: ['200 Ω', '100 Ω', '50 Ω', '25 Ω'],
         correctIndex: 2,
-        explanation: 'Em paralelo, somam-se os inversos: 1/Req = 1/100 + 1/100, '
+        explanation:
+            'Em paralelo, somam-se os inversos: 1/Req = 1/100 + 1/100, '
             'então Req = 50 Ω.',
         hint: 'Resistores iguais em paralelo: divida o valor pela quantidade.',
       ),

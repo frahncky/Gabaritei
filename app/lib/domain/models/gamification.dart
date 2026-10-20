@@ -26,7 +26,8 @@ class Mission {
 
   bool get isDone => progress >= goal;
 
-  double get fraction => goal == 0 ? 0 : (progress / goal).clamp(0, 1).toDouble();
+  double get fraction =>
+      goal == 0 ? 0 : (progress / goal).clamp(0, 1).toDouble();
 }
 
 /// Medalha (conquista). Chamada de `Medal` para não colidir com o

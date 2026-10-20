@@ -77,12 +77,15 @@ As telas estão em [`design/mockup/`](design/mockup/):
 
 Os arquivos `.dc.html` são o código-fonte do canvas de design feito no Claude; `canvas.json` guarda a disposição das telas. Eles servem como referência visual e de conteúdo para a implementação.
 
-### Identidade visual (provisória)
+O mockup é uma inspiração: o app pode (e deve) ir além dele.
 
-- Fundo `#F3F5F1`, texto `#13211C`
+### Identidade visual
+
+- Símbolo: a bolha do gabarito marcada — círculo âmbar com ✓ sobre fundo escuro. Desenhado em código (`app/lib/shared/brand.dart`), gera o ícone e o splash
+- Fundo `#F3F5F1`, escuro da marca `#13211C`
 - Ação: azul `#1D4ED8`
-- XP e sequência: âmbar `#F59E0B` / `#B45309`
-- Tipografia: Bricolage Grotesque (títulos), IBM Plex Sans (texto), IBM Plex Mono (números)
+- XP, sequência e conquistas: âmbar `#F59E0B` / `#B45309`
+- Tipografia: Bricolage Grotesque (títulos e números em destaque) e IBM Plex Sans (texto), embutidas no app
 
 ## Autor
 

@@ -100,13 +100,15 @@ class _QuizBodyState extends State<_QuizBody> {
               icon: const Icon(Icons.close),
               onPressed: () => Navigator.of(context).pop(),
             ),
-            title: Text(widget.quiz.title, style: const TextStyle(fontSize: 16)),
+            title:
+                Text(widget.quiz.title, style: const TextStyle(fontSize: 16)),
             actions: [
               if (c.comboActive)
                 const Padding(
                   padding: EdgeInsets.only(right: 12),
                   child: Chip(
-                    avatar: Icon(Icons.bolt, size: 16, color: AppColors.amberOnInk),
+                    avatar:
+                        Icon(Icons.bolt, size: 16, color: AppColors.amberOnInk),
                     label: Text('Combo x2'),
                     labelStyle: TextStyle(
                       color: AppColors.amberOnInk,
@@ -247,7 +249,9 @@ class _ProgressDots extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(3),
                   color: i < answers.length
-                      ? (answers[i].correct ? AppColors.success : AppColors.error)
+                      ? (answers[i].correct
+                          ? AppColors.success
+                          : AppColors.error)
                       : i == controller.index
                           ? AppColors.blue
                           : AppColors.line,
@@ -280,10 +284,30 @@ class _OptionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (border, fill, badge, badgeText) = switch (state) {
-      _OptionState.idle => (AppColors.line, AppColors.surface, AppColors.ground, AppColors.ink),
-      _OptionState.selected => (AppColors.blue, AppColors.blueSoft, AppColors.blue, Colors.white),
-      _OptionState.correct => (AppColors.success, const Color(0xFFDCFCE7), AppColors.success, Colors.white),
-      _OptionState.wrong => (AppColors.error, AppColors.errorSoft, AppColors.error, Colors.white),
+      _OptionState.idle => (
+          AppColors.line,
+          AppColors.surface,
+          AppColors.ground,
+          AppColors.ink
+        ),
+      _OptionState.selected => (
+          AppColors.blue,
+          AppColors.blueSoft,
+          AppColors.blue,
+          Colors.white
+        ),
+      _OptionState.correct => (
+          AppColors.success,
+          const Color(0xFFDCFCE7),
+          AppColors.success,
+          Colors.white
+        ),
+      _OptionState.wrong => (
+          AppColors.error,
+          AppColors.errorSoft,
+          AppColors.error,
+          Colors.white
+        ),
     };
     return Semantics(
       button: true,
@@ -316,14 +340,16 @@ class _OptionTile extends StatelessWidget {
                     ),
                     child: Text(
                       letter,
-                      style: TextStyle(color: badgeText, fontWeight: FontWeight.w700),
+                      style: TextStyle(
+                          color: badgeText, fontWeight: FontWeight.w700),
                     ),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Text(
                       text,
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w500),
                     ),
                   ),
                   if (state == _OptionState.correct)

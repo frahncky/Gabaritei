@@ -104,8 +104,9 @@ class Trail {
   /// Trilha que precisa ser concluída antes desta.
   final String? requiresTrailId;
 
-  int get modulesDone =>
-      modules.where((m) => m.status == ModuleStatus.done && !m.isFinalExam).length;
+  int get modulesDone => modules
+      .where((m) => m.status == ModuleStatus.done && !m.isFinalExam)
+      .length;
 
   int get modulesTotal => modules.where((m) => !m.isFinalExam).length;
 

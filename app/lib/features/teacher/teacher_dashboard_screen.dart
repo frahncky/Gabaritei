@@ -35,7 +35,8 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
     _data ??= _load(Dependencies.of(context), null);
   }
 
-  static Future<_DashboardData> _load(AppDependencies deps, String? classId) async {
+  static Future<_DashboardData> _load(
+      AppDependencies deps, String? classId) async {
     final classes = await deps.teacher.getClasses();
     final (overview, trails) = await (
       deps.teacher.getClassOverview(classId ?? classes.first.id),
@@ -72,7 +73,8 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
     await deps.teacher.publishChallenge(classId, draft);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Desafio "${draft.title}" publicado para a turma.')),
+      SnackBar(
+          content: Text('Desafio "${draft.title}" publicado para a turma.')),
     );
     setState(() {
       _data = _load(deps, classId);
@@ -168,7 +170,8 @@ class _Header extends StatelessWidget {
               '${overview.className} · ${overview.studentCount} alunos',
               style: Theme.of(context).textTheme.bodySmall,
             ),
-            Text('Visão geral da turma', style: Theme.of(context).textTheme.headlineMedium),
+            Text('Visão geral da turma',
+                style: Theme.of(context).textTheme.headlineMedium),
           ],
         ),
         SizedBox(
@@ -178,7 +181,8 @@ class _Header extends StatelessWidget {
             isExpanded: true,
             decoration: const InputDecoration(labelText: 'Turma'),
             items: [
-              for (final c in classes) DropdownMenuItem(value: c.id, child: Text(c.name)),
+              for (final c in classes)
+                DropdownMenuItem(value: c.id, child: Text(c.name)),
             ],
             onChanged: (id) {
               if (id != null && id != overview.classId) onSelectClass(id);
@@ -279,7 +283,8 @@ class _TopicsCard extends StatelessWidget {
             children: [
               Expanded(child: Text(topic.topic)),
               if (topic.needsReview) ...[
-                const Icon(Icons.warning_amber_rounded, size: 16, color: AppColors.error),
+                const Icon(Icons.warning_amber_rounded,
+                    size: 16, color: AppColors.error),
                 const SizedBox(width: 4),
               ],
               Text(
@@ -331,7 +336,8 @@ class _AlertsCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(alert.name, style: const TextStyle(fontWeight: FontWeight.w600)),
+                    Text(alert.name,
+                        style: const TextStyle(fontWeight: FontWeight.w600)),
                     Text(alert.reason),
                     Text(
                       'Último acesso: ${formatRelativeDay(alert.lastAccess, now)} · '
@@ -442,7 +448,9 @@ class _QuickChallengeCardState extends State<_QuickChallengeCard> {
           decoration: const InputDecoration(labelText: 'Trilha e módulo'),
           items: [
             for (final m in widget.modules)
-              DropdownMenuItem(value: m.id, child: Text(m.label, overflow: TextOverflow.ellipsis)),
+              DropdownMenuItem(
+                  value: m.id,
+                  child: Text(m.label, overflow: TextOverflow.ellipsis)),
           ],
           onChanged: (id) => setState(() => _moduleId = id),
         ),
@@ -476,7 +484,8 @@ class _QuickChallengeCardState extends State<_QuickChallengeCard> {
         ),
         const SizedBox(height: 12),
         OutlinedButton.icon(
-          style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+          style:
+              OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
           onPressed: _pickDeadline,
           icon: const Icon(Icons.event_outlined, size: 18),
           label: Text('Prazo: até ${formatShortDate(_deadline)}'),
@@ -486,7 +495,8 @@ class _QuickChallengeCardState extends State<_QuickChallengeCard> {
           controlAffinity: ListTileControlAffinity.leading,
           value: _withMedal,
           onChanged: (v) => setState(() => _withMedal = v ?? false),
-          title: const Text('Liberar medalha "Rei do Paralelo" com 90% ou mais'),
+          title:
+              const Text('Liberar medalha "Rei do Paralelo" com 90% ou mais'),
         ),
         const SizedBox(height: 4),
         FilledButton(

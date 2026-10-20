@@ -6,6 +6,8 @@ import '../../domain/models/gamification.dart';
 import '../../domain/models/student.dart';
 import '../../domain/rules/streak_rules.dart';
 import '../../shared/format.dart';
+import '../../shared/level_card.dart';
+import '../../shared/medal_badge.dart';
 import '../../shared/widgets.dart';
 
 typedef _ProfileData = ({Student student, List<Medal> medals});
@@ -42,7 +44,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       builder: (context, data) {
         final student = data.student;
         final medals = data.medals;
-        final earned = medals.where((m) => student.earnedBadgeIds.contains(m.id)).length;
+        final earned =
+            medals.where((m) => student.earnedBadgeIds.contains(m.id)).length;
 
         return ListView(
           padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
@@ -62,15 +65,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             Text(
-              'Nível ${student.level.current.name} · Liga ${student.league.label}',
+              '${student.className} · Liga ${student.league.label}',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 20),
+            LevelCard(level: student.level),
+            const SizedBox(height: 12),
             Row(
               children: [
                 Expanded(
-                  child: StatTile(value: formatNumber(student.totalXp), label: 'XP total'),
+                  child: StatTile(
+                      value: formatNumber(student.totalXp), label: 'XP total'),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -95,13 +101,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 24),
             SectionHeader('Medalhas', trailing: '$earned de ${medals.length}'),
             const SizedBox(height: 10),
-            GridView.count(
-              crossAxisCount: 3,
+            GridView(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 12,
+                // Emblema (60 x 69) + nome em até duas linhas.
+                mainAxisExtent: 116,
+              ),
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
-              childAspectRatio: 0.85,
               children: [
                 for (final medal in medals)
                   _MedalTile(
@@ -169,7 +178,8 @@ class _StudyCalendar extends StatelessWidget {
 }
 
 class _DayCell extends StatelessWidget {
-  const _DayCell({required this.date, required this.studied, required this.isToday});
+  const _DayCell(
+      {required this.date, required this.studied, required this.isToday});
 
   final DateTime date;
   final bool studied;
@@ -202,25 +212,7 @@ class _MedalTile extends StatelessWidget {
       message: medal.description,
       child: Column(
         children: [
-          Container(
-            width: 60,
-            height: 60,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: earned ? AppColors.amber : AppColors.track,
-              shape: BoxShape.circle,
-            ),
-            child: earned
-                ? Text(
-                    medal.glyph,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.ink,
-                    ),
-                  )
-                : const Icon(Icons.lock_outline, color: AppColors.muted),
-          ),
+          MedalBadge(medal: medal, earned: earned, size: 60),
           const SizedBox(height: 6),
           Text(
             medal.name,

@@ -27,7 +27,8 @@ class _RankingScreenState extends State<RankingScreen> {
     _data ??= _load(Dependencies.of(context), _period);
   }
 
-  static Future<_RankingData> _load(AppDependencies deps, RankingPeriod period) async {
+  static Future<_RankingData> _load(
+      AppDependencies deps, RankingPeriod period) async {
     final (student, entries) = await (
       deps.students.getCurrentStudent(),
       deps.ranking.getClassRanking(period),
@@ -80,8 +81,9 @@ class _RankingBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final league = student.league;
-    final nextLeague =
-        league.index + 1 < League.values.length ? League.values[league.index + 1] : null;
+    final nextLeague = league.index + 1 < League.values.length
+        ? League.values[league.index + 1]
+        : null;
     final podium = entries.take(3).toList();
 
     return Column(
@@ -112,7 +114,8 @@ class _RankingBody extends StatelessWidget {
           ),
           child: Row(
             children: [
-              const Icon(Icons.trending_up, color: AppColors.amberText, size: 20),
+              const Icon(Icons.trending_up,
+                  color: AppColors.amberText, size: 20),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -173,7 +176,11 @@ class _PodiumPlace extends StatelessWidget {
           ),
           child: Text(
             '${entry.position}',
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
+            style: const TextStyle(
+              fontFamily: AppFonts.display,
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+            ),
           ),
         ),
       ],
@@ -194,7 +201,8 @@ class _RankingRow extends StatelessWidget {
       decoration: BoxDecoration(
         color: me ? AppColors.blueSoft : AppColors.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: me ? AppColors.blue : AppColors.line, width: me ? 2 : 1),
+        border: Border.all(
+            color: me ? AppColors.blue : AppColors.line, width: me ? 2 : 1),
       ),
       child: Row(
         children: [
@@ -204,6 +212,7 @@ class _RankingRow extends StatelessWidget {
               '${entry.position}',
               style: const TextStyle(
                 fontWeight: FontWeight.w700,
+                fontFamily: AppFonts.display,
                 fontFeatures: [FontFeature.tabularFigures()],
               ),
             ),
@@ -218,13 +227,15 @@ class _RankingRow extends StatelessWidget {
           Expanded(
             child: Text(
               me ? '${shortName(entry.name)} (você)' : shortName(entry.name),
-              style: TextStyle(fontWeight: me ? FontWeight.w700 : FontWeight.w500),
+              style:
+                  TextStyle(fontWeight: me ? FontWeight.w700 : FontWeight.w500),
             ),
           ),
           Text(
             '${formatNumber(entry.xp)} XP',
             style: const TextStyle(
               fontWeight: FontWeight.w600,
+              fontFamily: AppFonts.display,
               fontFeatures: [FontFeature.tabularFigures()],
             ),
           ),

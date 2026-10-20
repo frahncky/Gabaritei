@@ -5,8 +5,7 @@ import '../../app/theme.dart';
 import '../../domain/models/content.dart';
 import '../../domain/models/gamification.dart';
 import '../../domain/models/student.dart';
-import '../../domain/rules/level_rules.dart';
-import '../../shared/format.dart';
+import '../../shared/level_card.dart';
 import '../../shared/widgets.dart';
 import '../quiz/quiz_screen.dart';
 
@@ -95,7 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             const SizedBox(height: 16),
-            _LevelCard(level: student.level),
+            LevelCard(level: student.level),
             const SizedBox(height: 12),
             Row(
               children: [
@@ -120,7 +119,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             const SizedBox(height: 24),
-            const SectionHeader('Missões de hoje', trailing: 'renovam à meia-noite'),
+            const SectionHeader('Missões de hoje',
+                trailing: 'renovam à meia-noite'),
             const SizedBox(height: 10),
             for (final mission in missions) ...[
               _MissionTile(
@@ -165,120 +165,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class _LevelCard extends StatelessWidget {
-  const _LevelCard({required this.level});
-
-  final LevelProgress level;
-
-  @override
-  Widget build(BuildContext context) {
-    final tier = level.current.tier;
-    final next = level.next;
-
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: AppColors.ink,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Nível ${tier.index + 1} de ${LevelTier.values.length}',
-                      style: const TextStyle(color: AppColors.mutedOnInk, fontSize: 12),
-                    ),
-                    Text(
-                      level.current.name,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 26,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Text(
-                '${formatNumber(level.totalXp)} XP',
-                style: const TextStyle(
-                  color: AppColors.amberOnInk,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  fontFeatures: [FontFeature.tabularFigures()],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              for (final t in LevelTier.values)
-                Expanded(
-                  child: Text(
-                    t.label,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: t == tier ? FontWeight.w700 : FontWeight.w400,
-                      color: t.index <= tier.index
-                          ? Colors.white
-                          : AppColors.mutedOnInk.withValues(alpha: 0.6),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          ProgressBar(
-            value: level.fraction,
-            color: AppColors.amber,
-            trackColor: const Color(0xFF36493F),
-            semanticsLabel: 'Progresso no nível',
-          ),
-          const SizedBox(height: 10),
-          if (next == null)
-            const Text(
-              'Você chegou ao topo: Domínio.',
-              style: TextStyle(color: AppColors.mutedOnInk, fontSize: 13),
-            )
-          else
-            Text.rich(
-              TextSpan(
-                style: const TextStyle(color: AppColors.mutedOnInk, fontSize: 13),
-                children: [
-                  const TextSpan(text: 'Faltam '),
-                  TextSpan(
-                    text: '${formatNumber(level.xpToNext)} XP',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  TextSpan(text: ' para ${next.name}${_afterNext(next)}'),
-                ],
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  /// " · depois vem Craque" quando o próximo degrau ainda é do mesmo nível.
-  String _afterNext(LevelStep next) {
-    final tier = level.current.tier;
-    if (next.tier != tier) return '';
-    return ' · depois vem ${LevelTier.values[tier.index + 1].label}';
-  }
-}
-
 class _MissionTile extends StatelessWidget {
   const _MissionTile({required this.mission, this.onTap});
 
@@ -314,17 +200,21 @@ class _MissionTile extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(mission.title, style: const TextStyle(fontWeight: FontWeight.w600)),
+                    Text(mission.title,
+                        style: const TextStyle(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 6),
                     if (done)
                       const Text(
                         'Concluída',
-                        style: TextStyle(color: AppColors.success, fontSize: 13),
+                        style:
+                            TextStyle(color: AppColors.success, fontSize: 13),
                       )
                     else
                       Row(
                         children: [
-                          Expanded(child: ProgressBar(value: mission.fraction, height: 6)),
+                          Expanded(
+                              child: ProgressBar(
+                                  value: mission.fraction, height: 6)),
                           const SizedBox(width: 10),
                           Text(
                             '${mission.progress}/${mission.goal}',
@@ -388,7 +278,8 @@ class _FlashCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Text(mission.title, style: Theme.of(context).textTheme.titleMedium),
+                child: Text(mission.title,
+                    style: Theme.of(context).textTheme.titleMedium),
               ),
               Text(
                 '+${mission.rewardXp} XP',
