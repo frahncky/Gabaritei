@@ -520,25 +520,23 @@ class QuestionGenerator {
     );
   }
 
-  static QuestionVisual _visualFor(String discipline) {
-    if (discipline == 'Instalações elétricas' ||
-        discipline == 'Desenho técnico e CAD' ||
-        discipline == 'Segurança e normas') {
-      return QuestionVisual.electricalPlan;
-    }
-    if (discipline == 'CLP' ||
-        discipline == 'Robótica' ||
-        discipline == 'Supervisórios e controle de processos' ||
-        discipline == 'Redes industriais' ||
-        discipline == 'Pneumática e hidráulica' ||
-        discipline == 'Programação') {
-      return QuestionVisual.processControl;
-    }
-    if (discipline == 'Eletrônica analógica') {
-      return QuestionVisual.resistorBands;
-    }
-    return QuestionVisual.circuitSeries;
-  }
+  /// Desenho das questões por assunto. Só entra quando ele tem relação com a
+  /// disciplina; no resto, sem visual (um circuito em série numa questão de
+  /// Metrologia só confunde). Instalações elétricas não passa por aqui: os
+  /// assuntos dela têm visual próprio em [_installationUnits].
+  static QuestionVisual? _visualFor(String discipline) => switch (discipline) {
+        'Segurança e normas' ||
+        'Desenho técnico e CAD' =>
+          QuestionVisual.electricalPlan,
+        // Laço sensor → CLP → atuador: é o assunto destas duas disciplinas.
+        // Robótica, redes, pneumática e programação não aparecem no desenho.
+        'CLP' ||
+        'Supervisórios e controle de processos' =>
+          QuestionVisual.processControl,
+        // Eletrônica analógica fica sem visual: diodos, transistores,
+        // amplificadores e filtros não têm relação com o código de cores.
+        _ => null,
+      };
 
   static Question _concept(
     int sequence,

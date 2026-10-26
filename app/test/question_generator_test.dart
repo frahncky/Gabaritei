@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gabaritei/domain/models/content.dart';
 import 'package:gabaritei/domain/services/question_generator.dart';
 
 void main() {
@@ -16,6 +17,44 @@ void main() {
       // citar uma ilustração.
       if (question.visual == null) {
         expect(question.prompt, isNot(contains('ilustrad')), reason: topic);
+      }
+    }
+  });
+
+  test('questões por assunto só mostram desenho ligado à disciplina', () {
+    QuestionVisual? visualOf(String topic) {
+      final unit = QuestionGenerator.unitsFor(topic).first.label;
+      return QuestionGenerator.generate(topic: topic, unit: unit, sequence: 1)
+          .visual;
+    }
+
+    for (final topic in const [
+      'Metrologia',
+      'CNC e manufatura',
+      'Circuitos CA',
+      'Eletrônica digital',
+      'Eletrônica analógica',
+      'Robótica',
+      'Programação',
+      'Redes industriais',
+    ]) {
+      expect(visualOf(topic), isNull, reason: topic);
+    }
+    expect(visualOf('Segurança e normas'), QuestionVisual.electricalPlan);
+    expect(visualOf('Desenho técnico e CAD'), QuestionVisual.electricalPlan);
+    expect(visualOf('CLP'), QuestionVisual.processControl);
+    expect(visualOf('Supervisórios e controle de processos'),
+        QuestionVisual.processControl);
+    expect(visualOf('Instalações elétricas'), QuestionVisual.bedroomPlan);
+  });
+
+  test('nenhuma questão por assunto usa o circuito em série como padrão', () {
+    for (final topic in QuestionGenerator.topics) {
+      for (final unit in QuestionGenerator.unitsFor(topic)) {
+        final q = QuestionGenerator.generate(
+            topic: topic, unit: unit.label, sequence: 1);
+        expect(q.visual, isNot(QuestionVisual.circuitSeries),
+            reason: '$topic / ${unit.label}');
       }
     }
   });

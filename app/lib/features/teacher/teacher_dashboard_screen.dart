@@ -89,7 +89,7 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
     await Dependencies.of(context).content.saveQuestion(question);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Questão adicionada ao banco da sessão.')),
+      const SnackBar(content: Text('Questão adicionada ao banco.')),
     );
   }
 

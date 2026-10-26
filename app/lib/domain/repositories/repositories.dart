@@ -39,7 +39,10 @@ abstract interface class ContentRepository {
 
   Future<List<Question>> getCreatedQuestions();
 
-  Future<void> saveQuestion(Question question);
+  /// Adiciona [question] ao banco sem nunca sobrescrever outra questão:
+  /// se o id já pertence a uma questão diferente, a nova recebe um id livre
+  /// (`QuestionBankRules.admit`). Devolve a questão como foi guardada.
+  Future<Question> saveQuestion(Question question);
 }
 
 abstract interface class RankingRepository {

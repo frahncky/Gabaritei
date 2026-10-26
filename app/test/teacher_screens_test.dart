@@ -75,10 +75,11 @@ void main() {
 
     await tester.tap(find.text('Gerar questão'));
     await tester.pumpAndSettle();
-    // Eletricidade básica / Grandezas elétricas: a correta é a primeira.
+    // Eletricidade básica / Grandezas elétricas: a correta é a primeira, e
+    // a questão de assunto não ganha um circuito sem relação com ela.
     await _scrollTo(tester, find.textContaining('Gabarito: '));
     expect(
-        find.text('Gabarito: A · Visual: circuito em série'), findsOneWidget);
+        find.text('Gabarito: A · Visual: sem recurso visual'), findsOneWidget);
     expect(
       find.byWidgetPredicate((w) => w is Icon && w.semanticLabel == 'gabarito'),
       findsOneWidget,

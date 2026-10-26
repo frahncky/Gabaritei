@@ -10,6 +10,7 @@ import '../../domain/models/quiz_result.dart';
 import '../../domain/models/student.dart';
 import '../../domain/models/teacher.dart';
 import '../../domain/repositories/repositories.dart';
+import '../../domain/rules/question_bank_rules.dart';
 import '../../domain/rules/streak_rules.dart';
 import '../../domain/rules/xp_rules.dart';
 import 'sample_content.dart';
@@ -235,10 +236,15 @@ class MemoryContentRepository implements ContentRepository {
       List.unmodifiable(_createdQuestions);
 
   @override
-  Future<void> saveQuestion(Question question) async {
-    _createdQuestions.removeWhere((item) => item.id == question.id);
-    _createdQuestions.add(question);
+  Future<Question> saveQuestion(Question question) async {
+    final admitted = QuestionBankRules.admit(question, _createdQuestions);
+    // Mesmo id aqui só acontece com conteúdo igual: nada muda no banco.
+    if (_createdQuestions.any((item) => item.id == admitted.id)) {
+      return admitted;
+    }
+    _createdQuestions.add(admitted);
     onChanged?.call(List.unmodifiable(_createdQuestions));
+    return admitted;
   }
 }
 
