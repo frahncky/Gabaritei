@@ -7,7 +7,8 @@ import '../../domain/services/question_generator.dart';
 import '../../shared/widgets.dart';
 import '../quiz/quiz_screen.dart';
 
-/// Trilhas de estudo: uma aba por disciplina e a lista de módulos.
+/// Trilhas de estudo, em três partes: escolher a trilha, avançar pelos
+/// módulos dela e consultar o mapa do curso técnico.
 class TrailsScreen extends StatefulWidget {
   const TrailsScreen({super.key, required this.onDataChanged});
 
@@ -24,10 +25,39 @@ class _TrailsScreenState extends State<TrailsScreen> {
   TechnicalCourse _course = TechnicalCourse.electronics;
   String? _selectedDiscipline;
 
+  /// Chaves no [PageStorage] da rota do aluno. O shell recria esta aba
+  /// depois de um desafio para recarregar o progresso; guardando a escolha
+  /// fora do estado, o aluno volta para a trilha e o curso em que estava.
+  static const _trailKey = 'trails.selectedId';
+  static const _courseKey = 'trails.course';
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _trails ??= Dependencies.of(context).content.getTrails();
+    if (_trails == null) {
+      final storage = PageStorage.maybeOf(context);
+      _selectedId =
+          storage?.readState(context, identifier: _trailKey) as String?;
+      _course = storage?.readState(context, identifier: _courseKey)
+              as TechnicalCourse? ??
+          _course;
+      _trails = Dependencies.of(context).content.getTrails();
+    }
+  }
+
+  void _selectTrail(String id) {
+    setState(() => _selectedId = id);
+    PageStorage.maybeOf(context)
+        ?.writeState(context, id, identifier: _trailKey);
+  }
+
+  void _selectCourse(TechnicalCourse course) {
+    setState(() {
+      _course = course;
+      _selectedDiscipline = null;
+    });
+    PageStorage.maybeOf(context)
+        ?.writeState(context, course, identifier: _courseKey);
   }
 
   Future<void> _startQuiz(String quizId) async {
@@ -46,85 +76,444 @@ class _TrailsScreenState extends State<TrailsScreen> {
           (t) => t.id == _selectedId,
           orElse: () => trails.first,
         );
+        final textTheme = Theme.of(context).textTheme;
         return ListView(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+          padding: AppSpacing.screen,
           children: [
-            Text('Trilhas', style: Theme.of(context).textTheme.headlineMedium),
+            Text('Trilhas', style: textTheme.headlineMedium),
             const SizedBox(height: 4),
             Text(
-              'Escolha seu curso e avance disciplina por disciplina.',
-              style: Theme.of(context).textTheme.bodySmall,
+              'Escolha uma trilha e avance módulo por módulo.',
+              style: textTheme.bodySmall,
             ),
             const SizedBox(height: 16),
-            Text('Desafios disponíveis',
-                style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                for (final t in trails)
-                  ChoiceChip(
-                    label: Text(t.title),
-                    avatar: t.unlocked
-                        ? null
-                        : const Icon(Icons.lock_outline, size: 16),
-                    selected: t.id == trail.id,
-                    // Trilhas bloqueadas continuam consultáveis para que o
-                    // aluno veja claramente qual requisito falta.
-                    onSelected: (_) => setState(() => _selectedId = t.id),
-                  ),
-              ],
+            _TrailPicker(
+              trails: trails,
+              selectedId: trail.id,
+              // Trilhas bloqueadas continuam consultáveis para que o aluno
+              // veja claramente qual requisito falta.
+              onSelected: _selectTrail,
             ),
+            const SizedBox(height: AppSpacing.section),
             Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
               children: [
                 Expanded(
-                  child: Text(trail.title,
-                      style: Theme.of(context).textTheme.titleLarge),
+                  child: Semantics(
+                    header: true,
+                    child: Text(trail.title, style: textTheme.titleLarge),
+                  ),
                 ),
+                const SizedBox(width: 12),
                 Text(
-                  '${trail.modulesDone} de ${trail.modulesTotal} módulos',
-                  style: Theme.of(context).textTheme.bodySmall,
+                  '${trail.modulesDone} de ${_modules(trail.modulesTotal)}',
+                  style: textTheme.bodySmall,
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            ProgressBar(value: trail.fraction),
-            const SizedBox(height: 16),
+            ProgressBar(value: trail.fraction, semanticsLabel: trail.title),
+            const SizedBox(height: 20),
             if (!trail.unlocked) ...[
               _LockedTrailNotice(trail: trail, trails: trails),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
             ],
-            for (final module in trail.modules) ...[
-              _ModuleTile(
-                module: module,
-                onStart: module.quizId == null ||
-                        module.status == ModuleStatus.locked
+            for (var i = 0; i < trail.modules.length; i++)
+              _ModuleStep(
+                module: trail.modules[i],
+                isFirst: i == 0,
+                isLast: i == trail.modules.length - 1,
+                onStart: trail.modules[i].quizId == null ||
+                        trail.modules[i].status == ModuleStatus.locked
                     ? null
-                    : () => _startQuiz(module.quizId!),
+                    : () => _startQuiz(trail.modules[i].quizId!),
               ),
-              const SizedBox(height: 10),
-            ],
-            const SizedBox(height: 10),
+            const SizedBox(height: AppSpacing.section + 8),
+            const SectionHeader(
+              'Mapa do curso',
+              subtitle: 'Tudo o que cada curso técnico estuda, para consultar '
+                  'antes de a disciplina virar trilha.',
+            ),
+            const SizedBox(height: AppSpacing.header),
             _CourseMap(
               course: _course,
               selectedDiscipline: _selectedDiscipline,
-              onCourseChanged: (course) => setState(() {
-                _course = course;
-                _selectedDiscipline = null;
-              }),
+              onCourseChanged: _selectCourse,
               onDisciplineSelected: (discipline) => setState(
                 () => _selectedDiscipline =
                     _selectedDiscipline == discipline ? null : discipline,
               ),
             ),
-            if (_selectedDiscipline != null) ...[
-              const SizedBox(height: 16),
-              _DisciplineOutline(discipline: _selectedDiscipline!),
-            ],
           ],
         );
       },
+    );
+  }
+}
+
+/// Grade de trilhas em duas colunas: nome, progresso e cadeado.
+class _TrailPicker extends StatelessWidget {
+  const _TrailPicker({
+    required this.trails,
+    required this.selectedId,
+    required this.onSelected,
+  });
+
+  final List<Trail> trails;
+  final String selectedId;
+  final ValueChanged<String> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget cell(int i) => i < trails.length
+        ? _TrailOption(
+            trail: trails[i],
+            selected: trails[i].id == selectedId,
+            onTap: () => onSelected(trails[i].id),
+          )
+        : const SizedBox.shrink();
+
+    return Column(
+      children: [
+        for (var i = 0; i < trails.length; i += 2) ...[
+          if (i > 0) const SizedBox(height: AppSpacing.item),
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(child: cell(i)),
+                const SizedBox(width: AppSpacing.item),
+                Expanded(child: cell(i + 1)),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _TrailOption extends StatelessWidget {
+  const _TrailOption({
+    required this.trail,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final Trail trail;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final locked = !trail.unlocked;
+    final done = trail.modulesTotal > 0 && trail.fraction >= 1;
+    final status = locked
+        ? 'Bloqueada'
+        : done
+            ? 'Concluída'
+            : '${trail.modulesDone} de ${_modules(trail.modulesTotal)}';
+
+    return Semantics(
+      selected: selected,
+      button: true,
+      child: Material(
+        color: selected ? AppColors.blueSoft : AppColors.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadii.medium),
+          side: selected
+              ? const BorderSide(color: AppColors.skyOnInk, width: 1.5)
+              : BorderSide.none,
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        trail.title,
+                        style: TextStyle(
+                          fontSize: 14,
+                          height: 1.3,
+                          fontWeight: FontWeight.w600,
+                          color: locked ? AppColors.muted : AppColors.text,
+                        ),
+                      ),
+                    ),
+                    if (locked)
+                      const Padding(
+                        padding: EdgeInsets.only(left: 4),
+                        child: Icon(Icons.lock_outline,
+                            size: 16, color: AppColors.muted),
+                      )
+                    else if (selected)
+                      const Padding(
+                        padding: EdgeInsets.only(left: 4),
+                        child: Icon(Icons.check_circle,
+                            size: 16, color: AppColors.skyOnInk),
+                      ),
+                  ],
+                ),
+                const Spacer(),
+                const SizedBox(height: 10),
+                if (!locked) ...[
+                  ProgressBar(value: trail.fraction, height: 4),
+                  const SizedBox(height: 6),
+                ],
+                Text(
+                  status,
+                  style: const TextStyle(fontSize: 12, color: AppColors.muted),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Um módulo no caminho da trilha. O fio à esquerda liga os módulos como um
+/// circuito: aceso até onde o aluno chegou. Só o módulo atual vira cartão,
+/// com o botão de continuar.
+class _ModuleStep extends StatelessWidget {
+  const _ModuleStep({
+    required this.module,
+    required this.isFirst,
+    required this.isLast,
+    this.onStart,
+  });
+
+  final TrailModule module;
+  final bool isFirst;
+  final bool isLast;
+  final VoidCallback? onStart;
+
+  static const _node = 36.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final status = module.status;
+    final isCurrent = status == ModuleStatus.current;
+    final isLocked = status == ModuleStatus.locked;
+    final isDone = status == ModuleStatus.done;
+    // Altura do centro do nó, alinhado ao título do conteúdo.
+    final nodeTop = isCurrent ? 9.0 : 6.0;
+    final wireDone = AppColors.progress.withValues(alpha: 0.7);
+    // O fio que chega ao nó acende quando o módulo já foi alcançado.
+    final wireIn = isLocked ? AppColors.line : wireDone;
+    final wireOut = isDone ? wireDone : AppColors.line;
+
+    final Widget node;
+    if (module.isFinalExam) {
+      node = IconBadge(
+        icon: Icons.emoji_events_outlined,
+        color: isLocked ? AppColors.muted : AppColors.amberText,
+        background: isLocked ? AppColors.surface : AppColors.amberSoft,
+        size: _node,
+        circle: true,
+      );
+    } else {
+      node = switch (status) {
+        ModuleStatus.done => const IconBadge(
+            icon: Icons.check,
+            color: AppColors.success,
+            background: AppColors.successSoft,
+            size: _node,
+            circle: true,
+          ),
+        ModuleStatus.current => const IconBadge(
+            icon: Icons.play_arrow_rounded,
+            color: AppColors.onBlue,
+            background: AppColors.blue,
+            size: _node,
+            circle: true,
+          ),
+        ModuleStatus.locked => const IconBadge(
+            icon: Icons.lock_outline,
+            color: AppColors.muted,
+            background: AppColors.surface,
+            size: _node,
+            circle: true,
+          ),
+      };
+    }
+
+    final title =
+        module.isFinalExam ? module.title : '${module.order}. ${module.title}';
+    final Widget content = isCurrent
+        ? _CurrentModuleCard(module: module, title: title, onStart: onStart)
+        : _ModuleRow(module: module, title: title, onTap: onStart);
+
+    return Stack(
+      children: [
+        if (!isFirst)
+          Positioned(
+            left: _node / 2 - 1,
+            width: 2,
+            top: 0,
+            height: nodeTop + _node / 2,
+            child: ColoredBox(color: wireIn),
+          ),
+        if (!isLast)
+          Positioned(
+            left: _node / 2 - 1,
+            width: 2,
+            top: nodeTop + _node / 2,
+            bottom: 0,
+            child: ColoredBox(color: wireOut),
+          ),
+        Padding(
+          padding: EdgeInsets.only(bottom: isLast ? 0 : 12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(padding: EdgeInsets.only(top: nodeTop), child: node),
+              const SizedBox(width: 12),
+              Expanded(child: content),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Módulo concluído, bloqueado ou prova final: linha simples, sem cartão.
+class _ModuleRow extends StatelessWidget {
+  const _ModuleRow({required this.module, required this.title, this.onTap});
+
+  final TrailModule module;
+  final String title;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final status = module.status;
+    final isLocked = status == ModuleStatus.locked;
+    final isDone = status == ModuleStatus.done;
+    final subtitle = switch (status) {
+      _ when module.isFinalExam => keepLastWordsTogether(module.subtitle),
+      ModuleStatus.done => onTap == null ? 'Concluído' : 'Concluído · refazer',
+      ModuleStatus.locked => 'Bloqueado · ${module.subtitle}',
+      ModuleStatus.current => module.subtitle,
+    };
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppRadii.medium),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 48),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: isLocked ? AppColors.muted : AppColors.text,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(subtitle,
+                        style: Theme.of(context).textTheme.bodySmall),
+                  ],
+                ),
+              ),
+              if (isDone && !module.isFinalExam) ...[
+                const SizedBox(width: 8),
+                _Stars(count: module.stars),
+              ],
+              if (onTap != null) ...[
+                const SizedBox(width: 4),
+                const Icon(Icons.chevron_right, color: AppColors.muted),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Módulo em andamento: o único cartão do caminho e a ação principal da tela.
+class _CurrentModuleCard extends StatelessWidget {
+  const _CurrentModuleCard({
+    required this.module,
+    required this.title,
+    this.onStart,
+  });
+
+  final TrailModule module;
+  final String title;
+  final VoidCallback? onStart;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: AppSpacing.card,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                fontFamily: AppFonts.display,
+                fontWeight: FontWeight.w700,
+                fontSize: 17,
+                height: 1.25,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(module.subtitle, style: Theme.of(context).textTheme.bodySmall),
+            if (module.lessonsTotal > 0) ...[
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Expanded(
+                    child: ProgressBar(
+                      value: module.lessonFraction,
+                      height: 6,
+                      semanticsLabel: 'Lições do módulo',
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    '${module.lessonsDone} de ${module.lessonsTotal} lições',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ],
+            const SizedBox(height: 14),
+            FilledButton.icon(
+              onPressed: onStart,
+              icon: Icon(onStart == null
+                  ? Icons.hourglass_empty_rounded
+                  : Icons.play_arrow_rounded),
+              label: Text(switch (onStart) {
+                null => 'Lições em breve',
+                _ when module.lessonsDone == 0 => 'Começar',
+                _ => 'Continuar lição',
+              }),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -152,131 +541,167 @@ class _CourseMap extends StatelessWidget {
       (total, discipline) =>
           total + QuestionGenerator.unitsFor(discipline).length,
     );
-    return Material(
-      color: AppColors.blueSoft,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
-        side: BorderSide(color: AppColors.blue.withValues(alpha: .18)),
-      ),
+    return Card(
       clipBehavior: Clip.antiAlias,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.account_tree_outlined, color: AppColors.blue),
-                const SizedBox(width: 9),
-                Expanded(
-                  child: Text('Mapa do curso',
-                      style: Theme.of(context).textTheme.titleMedium),
+                Text('Curso', style: Theme.of(context).textTheme.bodySmall),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final item in TechnicalCourse.values)
+                      ChoiceChip(
+                        label: Text(item.label.replaceFirst('Técnico em ', '')),
+                        selected: item == course,
+                        onSelected: (_) => onCourseChanged(item),
+                      ),
+                  ],
                 ),
-                Text('$unitCount unidades',
-                    style: Theme.of(context).textTheme.bodySmall),
               ],
             ),
-            const SizedBox(height: 4),
-            Text(
-              'Toque em uma disciplina para ver o que será estudado.',
+          ),
+          ExpansionTile(
+            tilePadding: const EdgeInsets.symmetric(horizontal: 16),
+            title: const Text(
+              'Ver disciplinas e unidades',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            subtitle: Text(
+              '${disciplines.length} disciplinas · $unitCount unidades',
               style: Theme.of(context).textTheme.bodySmall,
             ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                for (final item in TechnicalCourse.values)
-                  ChoiceChip(
-                    label: Text(item.label.replaceFirst('Técnico em ', '')),
-                    selected: item == course,
-                    onSelected: (_) => onCourseChanged(item),
-                  ),
+            childrenPadding: const EdgeInsets.only(bottom: 8),
+            children: [
+              for (final discipline in disciplines) ...[
+                const Divider(indent: 16, endIndent: 16),
+                _DisciplineRow(
+                  discipline: discipline,
+                  expanded: discipline == selectedDiscipline,
+                  onTap: () => onDisciplineSelected(discipline),
+                ),
               ],
-            ),
-            Theme(
-              data:
-                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
-              child: ExpansionTile(
-                tilePadding: EdgeInsets.zero,
-                title: const Text('Ver disciplinas e unidades'),
-                childrenPadding: const EdgeInsets.only(bottom: 4),
-                children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Wrap(
-                      spacing: 7,
-                      runSpacing: 7,
-                      children: [
-                        for (final discipline in disciplines)
-                          FilterChip(
-                            label: Text(discipline),
-                            selected: discipline == selectedDiscipline,
-                            onSelected: (_) => onDisciplineSelected(discipline),
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+            ],
+          ),
+        ],
       ),
     );
   }
 }
 
-class _DisciplineOutline extends StatelessWidget {
-  const _DisciplineOutline({required this.discipline});
+/// Disciplina do mapa: abre as unidades logo abaixo, no mesmo lugar.
+class _DisciplineRow extends StatelessWidget {
+  const _DisciplineRow({
+    required this.discipline,
+    required this.expanded,
+    required this.onTap,
+  });
 
   final String discipline;
+  final bool expanded;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final units = QuestionGenerator.unitsFor(discipline);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(discipline, style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 4),
-            Text('${units.length} unidades previstas na matriz curricular',
-                style: Theme.of(context).textTheme.bodySmall),
-            const SizedBox(height: 12),
-            for (var index = 0; index < units.length; index++) ...[
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CircleAvatar(
-                    radius: 12,
-                    backgroundColor: AppColors.track,
-                    child: Text('${index + 1}',
-                        style: Theme.of(context).textTheme.labelSmall),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(units[index].label,
-                            style:
-                                const TextStyle(fontWeight: FontWeight.w600)),
-                        const SizedBox(height: 2),
-                        Text(units[index].objective,
-                            style: Theme.of(context).textTheme.bodySmall),
-                      ],
+    final textTheme = Theme.of(context).textTheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Semantics(
+          expanded: expanded,
+          child: InkWell(
+            onTap: onTap,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 48),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 10, 12, 10),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        discipline,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight:
+                              expanded ? FontWeight.w600 : FontWeight.w500,
+                          color: AppColors.text,
+                        ),
+                      ),
                     ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '${units.length} '
+                      '${units.length == 1 ? 'unidade' : 'unidades'}',
+                      style: textTheme.bodySmall,
+                    ),
+                    Icon(
+                      expanded ? Icons.expand_less : Icons.expand_more,
+                      color: AppColors.muted,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        if (expanded)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 2, 16, 14),
+            child: Column(
+              children: [
+                for (var index = 0; index < units.length; index++) ...[
+                  if (index > 0) const SizedBox(height: 12),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 24,
+                        height: 24,
+                        alignment: Alignment.center,
+                        decoration: const BoxDecoration(
+                          color: AppColors.surfaceHigh,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          '${index + 1}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.muted,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              units[index].label,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(units[index].objective,
+                                style: textTheme.bodySmall),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
-              ),
-              if (index < units.length - 1) const SizedBox(height: 12),
-            ],
-          ],
-        ),
-      ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 }
@@ -297,151 +722,16 @@ class _LockedTrailNotice extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.track,
-        borderRadius: BorderRadius.circular(14),
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadii.medium),
       ),
       child: Row(
         children: [
           const Icon(Icons.lock_outline, color: AppColors.muted),
-          const SizedBox(width: 10),
+          const SizedBox(width: 12),
           Expanded(child: Text(message)),
         ],
       ),
-    );
-  }
-}
-
-class _ModuleTile extends StatelessWidget {
-  const _ModuleTile({required this.module, this.onStart});
-
-  final TrailModule module;
-  final VoidCallback? onStart;
-
-  @override
-  Widget build(BuildContext context) {
-    final status = module.status;
-    final isCurrent = status == ModuleStatus.current;
-    final isLocked = status == ModuleStatus.locked;
-
-    final Widget leading;
-    if (module.isFinalExam) {
-      leading = _Badge(
-        background: isLocked ? AppColors.track : AppColors.amberSoft,
-        child: Icon(
-          Icons.emoji_events_outlined,
-          size: 20,
-          color: isLocked ? AppColors.muted : AppColors.amberText,
-        ),
-      );
-    } else {
-      leading = switch (status) {
-        ModuleStatus.done => const _Badge(
-            background: AppColors.successSoft,
-            child: Icon(Icons.check, size: 20, color: AppColors.success),
-          ),
-        ModuleStatus.current => _Badge(
-            background: AppColors.blue,
-            child: Text(
-              '${module.order}',
-              style: const TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.w700),
-            ),
-          ),
-        ModuleStatus.locked => const _Badge(
-            background: AppColors.track,
-            child: Icon(Icons.lock_outline, size: 18, color: AppColors.muted),
-          ),
-      };
-    }
-
-    final title =
-        module.isFinalExam ? module.title : '${module.order}. ${module.title}';
-    final subtitle = switch (status) {
-      _ when module.isFinalExam => module.subtitle,
-      ModuleStatus.done =>
-        'Concluído · ${module.stars} ${module.stars == 1 ? 'estrela' : 'estrelas'}',
-      ModuleStatus.current => module.lessonsTotal == 0
-          ? module.subtitle
-          : '${module.subtitle} · ${module.lessonsDone} de ${module.lessonsTotal} lições',
-      ModuleStatus.locked => 'Bloqueado',
-    };
-
-    return Card(
-      shape: isCurrent
-          ? RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-              side: const BorderSide(color: AppColors.blue, width: 2),
-            )
-          : null,
-      color: isLocked ? AppColors.ground : null,
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        // No módulo atual quem abre o desafio é o botão.
-        onTap: isCurrent ? null : onStart,
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  leading,
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: isLocked ? AppColors.muted : AppColors.text,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(subtitle,
-                            style: Theme.of(context).textTheme.bodySmall),
-                      ],
-                    ),
-                  ),
-                  if (status == ModuleStatus.done && !module.isFinalExam)
-                    _Stars(count: module.stars),
-                ],
-              ),
-              if (isCurrent) ...[
-                if (module.lessonsTotal > 0) ...[
-                  const SizedBox(height: 12),
-                  ProgressBar(value: module.lessonFraction, height: 6),
-                ],
-                const SizedBox(height: 12),
-                FilledButton(
-                  onPressed: onStart,
-                  child: Text(
-                      onStart == null ? 'Lições em breve' : 'Continuar lição'),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _Badge extends StatelessWidget {
-  const _Badge({required this.background, required this.child});
-
-  final Color background;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 36,
-      height: 36,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(color: background, shape: BoxShape.circle),
-      child: child,
     );
   }
 }
@@ -455,17 +745,21 @@ class _Stars extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       label: '$count de 3 estrelas',
+      excludeSemantics: true,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           for (var i = 0; i < 3; i++)
             Icon(
-              i < count ? Icons.star : Icons.star_border,
+              i < count ? Icons.star_rounded : Icons.star_outline_rounded,
               size: 18,
-              color: i < count ? AppColors.amber : AppColors.line,
+              color: i < count ? AppColors.amber : AppColors.muted,
             ),
         ],
       ),
     );
   }
 }
+
+/// "1 módulo", "6 módulos".
+String _modules(int count) => '$count ${count == 1 ? 'módulo' : 'módulos'}';

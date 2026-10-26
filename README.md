@@ -41,7 +41,7 @@ O app funciona **sem servidor**: o progresso fica salvo no próprio aparelho, co
 | 🏠 **Início do aluno** | Nível, XP, sequência, missões do dia e desafio relâmpago num só lugar. |
 | 🛤️ **Trilhas** | Disciplinas em módulos que se desbloqueiam em ordem, com estrelas e prova final. |
 | ⚡ **Desafios** | Quizzes cronometrados com combo por acertos seguidos, dica que custa XP e explicação a cada resposta. |
-| 🧩 **Questões visuais** | Circuitos em série e paralelo, código de cores, planta elétrica e controle de processo desenhados no app. |
+| 🧩 **Questões visuais** | Circuitos em série e paralelo, código de cores, plantas elétricas (sala e quarto) e controle de processo desenhados no app. |
 | 🔬 **Laboratório** | Circuito animado com Lei de Ohm e potência, código de cores dos resistores e controle de nível com CLP. |
 | 🏆 **Ranking da turma** | Semana, mês e geral, com ligas Cobre → Prata → Ouro. |
 | 👤 **Perfil** | Estatísticas, calendário de estudo e coleção de medalhas. |

@@ -64,11 +64,11 @@ class GabariteiMarkPainter extends CustomPainter {
 
     // Trilhas e nós: o conhecimento se conecta até fechar o gabarito.
     final trace = Paint()
-      ..color = AppColors.skyOnInk.withValues(alpha: 0.72)
+      ..color = AppColors.markTrace.withValues(alpha: 0.72)
       ..style = PaintingStyle.stroke
       ..strokeWidth = side * 0.025
       ..strokeCap = StrokeCap.round;
-    final node = Paint()..color = AppColors.skyOnInk;
+    final node = Paint()..color = AppColors.markTrace;
     final paths = [
       Path()
         ..moveTo(side * 0.06, center.dy)
@@ -88,7 +88,7 @@ class GabariteiMarkPainter extends CustomPainter {
     canvas.drawCircle(Offset(side * 0.94, side * 0.2), side * 0.04, node);
     canvas.drawCircle(Offset(center.dx, side * 0.9), side * 0.04, node);
 
-    canvas.drawCircle(center, radius, Paint()..color = AppColors.amber);
+    canvas.drawCircle(center, radius, Paint()..color = AppColors.markAmber);
 
     // ✓ desenhado em coordenadas relativas ao raio da bolha.
     Offset at(double dx, double dy) =>

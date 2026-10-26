@@ -24,6 +24,8 @@ class _StudentShellState extends State<StudentShell> {
 
   /// Recria somente a aba cuja atividade alterou os dados. As demais mantêm
   /// rolagem e estado local quando o aluno alterna pela navegação inferior.
+  /// O que deve sobreviver à recriação (a trilha escolhida, por exemplo) a
+  /// própria aba guarda no `PageStorage` da rota.
   void _refresh() => setState(() => _revisions[_tab]++);
 
   @override
@@ -38,6 +40,7 @@ class _StudentShellState extends State<StudentShell> {
               child: HomeScreen(
                 onDataChanged: _refresh,
                 onOpenTrails: () => _goTo(1),
+                onOpenProfile: () => _goTo(3),
               ),
             ),
             KeyedSubtree(

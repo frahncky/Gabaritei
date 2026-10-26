@@ -174,39 +174,51 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 16,
-      runSpacing: 12,
-      alignment: WrapAlignment.spaceBetween,
-      crossAxisAlignment: WrapCrossAlignment.end,
+    final title = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '${overview.className} · ${overview.studentCount} alunos',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            Text('Visão geral da turma',
-                style: Theme.of(context).textTheme.headlineMedium),
-          ],
+        Text(
+          '${overview.className} · ${overview.studentCount} alunos',
+          style: Theme.of(context).textTheme.bodySmall,
         ),
-        SizedBox(
-          width: 240,
-          child: DropdownButtonFormField<String>(
-            initialValue: overview.classId,
-            isExpanded: true,
-            decoration: const InputDecoration(labelText: 'Turma'),
-            items: [
-              for (final c in classes)
-                DropdownMenuItem(value: c.id, child: Text(c.name)),
-            ],
-            onChanged: (id) {
-              if (id != null && id != overview.classId) onSelectClass(id);
-            },
-          ),
-        ),
+        Text('Visão geral da turma',
+            style: Theme.of(context).textTheme.headlineMedium),
       ],
+    );
+    final picker = DropdownButtonFormField<String>(
+      initialValue: overview.classId,
+      isExpanded: true,
+      decoration: const InputDecoration(labelText: 'Turma'),
+      items: [
+        for (final c in classes)
+          DropdownMenuItem(
+            value: c.id,
+            child: Text(c.name, overflow: TextOverflow.ellipsis),
+          ),
+      ],
+      onChanged: (id) {
+        if (id != null && id != overview.classId) onSelectClass(id);
+      },
+    );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // No celular a turma ocupa a largura toda, fácil de tocar.
+        if (constraints.maxWidth < 600) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [title, const SizedBox(height: 16), picker],
+          );
+        }
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Expanded(child: title),
+            const SizedBox(width: 16),
+            SizedBox(width: 260, child: picker),
+          ],
+        );
+      },
     );
   }
 }
@@ -222,7 +234,7 @@ class _StatsRow extends StatelessWidget {
     final tiles = [
       StatTile(
         value: '${overview.activeThisWeek} / ${overview.studentCount}',
-        label: 'Alunos ativos na semana',
+        label: 'Ativos na semana',
         icon: Icons.group_outlined,
       ),
       StatTile(
@@ -245,25 +257,39 @@ class _StatsRow extends StatelessWidget {
         iconBackground: AppColors.amberSoft,
       ),
     ];
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        const gap = 12.0;
-        final width = (constraints.maxWidth - gap * (columns - 1)) / columns;
-        return Wrap(
-          spacing: gap,
-          runSpacing: gap,
-          children: [for (final t in tiles) SizedBox(width: width, child: t)],
-        );
-      },
+    // Linhas de mesma altura, mesmo quando um rótulo quebra em duas linhas.
+    const gap = 12.0;
+    return Column(
+      children: [
+        for (var start = 0; start < tiles.length; start += columns) ...[
+          if (start > 0) const SizedBox(height: gap),
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (var i = start; i < start + columns; i++) ...[
+                  if (i > start) const SizedBox(width: gap),
+                  Expanded(
+                    child: i < tiles.length ? tiles[i] : const SizedBox(),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ],
     );
   }
 }
 
 class _Panel extends StatelessWidget {
-  const _Panel({required this.title, this.trailing, required this.children});
+  const _Panel({required this.title, this.subtitle, required this.children});
 
   final String title;
-  final String? trailing;
+
+  /// Explicação curta abaixo do título. Fica embaixo, e não ao lado, para
+  /// não espremer o título no celular.
+  final String? subtitle;
   final List<Widget> children;
 
   @override
@@ -274,7 +300,11 @@ class _Panel extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            SectionHeader(title, trailing: trailing),
+            SectionHeader(title),
+            if (subtitle != null) ...[
+              const SizedBox(height: 4),
+              Text(subtitle!, style: Theme.of(context).textTheme.bodySmall),
+            ],
             const SizedBox(height: 12),
             ...children,
           ],
@@ -293,7 +323,8 @@ class _TopicsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return _Panel(
       title: 'Acerto por tópico',
-      trailing: 'Abaixo de 60% sugere retomar em aula',
+      subtitle: keepLastWordsTogether(
+          'Abaixo de 60% fica em vermelho: vale retomar em aula.'),
       children: [
         for (final topic in topics) ...[
           Row(
@@ -316,7 +347,7 @@ class _TopicsCard extends StatelessWidget {
           const SizedBox(height: 6),
           ProgressBar(
             value: topic.accuracy,
-            color: topic.needsReview ? AppColors.error : AppColors.blue,
+            color: topic.needsReview ? AppColors.error : AppColors.progress,
             semanticsLabel: 'Acerto em ${topic.topic}',
           ),
           const SizedBox(height: 14),
@@ -344,38 +375,110 @@ class _AlertsCard extends StatelessWidget {
       title: 'Alunos que precisam de atenção',
       children: [
         if (alerts.isEmpty) const Text('Nenhum aluno em alerta nesta turma.'),
-        for (final alert in alerts) ...[
-          Row(
-            children: [
-              Avatar(initials: initialsOf(alert.name), size: 36),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(alert.name,
-                        style: const TextStyle(fontWeight: FontWeight.w600)),
-                    Text(alert.reason),
-                    Text(
-                      'Último acesso: ${formatRelativeDay(alert.lastAccess, now)} · '
-                      'Acerto ${formatPercent(alert.accuracy)}',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              reminded.contains(alert.studentId)
-                  ? const TextButton(onPressed: null, child: Text('Enviado'))
-                  : TextButton(
-                      onPressed: () => onRemind(alert),
-                      child: const Text('Enviar lembrete'),
-                    ),
-            ],
+        for (var i = 0; i < alerts.length; i++) ...[
+          if (i > 0) const Divider(height: 24),
+          _AlertTile(
+            alert: alerts[i],
+            now: now,
+            sent: reminded.contains(alerts[i].studentId),
+            onRemind: () => onRemind(alerts[i]),
           ),
-          const Divider(height: 24),
         ],
       ],
+    );
+  }
+}
+
+/// Aluno em alerta. Com espaço, a ação fica à direita; no celular, desce
+/// para baixo do texto, para nome e motivo usarem a largura toda.
+class _AlertTile extends StatelessWidget {
+  const _AlertTile({
+    required this.alert,
+    required this.now,
+    required this.sent,
+    required this.onRemind,
+  });
+
+  static const _avatar = 36.0;
+  static const _avatarGap = 12.0;
+
+  final StudentAlert alert;
+  final DateTime now;
+  final bool sent;
+  final VoidCallback onRemind;
+
+  @override
+  Widget build(BuildContext context) {
+    final small = Theme.of(context).textTheme.bodySmall;
+    final info = Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Avatar(initials: initialsOf(alert.name), size: _avatar),
+        const SizedBox(width: _avatarGap),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(alert.name,
+                  style: const TextStyle(fontWeight: FontWeight.w600)),
+              const SizedBox(height: 2),
+              Text(keepLastWordsTogether(alert.reason)),
+              const SizedBox(height: 4),
+              // Cada dado fica inteiro: se não couber, desce junto.
+              Wrap(
+                spacing: 12,
+                runSpacing: 2,
+                children: [
+                  Text(
+                    'Último acesso: '
+                    '${formatRelativeDay(alert.lastAccess, now)}',
+                    style: small,
+                  ),
+                  Text('Acerto: ${formatPercent(alert.accuracy)}',
+                      style: small),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+    final action = sent
+        ? TextButton.icon(
+            onPressed: null,
+            icon: const Icon(Icons.check, size: 18),
+            label: const Text('Enviado'),
+          )
+        : TextButton.icon(
+            onPressed: onRemind,
+            icon: const Icon(Icons.notifications_outlined, size: 18),
+            label: const Text('Enviar lembrete'),
+          );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth >= 480) {
+          return Row(
+            children: [
+              Expanded(child: info),
+              const SizedBox(width: 8),
+              action,
+            ],
+          );
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            info,
+            const SizedBox(height: 4),
+            // Alinha o ícone do botão com o texto, descontando o recuo dele.
+            Padding(
+              padding: const EdgeInsets.only(left: _avatar + _avatarGap - 12),
+              child: action,
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -398,13 +501,6 @@ class _QuestionGeneratorCardState extends State<_QuestionGeneratorCard> {
   Question? _draft;
   bool _saving = false;
 
-  Color get _courseColor => switch (_course) {
-        TechnicalCourse.electronics => const Color(0xFFA78BCA),
-        TechnicalCourse.electrotechnics => AppColors.amberText,
-        TechnicalCourse.automation => const Color(0xFF72B7C5),
-        TechnicalCourse.mechatronics => const Color(0xFF7EBC91),
-      };
-
   void _generate() {
     setState(() {
       _draft = QuestionGenerator.generate(
@@ -426,52 +522,20 @@ class _QuestionGeneratorCardState extends State<_QuestionGeneratorCard> {
   @override
   Widget build(BuildContext context) {
     final draft = _draft;
+    // O curso escolhido já aparece no seletor logo abaixo; um selo colorido
+    // por curso repetiria a informação e somaria quatro cores à paleta.
     return _Panel(
       title: 'Motor de criação de questões',
+      subtitle: keepLastWordsTogether(
+          'Gere um rascunho com gabarito, explicação e recurso visual. '
+          'Revise antes de publicar.'),
       children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 250),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: _courseColor.withValues(alpha: 0.13),
-              borderRadius: BorderRadius.circular(999),
-              border: Border.all(color: _courseColor.withValues(alpha: 0.45)),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                      color: _courseColor, shape: BoxShape.circle),
-                ),
-                const SizedBox(width: 7),
-                Text(
-                  _course.label,
-                  style: TextStyle(
-                      color: _courseColor,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 10),
-        const Text(
-          'Gere um rascunho com gabarito, explicação e recurso visual. Revise antes de publicar.',
-          style: TextStyle(color: AppColors.muted),
-        ),
-        const SizedBox(height: 12),
         DropdownButtonFormField<TechnicalCourse>(
           initialValue: _course,
           isExpanded: true,
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             labelText: 'Curso técnico',
-            prefixIcon: Icon(Icons.hub_outlined, color: _courseColor),
+            prefixIcon: Icon(Icons.hub_outlined),
           ),
           items: [
             for (final course in TechnicalCourse.values)
@@ -538,12 +602,12 @@ class _QuestionGeneratorCardState extends State<_QuestionGeneratorCard> {
         ),
         if (draft != null) ...[
           const SizedBox(height: 14),
+          // Rascunho: bloco tonal um degrau acima do cartão, sem contorno.
           Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.ground,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.line),
+            padding: AppSpacing.card,
+            decoration: const BoxDecoration(
+              color: AppColors.surfaceHigh,
+              borderRadius: BorderRadius.all(Radius.circular(AppRadii.medium)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -552,24 +616,24 @@ class _QuestionGeneratorCardState extends State<_QuestionGeneratorCard> {
                     style: const TextStyle(fontWeight: FontWeight.w600)),
                 const SizedBox(height: 10),
                 for (var i = 0; i < draft.options.length; i++)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    child: Text(
-                      '${String.fromCharCode(65 + i)}. ${draft.options[i]}${i == draft.correctIndex ? '  ✓ gabarito' : ''}',
-                      style: TextStyle(
-                          color: i == draft.correctIndex
-                              ? AppColors.success
-                              : AppColors.text),
-                    ),
+                  _DraftOption(
+                    letter: String.fromCharCode(65 + i),
+                    text: draft.options[i],
+                    correct: i == draft.correctIndex,
                   ),
                 const SizedBox(height: 8),
-                Text('Visual: ${_visualLabel(draft.visual)}',
-                    style: Theme.of(context).textTheme.bodySmall),
+                Text(
+                  'Gabarito: ${String.fromCharCode(65 + draft.correctIndex)}'
+                  ' · Visual: ${_visualLabel(draft.visual)}',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
               ],
             ),
           ),
           const SizedBox(height: 12),
+          // Tonal: o azul cheio do painel fica com "Publicar para a turma".
           FilledButton.icon(
+            style: AppTheme.tonalButton,
             onPressed: _saving ? null : _save,
             icon: const Icon(Icons.add_task_outlined),
             label: Text(_saving ? 'Salvando…' : 'Adicionar ao banco'),
@@ -584,9 +648,53 @@ class _QuestionGeneratorCardState extends State<_QuestionGeneratorCard> {
         QuestionVisual.circuitParallel => 'circuito em paralelo',
         QuestionVisual.resistorBands => 'faixas de resistor',
         QuestionVisual.electricalPlan => 'planta elétrica',
+        QuestionVisual.bedroomPlan => 'planta elétrica do quarto',
         QuestionVisual.processControl => 'controle de processo',
         null => 'sem recurso visual',
       };
+}
+
+/// Alternativa do rascunho; a correta vem em verde com um ícone de check.
+class _DraftOption extends StatelessWidget {
+  const _DraftOption({
+    required this.letter,
+    required this.text,
+    required this.correct,
+  });
+
+  final String letter;
+  final String text;
+  final bool correct;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = correct ? AppColors.success : AppColors.text;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 22,
+            child: Text(
+              '$letter.',
+              style: TextStyle(color: color, fontWeight: FontWeight.w600),
+            ),
+          ),
+          Expanded(child: Text(text, style: TextStyle(color: color))),
+          if (correct) ...[
+            const SizedBox(width: 8),
+            const Icon(
+              Icons.check_circle,
+              size: 18,
+              color: AppColors.success,
+              semanticLabel: 'gabarito',
+            ),
+          ],
+        ],
+      ),
+    );
+  }
 }
 
 class _QuickChallengeCard extends StatefulWidget {
@@ -729,6 +837,16 @@ class _QuickChallengeCardState extends State<_QuickChallengeCard> {
           onPressed: _canPublish ? _submit : null,
           child: Text(_sending ? 'Publicando…' : 'Publicar para a turma'),
         ),
+        // Diz por que o botão está apagado, em vez de deixar o professor
+        // adivinhar.
+        if (!_sending && _title.text.trim().isEmpty) ...[
+          const SizedBox(height: 6),
+          Text(
+            'Dê um título ao desafio para publicar.',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
       ],
     );
   }
@@ -746,26 +864,33 @@ class _ActiveChallengesCard extends StatelessWidget {
       children: [
         if (challenges.isEmpty) const Text('Nenhum desafio ativo.'),
         for (final challenge in challenges) ...[
+          // Título com a largura toda; prazo e adesão na linha de baixo.
+          Text(
+            challenge.title,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 6),
+          ProgressBar(
+            value: challenge.fraction,
+            semanticsLabel: 'Conclusão de ${challenge.title}',
+          ),
+          const SizedBox(height: 4),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: Text(
-                  challenge.title,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
+                  '${challenge.completedBy} de ${challenge.classSize} '
+                  'alunos concluíram',
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
               ),
+              const SizedBox(width: 8),
               Text(
                 'até ${formatShortDate(challenge.deadline)}',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ],
-          ),
-          const SizedBox(height: 6),
-          ProgressBar(value: challenge.fraction),
-          const SizedBox(height: 4),
-          Text(
-            '${challenge.completedBy} de ${challenge.classSize} alunos concluíram',
-            style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 14),
         ],

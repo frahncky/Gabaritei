@@ -5,7 +5,7 @@ import '../domain/rules/level_rules.dart';
 import 'format.dart';
 import 'widgets.dart';
 
-/// Cartão escuro com o nível atual, a escada de níveis e o progresso.
+/// Cartão com o nível atual, a escada de níveis e o progresso.
 ///
 /// Com [animateFromXp], o XP sobe do valor antigo até o atual, passando
 /// pelos níveis do meio (usado no resultado do desafio).
@@ -14,13 +14,21 @@ class LevelCard extends StatelessWidget {
     super.key,
     required this.level,
     this.animateFromXp,
-    this.color = AppColors.blueSoft,
+    this.color = AppColors.surface,
   });
+
+  /// Raio do cartão, para efeitos que precisam acompanhar o contorno.
+  static const radius = 20.0;
+
+  /// Quanto a barra leva para subir com [animateFromXp]; o resultado usa
+  /// para sincronizar o selo de nível novo com o cruzamento da barra.
+  static const animationDuration = Duration(milliseconds: 1400);
 
   final LevelProgress level;
   final int? animateFromXp;
 
-  /// Fundo do cartão; use [AppColors.inkRaised] sobre telas escuras.
+  /// Fundo do cartão. O acento do cartão é a barra de XP em âmbar; o fundo
+  /// fica tonal.
   final Color color;
 
   @override
@@ -31,17 +39,16 @@ class LevelCard extends StatelessWidget {
         !MediaQuery.of(context).disableAnimations;
 
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.inkLine),
+        borderRadius: BorderRadius.circular(radius),
       ),
       child: animate
           ? TweenAnimationBuilder<double>(
               tween:
                   Tween(begin: from.toDouble(), end: level.totalXp.toDouble()),
-              duration: const Duration(milliseconds: 1400),
+              duration: animationDuration,
               curve: Curves.easeOutCubic,
               builder: (context, xp, _) =>
                   _LevelContent(level: LevelRules.progressFor(xp.round())),
@@ -73,14 +80,15 @@ class _LevelContent extends StatelessWidget {
                 children: [
                   Text(
                     'Nível ${tier.index + 1} de ${LevelTier.values.length}',
-                    style: const TextStyle(
-                        color: AppColors.mutedOnInk, fontSize: 12),
+                    style:
+                        const TextStyle(color: AppColors.muted, fontSize: 12),
                   ),
                   Text(
                     level.current.name,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AppColors.text,
                       fontSize: 26,
+                      height: 1.2,
                       fontFamily: AppFonts.display,
                       fontWeight: FontWeight.w800,
                     ),
@@ -88,14 +96,17 @@ class _LevelContent extends StatelessWidget {
                 ],
               ),
             ),
-            Text(
-              '${formatNumber(level.totalXp)} XP',
-              style: const TextStyle(
-                color: AppColors.amberOnInk,
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                fontFamily: AppFonts.display,
-                fontFeatures: [FontFeature.tabularFigures()],
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Text(
+                '${formatNumber(level.totalXp)} XP',
+                style: const TextStyle(
+                  color: AppColors.amberText,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: AppFonts.display,
+                  fontFeatures: [FontFeature.tabularFigures()],
+                ),
               ),
             ),
           ],
@@ -108,14 +119,17 @@ class _LevelContent extends StatelessWidget {
                 child: Text(
                   t.label,
                   textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.visible,
+                  softWrap: false,
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: t == tier ? FontWeight.w700 : FontWeight.w400,
                     color: t == tier
-                        ? AppColors.amberOnInk
+                        ? AppColors.amberText
                         : t.index < tier.index
-                            ? Colors.white
-                            : AppColors.mutedOnInk.withValues(alpha: 0.6),
+                            ? AppColors.text
+                            : AppColors.muted,
                   ),
                 ),
               ),
@@ -124,8 +138,7 @@ class _LevelContent extends StatelessWidget {
         const SizedBox(height: 6),
         ProgressBar(
           value: level.fraction,
-          color: AppColors.amber,
-          trackColor: AppColors.inkLine,
+          gradient: AppColors.xpGradient,
           height: 10,
           semanticsLabel: 'Progresso no nível',
         ),
@@ -133,33 +146,28 @@ class _LevelContent extends StatelessWidget {
         if (next == null)
           const Text(
             'Você chegou ao topo: Domínio.',
-            style: TextStyle(color: AppColors.mutedOnInk, fontSize: 13),
+            style: TextStyle(color: AppColors.muted, fontSize: 13),
           )
         else
+          // A escada logo acima já mostra o nível seguinte; a frase fica curta
+          // para caber numa linha mesmo em 360 dp.
           Text.rich(
             TextSpan(
-              style: const TextStyle(color: AppColors.mutedOnInk, fontSize: 13),
+              style: const TextStyle(color: AppColors.muted, fontSize: 13),
               children: [
                 const TextSpan(text: 'Faltam '),
                 TextSpan(
                   text: '${formatNumber(level.xpToNext)} XP',
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: AppColors.text,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                TextSpan(text: ' para ${next.name}${_afterNext(next)}'),
+                TextSpan(text: ' para ${next.name}'),
               ],
             ),
           ),
       ],
     );
-  }
-
-  /// " · depois vem Craque" quando o próximo degrau ainda é do mesmo nível.
-  String _afterNext(LevelStep next) {
-    final tier = level.current.tier;
-    if (next.tier != tier) return '';
-    return ' · depois vem ${LevelTier.values[tier.index + 1].label}';
   }
 }

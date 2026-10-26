@@ -12,7 +12,11 @@ void main() {
       expect(question.correctIndex,
           inInclusiveRange(0, question.options.length - 1));
       expect(question.explanation, isNotEmpty);
-      expect(question.visual, isNotNull);
+      // Sem desenho que combine, a questão fica sem visual e não pode
+      // citar uma ilustração.
+      if (question.visual == null) {
+        expect(question.prompt, isNot(contains('ilustrad')), reason: topic);
+      }
     }
   });
 

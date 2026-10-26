@@ -355,6 +355,11 @@ class QuestionGenerator {
         (item) => item.label == unit,
         orElse: () => unitsFor(topic).first,
       );
+      final installations =
+          topic == _installations ? _installationUnits[selected.label] : null;
+      if (installations != null) {
+        return _installationQuestion(selected.label, installations, sequence);
+      }
       return _unitQuestion(topic, selected, sequence);
     }
     return switch (topic) {
@@ -368,7 +373,7 @@ class QuestionGenerator {
           0,
           'O período é T = 1/f = 1/60 s ≈ 16,7 ms.',
           'Use T = 1/f.',
-          QuestionVisual.circuitSeries,
+          null,
         ),
       'Eletrônica analógica' => _concept(
           sequence,
@@ -383,7 +388,7 @@ class QuestionGenerator {
           0,
           'A realimentação negativa força as entradas ao chamado curto virtual.',
           'Considere o comportamento do amplificador operacional ideal.',
-          QuestionVisual.circuitSeries,
+          null,
         ),
       'Eletrônica digital' => _concept(
           sequence,
@@ -393,7 +398,7 @@ class QuestionGenerator {
           1,
           'A porta AND produz 1 somente quando todas as entradas são 1.',
           'Consulte a tabela-verdade da porta AND.',
-          QuestionVisual.processControl,
+          null,
         ),
       'Eletrônica de potência' => _concept(
           sequence,
@@ -403,7 +408,7 @@ class QuestionGenerator {
           0,
           'O TRIAC conduz nos dois semiciclos e é usado no controle de potência CA.',
           'Pense em um semicondutor bidirecional.',
-          QuestionVisual.circuitSeries,
+          null,
         ),
       'Segurança e normas' => _concept(
           sequence,
@@ -433,9 +438,9 @@ class QuestionGenerator {
           0,
           'É necessário escorregamento para induzir corrente e produzir torque no rotor.',
           'Lembre-se do conceito de escorregamento.',
-          QuestionVisual.circuitSeries,
+          null,
         ),
-      'Instalações elétricas' => _electricalPlan(sequence),
+      _installations => _bedroomPlan(sequence),
       'CLP' => _concept(
           sequence,
           topic,
@@ -459,7 +464,7 @@ class QuestionGenerator {
           0,
           'O encoder fornece realimentação de posição e velocidade ao controlador.',
           'É um sensor de movimento angular.',
-          QuestionVisual.processControl,
+          null,
         ),
       'Supervisórios e controle de processos' => _processControl(sequence),
       'Telecomunicações' => _concept(
@@ -475,7 +480,7 @@ class QuestionGenerator {
           0,
           'Em AM, a amplitude da portadora varia conforme o sinal de informação.',
           'AM significa modulação em amplitude.',
-          QuestionVisual.processControl,
+          null,
         ),
       'Programação' => _concept(
           sequence,
@@ -485,7 +490,7 @@ class QuestionGenerator {
           0,
           'O laço while avalia a condição antes de cada repetição.',
           'Procure uma estrutura de repetição condicional.',
-          QuestionVisual.processControl,
+          null,
         ),
       _ => _unitQuestion(topic, unitsFor(topic).first, sequence),
     };
@@ -543,7 +548,7 @@ class QuestionGenerator {
     int correctIndex,
     String explanation,
     String hint,
-    QuestionVisual visual,
+    QuestionVisual? visual,
   ) =>
       Question(
         id: 'generated-concept-${topic.hashCode}-$sequence',
@@ -556,31 +561,45 @@ class QuestionGenerator {
         visual: visual,
       );
 
+  /// Distratores vêm de erros comuns: fórmula invertida (R / V), resultado em
+  /// amperes rotulado como mA e o valor certo com a unidade errada (A).
   static Question _ohm(int sequence) {
     const resistances = [100, 220, 470, 1000];
     const voltage = 12;
     final resistance = resistances[sequence.abs() % resistances.length];
-    final current = voltage * 1000 / resistance;
-    final answer = current % 1 == 0
-        ? '${current.toInt()} mA'
-        : '${current.toStringAsFixed(1).replaceAll('.', ',')} mA';
+    final amperes = voltage / resistance;
+    final milliamps = amperes * 1000;
+    final value = _decimal(milliamps.toStringAsFixed(1));
+    final answer = '$value mA';
+    final distractors = [
+      '${_decimal((resistance / voltage).toStringAsFixed(1))} mA',
+      '${_decimal(amperes.toStringAsPrecision(2))} mA',
+      '$value A',
+    ];
+    // A posição da correta muda com a sequência, sem acompanhar o resistor.
+    final correctIndex = (sequence.abs() ~/ resistances.length) % 4;
+    final options = [...distractors]..insert(correctIndex, answer);
+    final relation = milliamps % 1 == 0 ? '=' : '≈';
     return Question(
       id: 'generated-ohm-$sequence',
       topic: 'Eletricidade básica',
       prompt:
           'Uma fonte de $voltage V alimenta um resistor de $resistance Ω. Qual é a corrente aproximada?',
-      options: [
-        answer,
-        '${resistance ~/ 10} mA',
-        '${voltage * 10} mA',
-        '$resistance mA'
-      ],
-      correctIndex: 0,
+      options: options,
+      correctIndex: correctIndex,
       explanation:
-          'Pela Lei de Ohm, I = V / R. A corrente calculada é $answer.',
+          'Pela Lei de Ohm, I = V / R = $voltage / $resistance $relation $answer.',
       hint: 'Use I = V / R e converta amperes para miliamperes.',
-      visual: QuestionVisual.circuitSeries,
+      // O desenho em série mostra 12 V e 220 Ω; só combina com esse caso.
+      visual: resistance == 220 ? QuestionVisual.circuitSeries : null,
     );
+  }
+
+  /// Troca o ponto decimal pela vírgula e tira o ",0" final.
+  static String _decimal(String value) {
+    final text =
+        value.endsWith('.0') ? value.substring(0, value.length - 2) : value;
+    return text.replaceAll('.', ',');
   }
 
   static Question _parallel(int sequence) => Question(
@@ -595,23 +614,285 @@ class QuestionGenerator {
         visual: QuestionVisual.circuitParallel,
       );
 
-  static Question _electricalPlan(int sequence) => Question(
-        id: 'generated-plan-$sequence',
-        topic: 'Instalações elétricas',
-        prompt:
-            'Na planta elétrica, qual elemento recebe energia diretamente do quadro de distribuição?',
-        options: const [
-          'Interruptor',
-          'Tomada',
-          'Luminária',
-          'Todos os pontos do circuito'
-        ],
-        correctIndex: 3,
-        explanation:
-            'O quadro alimenta os circuitos que atendem tomadas, interruptores e luminárias.',
-        hint: 'Siga o condutor destacado a partir do QD.',
-        visual: QuestionVisual.electricalPlan,
-      );
+  static const _installations = 'Instalações elétricas';
+
+  /// Sem assunto escolhido, percorre todas as questões da planta do quarto.
+  static Question _bedroomPlan(int sequence) {
+    final pool = [
+      for (final unit in _installationUnits.values)
+        if (unit.visual == QuestionVisual.bedroomPlan) ...unit.items,
+    ];
+    final item = pool[sequence.abs() % pool.length];
+    return Question(
+      id: 'generated-plan-$sequence',
+      topic: _installations,
+      prompt: '${item.prompt[0].toUpperCase()}${item.prompt.substring(1)}',
+      options: item.options,
+      correctIndex: item.correctIndex,
+      explanation: item.explanation,
+      hint: item.hint,
+      visual: QuestionVisual.bedroomPlan,
+    );
+  }
+
+  /// O assunto abre o enunciado ("Dimensionamento: considere…"), para o
+  /// professor reconhecer de onde veio a questão no banco.
+  static Question _installationQuestion(
+    String unit,
+    _InstallationUnit pool,
+    int sequence,
+  ) {
+    final item = pool.items[sequence.abs() % pool.items.length];
+    return Question(
+      id: 'generated-installations-${pool.slug}-$sequence',
+      topic: _installations,
+      prompt: '$unit: ${item.prompt}',
+      options: item.options,
+      correctIndex: item.correctIndex,
+      explanation: item.explanation,
+      hint: item.hint,
+      visual: pool.visual,
+    );
+  }
+
+  /// Questões de Instalações elétricas por assunto. As de planta só usam o
+  /// que o desenho [QuestionVisual.bedroomPlan] mostra: quarto de
+  /// 3,50 m × 3,00 m (10,50 m², 13,00 m de perímetro), ponto de luz de
+  /// 160 VA (circuito 1, comando "a"), interruptor "a", 3 TUGs baixas de
+  /// 100 VA (circuito 2), TUE alta de 1.500 W do ar-condicionado
+  /// (circuito 3) e alimentação vinda do QD. A tensão não está no desenho:
+  /// quando a conta precisa dela, o enunciado informa. Os enunciados começam
+  /// em minúscula porque recebem o assunto (ou a maiúscula) na frente.
+  static const Map<String, _InstallationUnit> _installationUnits = {
+    'Plantas e simbologia': (
+      slug: 'simbologia',
+      visual: QuestionVisual.bedroomPlan,
+      items: [
+        _Template(
+          prompt: 'na planta do quarto, de onde saem os circuitos terminais '
+              '1, 2 e 3?',
+          options: [
+            'Do medidor de energia',
+            'Do interruptor "a"',
+            'Do quadro de distribuição (QD)',
+            'Da TUE do ar-condicionado',
+          ],
+          correctIndex: 2,
+          explanation: 'Os circuitos terminais partem do QD, indicado pela '
+              'seta "do QD". O medidor alimenta o QD, e o interruptor só '
+              'comanda o ponto de luz.',
+          hint: 'Siga os eletrodutos até a seta que entra no quarto.',
+        ),
+        _Template(
+          prompt: 'quantos pontos de tomada o quarto da planta tem?',
+          options: ['3', '4', '5', '6'],
+          correctIndex: 1,
+          explanation: 'São 3 TUGs (circuito 2) e 1 TUE do ar-condicionado '
+              '(circuito 3): 4 pontos de tomada. Ponto de luz e interruptor '
+              'não são tomadas.',
+          hint: 'TUG e TUE são os dois tipos de ponto de tomada.',
+        ),
+        _Template(
+          prompt: 'na legenda da planta do quarto, o que diferencia a TUE '
+              'das TUGs?',
+          options: [
+            'A TUE é trifásica, e as TUGs, monofásicas',
+            'A TUE fica no teto, e as TUGs, na parede',
+            'A TUE tem 100 VA, e as TUGs, 1.500 W',
+            'A TUE atende um equipamento definido; as TUGs, aparelhos '
+                'quaisquer',
+          ],
+          correctIndex: 3,
+          explanation: 'TUE é tomada de uso específico: atende um equipamento '
+              'definido (aqui, o ar-condicionado de 1.500 W) e recebe a '
+              'potência dele. TUG é de uso geral, para aparelhos quaisquer.',
+          hint: 'Leia o nome completo das siglas: uso geral e uso específico.',
+        ),
+        _Template(
+          prompt: 'na legenda da planta do quarto, o que indica a palavra '
+              '"baixa" nas TUGs?',
+          options: [
+            'A altura de instalação, perto do piso',
+            'A potência das tomadas, de 100 VA',
+            'Que são tomadas de 10 A, e não de 20 A',
+            'Que recebem a tensão mais baixa do quadro',
+          ],
+          correctIndex: 0,
+          explanation: 'Tomada baixa, média ou alta indica a altura de '
+              'instalação na parede: as TUGs ficam perto do piso, e a TUE do '
+              'ar-condicionado, no alto. Potência e circuito vêm anotados à '
+              'parte.',
+          hint: 'Compare com a TUE do ar-condicionado, marcada como "alta".',
+        ),
+        _Template(
+          prompt: 'na planta do quarto, o que o interruptor "a" comanda?',
+          options: [
+            'O ponto de luz e as TUGs',
+            'Só o ponto de luz do teto',
+            'Todo o circuito 1, desde o QD',
+            'A TUE do ar-condicionado',
+          ],
+          correctIndex: 1,
+          explanation: 'O interruptor e o ponto de luz do teto têm a mesma '
+              'letra "a", que liga comando e carga. As tomadas dos circuitos '
+              '2 e 3 não passam pelo interruptor.',
+          hint: 'Procure no desenho outro ponto com a mesma letra do '
+              'interruptor.',
+        ),
+      ],
+    ),
+    'Dimensionamento': (
+      slug: 'dimensionamento',
+      visual: QuestionVisual.bedroomPlan,
+      items: [
+        _Template(
+          prompt: 'qual é a potência total prevista na planta do quarto para '
+              'o circuito 2, das TUGs?',
+          options: ['100 VA', '300 VA', '460 VA', '1.800 VA'],
+          correctIndex: 1,
+          explanation: 'O circuito 2 tem 3 TUGs de 100 VA, o mínimo da '
+              'NBR 5410 por TUG fora de cozinhas, áreas de serviço e '
+              'banheiros: 3 × 100 = 300 VA. O ponto de luz (160 VA) é do '
+              'circuito 1.',
+          hint: 'Some só os pontos marcados com o circuito 2.',
+        ),
+        _Template(
+          prompt: 'considere 127 V. Qual é a corrente do circuito 1, que '
+              'alimenta o ponto de luz de 160 VA da planta?',
+          options: ['0,73 A', '0,79 A', '3,62 A', '1,26 A'],
+          correctIndex: 3,
+          explanation: 'I = S / V = 160 / 127 ≈ 1,26 A (S é a potência '
+              'aparente, em VA). O interruptor não consome potência, e as '
+              'TUGs são do circuito 2.',
+          hint: 'Use I = S / V com a potência anotada no ponto de luz.',
+        ),
+        _Template(
+          prompt: 'considere 127 V e fator de potência 1. Qual é a corrente '
+              'do circuito 3, da TUE do ar-condicionado de 1.500 W?',
+          options: ['11,8 A', '6,8 A', '0,08 A', '11,8 mA'],
+          correctIndex: 0,
+          explanation: 'I = P / V = 1.500 / 127 ≈ 11,8 A. Como passa de 10 A, '
+              'a NBR 5410 pede circuito independente: por isso o circuito 3 '
+              'é só da TUE.',
+          hint: 'Use I = P / V; em 1.500 W, o ponto separa os milhares.',
+        ),
+        _Template(
+          prompt: 'pela NBR 5410, qual é a seção mínima do condutor de cobre '
+              'do circuito 2, das TUGs da planta do quarto?',
+          options: ['0,5 mm²', '1,5 mm²', '2,5 mm²', '4 mm²'],
+          correctIndex: 2,
+          explanation: 'Seções mínimas de cobre na NBR 5410: 1,5 mm² para '
+              'iluminação, 2,5 mm² para circuitos de força (como os de '
+              'tomadas) e 0,5 mm² para sinalização e controle. O circuito 2 '
+              'é de tomadas: 2,5 mm².',
+          hint: 'O mínimo depende da função do circuito: iluminação ou força.',
+        ),
+      ],
+    ),
+    'Luminotécnica': (
+      slug: 'luminotecnica',
+      visual: QuestionVisual.bedroomPlan,
+      items: [
+        _Template(
+          prompt: 'o que representam os 160 VA anotados no ponto de luz da '
+              'planta do quarto?',
+          options: [
+            'A potência exata da lâmpada a comprar',
+            'O consumo mensal do ponto de luz',
+            'A carga prevista para dimensionar o circuito',
+            'O fluxo luminoso da lâmpada',
+          ],
+          correctIndex: 2,
+          explanation: 'Pela NBR 5410, os 160 VA são a carga mínima de '
+              'iluminação usada para dimensionar o circuito, não '
+              'necessariamente a potência da lâmpada. Consumo se mede em kWh, '
+              'e fluxo luminoso, em lúmens (lm).',
+          hint: 'Observe a unidade: VA não mede energia nem luz.',
+        ),
+        _Template(
+          prompt: 'para ter iluminância média de 150 lx em todo o piso do '
+              'quarto da planta, quantos lúmens precisam chegar ao piso? '
+              'Desconsidere perdas.',
+          options: ['1.950 lm', '1.575 lm', '525 lm', '14,3 lm'],
+          correctIndex: 1,
+          explanation: 'Iluminância é fluxo por área: E = Φ / A. Então '
+              'Φ = E × A = 150 × (3,50 × 3,00) = 150 × 10,50 = 1.575 lm.',
+          hint: 'Lux é lúmen por metro quadrado.',
+        ),
+        _Template(
+          prompt: 'a planta prevê 160 VA de iluminação para o quarto de '
+              '10,50 m². Pelo mesmo critério de área da NBR 5410, a partir de '
+              'que área a carga mínima subiria para 220 VA?',
+          options: ['14,00 m²', '10,00 m²', '14,50 m²', '12,00 m²'],
+          correctIndex: 0,
+          explanation: '220 VA = 100 VA + 2 × 60 VA: são dois blocos de 4 m² '
+              'inteiros além dos primeiros 6 m², ou seja, 6 + 2 × 4 = '
+              '14,00 m². O quarto da planta, com 10,50 m², tem um só bloco.',
+          hint: 'Descubra quantos acréscimos de 60 VA cabem em 220 VA e '
+              'converta cada um em 4 m².',
+        ),
+      ],
+    ),
+    // Partida de motores não cabe na planta de um quarto, e nenhum desenho
+    // atual mostra um comando; fica sem visual.
+    'Comandos elétricos': (
+      slug: 'comandos',
+      visual: null,
+      items: [
+        _Template(
+          prompt: 'na partida direta de um motor com o contator K1, qual '
+              'contato mantém a bobina de K1 energizada depois que o botão '
+              'liga é solto?',
+          options: [
+            'O contato NF do relé térmico',
+            'Um contato auxiliar NA de K1, em paralelo com o botão liga',
+            'Um contato principal de K1, em série com o motor',
+            'O contato NF do botão desliga',
+          ],
+          correctIndex: 1,
+          explanation: 'É o contato de selo (retenção): um auxiliar NA do '
+              'próprio K1, em paralelo com o botão liga. Os NF do relé '
+              'térmico e do botão desliga ficam em série para interromper o '
+              'comando; os contatos principais estão no circuito de força.',
+          hint: 'Pense no contato que faz o papel do botão depois que K1 '
+              'fecha.',
+        ),
+        _Template(
+          prompt: 'qual é a função do relé térmico (relé de sobrecarga) na '
+              'partida de um motor?',
+          options: [
+            'Proteger contra curto-circuito',
+            'Inverter o sentido de rotação',
+            'Reduzir a corrente de partida',
+            'Desligar o motor em sobrecarga prolongada',
+          ],
+          correctIndex: 3,
+          explanation: 'O relé térmico atua quando a corrente fica acima do '
+              'ajuste por tempo prolongado (sobrecarga) e abre o comando do '
+              'contator. Curto-circuito é papel de fusíveis ou disjuntores.',
+          hint: 'Ele aquece com a corrente e reage devagar.',
+        ),
+        _Template(
+          prompt: 'na partida com reversão, para que serve o intertravamento '
+              'entre os contatores K1 e K2?',
+          options: [
+            'Impedir que K1 e K2 liguem juntos, o que causaria curto entre '
+                'fases',
+            'Manter K1 ligado depois que o botão é solto',
+            'Reduzir a corrente de partida do motor',
+            'Proteger o motor contra sobrecarga',
+          ],
+          correctIndex: 0,
+          explanation: 'Na reversão, K1 e K2 trocam duas fases do motor. Se '
+              'ligassem juntos, haveria curto entre fases; por isso um '
+              'contato NF de cada contator fica em série com a bobina do '
+              'outro.',
+          hint: 'Pense no que aconteceria se as duas sequências de fase '
+              'fossem ligadas ao mesmo tempo.',
+        ),
+      ],
+    ),
+  };
 
   static Question _processControl(int sequence) => Question(
         id: 'generated-control-$sequence',
@@ -624,4 +905,28 @@ class QuestionGenerator {
         hint: 'Busque o elemento entre a medição e o atuador.',
         visual: QuestionVisual.processControl,
       );
+}
+
+/// Questões de um assunto e o visual que todas compartilham.
+typedef _InstallationUnit = ({
+  String slug,
+  QuestionVisual? visual,
+  List<_Template> items,
+});
+
+/// Questão pronta, sem id: o gerador acrescenta o id e o assunto.
+class _Template {
+  const _Template({
+    required this.prompt,
+    required this.options,
+    required this.correctIndex,
+    required this.explanation,
+    required this.hint,
+  });
+
+  final String prompt;
+  final List<String> options;
+  final int correctIndex;
+  final String explanation;
+  final String hint;
 }

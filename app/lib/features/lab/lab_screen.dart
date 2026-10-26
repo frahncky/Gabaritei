@@ -5,10 +5,12 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 
 import '../../app/theme.dart';
+import '../../shared/drawings/circuit_symbols.dart';
 import '../../shared/format.dart';
 import 'circuit.dart';
 import 'color_code.dart';
 import 'color_code_view.dart';
+import 'lab_painters.dart';
 
 /// Laboratório de eletricidade: um circuito "vivo", com elétrons andando,
 /// amperímetro, controles e gráfico no tempo.
@@ -21,14 +23,11 @@ class LabScreen extends StatefulWidget {
   State<LabScreen> createState() => _LabScreenState();
 }
 
-/// Escala do amperímetro e do gráfico: o limite fica em 62,5% do fundo.
-const _scaleOverLimit = 1.6;
-
 class _LabScreenState extends State<LabScreen>
     with SingleTickerProviderStateMixin {
   late LabMode _mode = widget.initialMode;
   CircuitInput _input = const CircuitInput();
-  final _motion = _LabMotion();
+  final _motion = LabMotion();
   Ticker? _ticker;
   Duration _lastTick = Duration.zero;
 
@@ -42,7 +41,7 @@ class _LabScreenState extends State<LabScreen>
   CircuitReading get _reading => CircuitReading.solve(_mode, _input);
 
   double get _gaugeTarget =>
-      (_reading.watched / (_mode.limit * _scaleOverLimit)).clamp(0.0, 1.05);
+      (_reading.watched / (_mode.limit * labScaleOverLimit)).clamp(0.0, 1.05);
 
   @override
   void didChangeDependencies() {
@@ -114,38 +113,28 @@ class _LabScreenState extends State<LabScreen>
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
-        backgroundColor: AppColors.ink,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          foregroundColor: Colors.white,
-          title: const Text(
-            'LABORATÓRIO',
-            style: TextStyle(
-              fontSize: 14,
-              letterSpacing: 2,
-              fontWeight: FontWeight.w600,
-              color: AppColors.mutedOnInk,
-            ),
-          ),
-        ),
-        body: Stack(
+        appBar: AppBar(title: const Text('Laboratório')),
+        body: Column(
           children: [
-            Column(
-              children: [
-                // Painel fixo: o circuito e o medidor ficam sempre à vista
-                // enquanto o aluno mexe nos controles lá embaixo.
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-                  child: Column(
-                    children: [
-                      _FormulaBox(formula: mode.formula),
-                      const SizedBox(height: 8),
-                      if (mode.hasCircuit) ...[
-                        SizedBox(
-                          height: 190,
-                          width: double.infinity,
+            // Painel fixo: o circuito e o medidor ficam sempre à vista
+            // enquanto o aluno mexe nos controles lá embaixo.
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+              child: Column(
+                children: [
+                  _FormulaBox(formula: mode.formula),
+                  const SizedBox(height: 8),
+                  if (mode.hasCircuit) ...[
+                    Semantics(
+                      label: _circuitLabel(mode, reading),
+                      excludeSemantics: true,
+                      child: SizedBox(
+                        height: 190,
+                        width: double.infinity,
+                        // Repinta a cada quadro: isolado do resto da página.
+                        child: RepaintBoundary(
                           child: CustomPaint(
-                            painter: _CircuitPainter(
+                            painter: CircuitPainter(
                               mode: mode,
                               input: _input,
                               reading: reading,
@@ -153,31 +142,48 @@ class _LabScreenState extends State<LabScreen>
                             ),
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        _Readout(reading: reading, motion: _motion),
-                      ] else ...[
-                        SizedBox(
-                          height: 190,
-                          child: ResistorView(bands: _bands, matched: _matched),
-                        ),
-                        const SizedBox(height: 4),
-                        ColorReadout(
-                          bands: _bands,
-                          target: _target,
-                          matched: _matched,
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                const Divider(height: 1, color: AppColors.inkLine),
-                Expanded(child: _panel(mode, reading)),
-              ],
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    _Readout(reading: reading, motion: _motion),
+                  ] else ...[
+                    SizedBox(
+                      height: 190,
+                      child: ResistorView(bands: _bands, matched: _matched),
+                    ),
+                    const SizedBox(height: 4),
+                    ColorReadout(
+                      bands: _bands,
+                      target: _target,
+                      matched: _matched,
+                    ),
+                  ],
+                ],
+              ),
             ),
+            const Divider(height: 1),
+            Expanded(child: _panel(mode, reading)),
           ],
         ),
       ),
     );
+  }
+
+  /// Descrição do circuito para leitor de tela, com os valores atuais.
+  String _circuitLabel(LabMode mode, CircuitReading r) {
+    String ohms(double o) => '${formatDecimal(o, 0)} ohms';
+    final source = 'fonte de ${formatDecimal(_input.volts, 1)} volts';
+    return switch (mode) {
+      LabMode.ohm => 'Circuito com $source e resistor de ${ohms(_input.r1)}',
+      LabMode.potencia => 'Circuito com $source e lâmpada de '
+          '${formatDecimal(LabLimits.lampWatts, 0)} watts, '
+          '${ohms(_input.r1)}',
+      LabMode.serie => 'Circuito em série: $source, R1 de ${ohms(_input.r1)} '
+          'e R2 de ${ohms(_input.r2)}',
+      LabMode.paralelo => 'Circuito em paralelo: $source, R1 de '
+          '${ohms(_input.r1)} e R2 de ${ohms(_input.r2)}',
+      LabMode.cores => '',
+    };
   }
 
   Widget _panel(LabMode mode, CircuitReading reading) {
@@ -185,29 +191,29 @@ class _LabScreenState extends State<LabScreen>
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
       children: [
         _ModeTabs(selected: mode, onSelect: _setMode),
-        const SizedBox(height: 18),
+        const SizedBox(height: 20),
         Text(
-          '${mode.index + 1} · ${mode.title.toUpperCase()}',
+          '${mode.index + 1} · ${mode.title}',
           textAlign: TextAlign.center,
           style: const TextStyle(
             fontFamily: AppFonts.display,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w700,
             fontSize: 20,
-            color: AppColors.amberOnInk,
+            color: AppColors.text,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           mode.idea,
           textAlign: TextAlign.center,
-          style: const TextStyle(color: Colors.white, fontSize: 15),
+          style: const TextStyle(color: AppColors.text, fontSize: 15),
         ),
         const SizedBox(height: 2),
         Text(
           mode.tip,
           textAlign: TextAlign.center,
           style: const TextStyle(
-            color: AppColors.mutedOnInk,
+            color: AppColors.muted,
             fontSize: 13,
             fontStyle: FontStyle.italic,
           ),
@@ -329,98 +335,48 @@ class _LabScreenState extends State<LabScreen>
     };
   }
 
+  /// Leituras do circuito. As de corrente ganham a barra âmbar, a mesma cor
+  /// dos elétrons no desenho.
   List<Widget> _outputs(LabMode mode, CircuitReading r) {
-    const ampScale = LabLimits.fuseAmps * _scaleOverLimit;
+    const ampScale = LabLimits.fuseAmps * labScaleOverLimit;
     String amps(double a) => '${formatDecimal(a, 2)} A';
     String volts(double v) => '${formatDecimal(v, 1)} V';
     String ohms(double o) => '${formatDecimal(o, o < 10 ? 1 : 0)} Ω';
+    _OutputBar current(String label, double a) =>
+        _OutputBar(label, a / ampScale, amps(a), current: true);
 
     return switch (mode) {
       LabMode.cores => const <Widget>[],
       LabMode.ohm => [
-          _OutputBar('Corrente', r.total / ampScale, amps(r.total),
-              AppColors.amberOnInk),
+          current('Corrente', r.total),
           _OutputBar('Potência no resistor', r.power / 60,
-              '${formatDecimal(r.power, 1)} W', Colors.white),
+              '${formatDecimal(r.power, 1)} W'),
         ],
       LabMode.serie => [
-          _OutputBar('Tensão em R₁', _ratio(r.v1, _input.volts), volts(r.v1),
-              AppColors.skyOnInk),
-          _OutputBar('Tensão em R₂', _ratio(r.v2, _input.volts), volts(r.v2),
-              AppColors.skyOnInk),
-          _OutputBar('Resistência equivalente', r.req / 200, ohms(r.req),
-              Colors.white),
-          _OutputBar('Corrente', r.total / ampScale, amps(r.total),
-              AppColors.amberOnInk),
+          _OutputBar('Tensão em R₁', _ratio(r.v1, _input.volts), volts(r.v1)),
+          _OutputBar('Tensão em R₂', _ratio(r.v2, _input.volts), volts(r.v2)),
+          _OutputBar('Resistência equivalente', r.req / 200, ohms(r.req)),
+          current('Corrente', r.total),
         ],
       LabMode.paralelo => [
-          _OutputBar('Corrente em R₁', r.i1 / ampScale, amps(r.i1),
-              AppColors.skyOnInk),
-          _OutputBar('Corrente em R₂', r.i2 / ampScale, amps(r.i2),
-              AppColors.skyOnInk),
-          _OutputBar('Resistência equivalente', r.req / 100, ohms(r.req),
-              Colors.white),
-          _OutputBar('Corrente total', r.total / ampScale, amps(r.total),
-              AppColors.amberOnInk),
+          current('Corrente em R₁', r.i1),
+          current('Corrente em R₂', r.i2),
+          _OutputBar('Resistência equivalente', r.req / 100, ohms(r.req)),
+          current('Corrente total', r.total),
         ],
       LabMode.potencia => [
-          _OutputBar(
-              'Corrente', r.total / ampScale, amps(r.total), Colors.white),
+          current('Corrente', r.total),
           _OutputBar(
               'Potência',
-              r.power / (LabLimits.lampWatts * _scaleOverLimit),
-              '${formatDecimal(r.power, 1)} W',
-              AppColors.amberOnInk),
-          _OutputBar(
-              'Brilho',
-              r.power / LabLimits.lampWatts,
-              formatPercent(math.min(r.power / LabLimits.lampWatts, 1)),
-              AppColors.skyOnInk),
+              r.power / (LabLimits.lampWatts * labScaleOverLimit),
+              '${formatDecimal(r.power, 1)} W'),
+          _OutputBar('Brilho', r.power / LabLimits.lampWatts,
+              formatPercent(math.min(r.power / LabLimits.lampWatts, 1))),
         ],
     };
   }
 
   static double _ratio(double a, double b) => b == 0 ? 0 : a / b;
-}
-
-/// Estado animado: posição dos elétrons em cada trecho, ponteiro do
-/// amperímetro (com inércia) e histórico para o gráfico.
-class _LabMotion extends ChangeNotifier {
-  static const historyLength = 120; // 6 s, uma amostra a cada 50 ms
-  static const pixelsPerAmp = 70.0;
-
-  final phases = List<double>.filled(4, 0);
-  double needle = 0;
-  final history = <double>[];
-  double _sampleClock = 0;
-
-  void advance(double dt, List<double> currents, double target) {
-    for (var i = 0; i < phases.length; i++) {
-      phases[i] += math.min(currents[i] * pixelsPerAmp, 320) * dt;
-    }
-    // Aproxima o ponteiro do valor certo, como um instrumento de verdade.
-    needle += (target - needle) * (1 - math.exp(-dt * 5));
-    _sampleClock += dt;
-    while (_sampleClock >= 0.05) {
-      _sampleClock -= 0.05;
-      history.add(needle);
-      if (history.length > historyLength) history.removeAt(0);
-    }
-    notifyListeners();
-  }
-
-  void snap(double target) {
-    needle = target;
-    history
-      ..clear()
-      ..addAll(List.filled(historyLength, target));
-    notifyListeners();
-  }
-
-  void resetHistory() {
-    history.clear();
-    notifyListeners();
-  }
 }
 
 class _FormulaBox extends StatelessWidget {
@@ -431,11 +387,11 @@ class _FormulaBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.skyOnInk, width: 1.5),
-        color: AppColors.skyOnInk.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(AppRadii.medium),
+        color: AppColors.surface,
       ),
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 250),
@@ -445,6 +401,7 @@ class _FormulaBox extends StatelessWidget {
           textAlign: TextAlign.center,
           style: const TextStyle(
             fontFamily: AppFonts.display,
+            fontFamilyFallback: AppFonts.fallback,
             fontWeight: FontWeight.w700,
             fontSize: 22,
             color: AppColors.skyOnInk,
@@ -455,286 +412,12 @@ class _FormulaBox extends StatelessWidget {
   }
 }
 
-/// Desenha o circuito do modo atual e os elétrons andando pelos fios
-/// (no sentido convencional da corrente: do + para o −).
-class _CircuitPainter extends CustomPainter {
-  _CircuitPainter({
-    required this.mode,
-    required this.input,
-    required this.reading,
-    required this.motion,
-  }) : super(repaint: motion);
-
-  final LabMode mode;
-  final CircuitInput input;
-  final CircuitReading reading;
-  final _LabMotion motion;
-
-  static const _gap = 11.0;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    const l = 34.0, t = 26.0;
-    final r = size.width - 30;
-    final b = size.height - 26;
-    final my = (t + b) / 2;
-    final cx = (l + r) / 2;
-    final x1 = r - 78;
-
-    Path line(List<Offset> points) {
-      final path = Path()..moveTo(points.first.dx, points.first.dy);
-      for (final p in points.skip(1)) {
-        path.lineTo(p.dx, p.dy);
-      }
-      return path;
-    }
-
-    // Trechos de fio; no paralelo, cada um tem a sua corrente.
-    final paths = mode == LabMode.paralelo
-        ? [
-            line([Offset(l, my - _gap), const Offset(l, t), Offset(x1, t)]),
-            line([Offset(x1, t), Offset(x1, b)]),
-            line([Offset(x1, t), Offset(r, t), Offset(r, b), Offset(x1, b)]),
-            line([Offset(x1, b), Offset(l, b), Offset(l, my + _gap)]),
-          ]
-        : [
-            line([
-              Offset(l, my - _gap),
-              const Offset(l, t),
-              Offset(r, t),
-              Offset(r, b),
-              Offset(l, b),
-              Offset(l, my + _gap),
-            ]),
-          ];
-
-    final wire = Paint()
-      ..color = AppColors.mutedOnInk.withValues(alpha: 0.55)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-    for (final p in paths) {
-      canvas.drawPath(p, wire);
-    }
-
-    // Lâmpada: o brilho vem antes, para ficar atrás dos fios e elétrons.
-    final glow = (reading.power / LabLimits.lampWatts).clamp(0.0, 1.4);
-    if (mode == LabMode.potencia && glow > 0.01) {
-      final burning = reading.status == LabStatus.over;
-      final color = burning ? AppColors.errorOnInk : AppColors.amberOnInk;
-      canvas.drawCircle(
-        Offset(cx, t),
-        18 + 46 * glow,
-        Paint()
-          ..shader = RadialGradient(colors: [
-            color.withValues(alpha: 0.55 * math.min(glow, 1)),
-            color.withValues(alpha: 0),
-          ]).createShader(
-              Rect.fromCircle(center: Offset(cx, t), radius: 18 + 46 * glow)),
-      );
-    }
-
-    // Elétrons.
-    if (reading.total > 0.0005) {
-      final dot = Paint()..color = AppColors.amberOnInk;
-      for (var i = 0; i < paths.length; i++) {
-        final metric = paths[i].computeMetrics().first;
-        const spacing = 17.0;
-        final offset = motion.phases[i] % spacing;
-        for (var d = offset; d < metric.length; d += spacing) {
-          final pos = metric.getTangentForOffset(d)!.position;
-          canvas.drawCircle(pos, 2.6, dot);
-        }
-      }
-    }
-
-    _battery(canvas, Offset(l, my));
-
-    switch (mode) {
-      case LabMode.ohm:
-        _resistor(canvas, Offset(cx, t),
-            horizontal: true, label: 'R = ${_ohms(input.r1)}');
-      case LabMode.potencia:
-        _lamp(canvas, Offset(cx, t), glow);
-      case LabMode.serie:
-        _resistor(canvas, Offset(cx, t),
-            horizontal: true,
-            label: 'R₁ = ${_ohms(input.r1)}',
-            detail: '${formatDecimal(reading.v1, 1)} V');
-        _resistor(canvas, Offset(r, my),
-            horizontal: false,
-            label: 'R₂',
-            detail: _ohms(input.r2),
-            labelLeft: true);
-        _text(canvas, '${formatDecimal(reading.v2, 1)} V',
-            Offset(r - 30, my + 26),
-            color: AppColors.skyOnInk, size: 11);
-      case LabMode.cores:
-        break;
-      case LabMode.paralelo:
-        for (final node in [Offset(x1, t), Offset(x1, b)]) {
-          canvas.drawCircle(node, 4.5, Paint()..color = Colors.white);
-        }
-        _resistor(canvas, Offset(x1, my),
-            horizontal: false,
-            label: 'R₁',
-            detail: _ohms(input.r1),
-            labelLeft: true);
-        _resistor(canvas, Offset(r, my),
-            horizontal: false,
-            label: 'R₂',
-            detail: _ohms(input.r2),
-            labelLeft: true);
-        _text(canvas, '${formatDecimal(reading.i1, 2)} A',
-            Offset(x1 - 34, my + 32),
-            color: AppColors.skyOnInk, size: 11);
-        _text(canvas, '${formatDecimal(reading.i2, 2)} A',
-            Offset(r - 34, my + 32),
-            color: AppColors.skyOnInk, size: 11);
-    }
-
-    _text(canvas, 'sentido da corrente →', Offset(cx, b + 14),
-        color: AppColors.mutedOnInk.withValues(alpha: 0.7),
-        size: 10,
-        italic: true);
-  }
-
-  static String _ohms(double o) => '${formatDecimal(o, 0)} Ω';
-
-  void _battery(Canvas canvas, Offset c) {
-    final long = Paint()
-      ..color = Colors.white
-      ..strokeWidth = 3
-      ..strokeCap = StrokeCap.round;
-    final short = Paint()
-      ..color = Colors.white
-      ..strokeWidth = 5
-      ..strokeCap = StrokeCap.round;
-    canvas.drawLine(c + const Offset(-13, -_gap + 4),
-        c + const Offset(13, -_gap + 4), long);
-    canvas.drawLine(
-        c + const Offset(-7, _gap - 4), c + const Offset(7, _gap - 4), short);
-    _text(canvas, '+', c + const Offset(-22, -_gap),
-        color: Colors.white, size: 12);
-    _text(canvas, '${formatDecimal(input.volts, 1)} V', c + const Offset(36, 0),
-        color: AppColors.amberOnInk, size: 13, bold: true);
-  }
-
-  void _resistor(
-    Canvas canvas,
-    Offset c, {
-    required bool horizontal,
-    required String label,
-    String? detail,
-    bool labelLeft = false,
-  }) {
-    const len = 52.0, amp = 7.0, peaks = 6;
-    final body = horizontal
-        ? Rect.fromCenter(center: c, width: len + 6, height: 20)
-        : Rect.fromCenter(center: c, width: 20, height: len + 6);
-    canvas.drawRect(body, Paint()..color = AppColors.ink);
-
-    final path = Path();
-    for (var i = 0; i <= peaks * 2; i++) {
-      final along = -len / 2 + len * i / (peaks * 2);
-      final across = i == 0 || i == peaks * 2 ? 0.0 : (i.isOdd ? amp : -amp);
-      final p =
-          horizontal ? c + Offset(along, across) : c + Offset(across, along);
-      i == 0 ? path.moveTo(p.dx, p.dy) : path.lineTo(p.dx, p.dy);
-    }
-    canvas.drawPath(
-      path,
-      Paint()
-        ..color = AppColors.amber
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.6
-        ..strokeJoin = StrokeJoin.round,
-    );
-
-    if (horizontal) {
-      _text(canvas, label, c + const Offset(0, 22),
-          color: Colors.white, size: 12);
-      if (detail != null) {
-        _text(canvas, detail, c + const Offset(0, 37),
-            color: AppColors.skyOnInk, size: 11);
-      }
-    } else {
-      final dx = labelLeft ? -34.0 : 34.0;
-      _text(canvas, label, c + Offset(dx, -8), color: Colors.white, size: 12);
-      if (detail != null) {
-        _text(canvas, detail, c + Offset(dx, 8),
-            color: AppColors.mutedOnInk, size: 11);
-      }
-    }
-  }
-
-  void _lamp(Canvas canvas, Offset c, double glow) {
-    canvas.drawCircle(c, 15, Paint()..color = AppColors.ink);
-    final filament = Color.lerp(
-        AppColors.mutedOnInk, AppColors.amberOnInk, math.min(glow, 1))!;
-    canvas.drawCircle(
-      c,
-      15,
-      Paint()
-        ..color = Colors.white
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.2,
-    );
-    final cross = Paint()
-      ..color = filament
-      ..strokeWidth = 2.2
-      ..strokeCap = StrokeCap.round;
-    canvas.drawLine(
-        c + const Offset(-10, -10), c + const Offset(10, 10), cross);
-    canvas.drawLine(
-        c + const Offset(-10, 10), c + const Offset(10, -10), cross);
-    _text(canvas, 'lâmpada ${formatDecimal(LabLimits.lampWatts, 0)} W',
-        c + const Offset(0, 30),
-        color: Colors.white, size: 12);
-    _text(canvas, _ohms(input.r1), c + const Offset(0, 45),
-        color: AppColors.mutedOnInk, size: 11);
-  }
-
-  static void _text(
-    Canvas canvas,
-    String text,
-    Offset center, {
-    required Color color,
-    double size = 12,
-    bool bold = false,
-    bool italic = false,
-  }) {
-    final painter = TextPainter(
-      text: TextSpan(
-        text: text,
-        style: TextStyle(
-          fontFamily: AppFonts.body,
-          color: color,
-          fontSize: size,
-          fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
-          fontStyle: italic ? FontStyle.italic : FontStyle.normal,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    painter.paint(
-        canvas, center - Offset(painter.width / 2, painter.height / 2));
-  }
-
-  @override
-  bool shouldRepaint(_CircuitPainter oldDelegate) =>
-      oldDelegate.mode != mode ||
-      oldDelegate.input != input ||
-      oldDelegate.motion != motion;
-}
-
 /// Amperímetro (ou wattímetro) com ponteiro, e a leitura ao lado.
 class _Readout extends StatelessWidget {
   const _Readout({required this.reading, required this.motion});
 
   final CircuitReading reading;
-  final _LabMotion motion;
+  final LabMotion motion;
 
   @override
   Widget build(BuildContext context) {
@@ -746,12 +429,12 @@ class _Readout extends StatelessWidget {
         ? 'nominal: ${formatDecimal(LabLimits.lampWatts, 0)} W'
         : 'fusível: ${formatDecimal(LabLimits.fuseAmps, 0)} A';
     final (statusText, statusColor) = switch (reading.status) {
-      LabStatus.off => ('sem tensão', AppColors.mutedOnInk),
-      LabStatus.safe => ('seguro', AppColors.successOnInk),
-      LabStatus.near => ('perto do limite', AppColors.amberOnInk),
+      LabStatus.off => ('sem tensão', AppColors.muted),
+      LabStatus.safe => ('seguro', AppColors.success),
+      LabStatus.near => ('perto do limite', AppColors.amberText),
       LabStatus.over => (
           mode.watchesPower ? 'a lâmpada queimaria!' : 'o fusível queimaria!',
-          AppColors.errorOnInk
+          AppColors.error
         ),
     };
 
@@ -760,9 +443,12 @@ class _Readout extends StatelessWidget {
         Semantics(
           label: '${mode.watchesPower ? 'Wattímetro' : 'Amperímetro'}: $value',
           excludeSemantics: true,
-          child: CustomPaint(
-            size: const Size.square(104),
-            painter: _GaugePainter(motion, unit: mode.watchesPower ? 'W' : 'A'),
+          child: RepaintBoundary(
+            child: CustomPaint(
+              size: const Size.square(104),
+              painter:
+                  GaugePainter(motion, unit: mode.watchesPower ? 'W' : 'A'),
+            ),
           ),
         ),
         const SizedBox(width: 18),
@@ -776,23 +462,26 @@ class _Readout extends StatelessWidget {
                   fontFamily: AppFonts.display,
                   fontWeight: FontWeight.w800,
                   fontSize: 34,
-                  color: Colors.white,
+                  color: AppColors.text,
                   fontFeatures: [FontFeature.tabularFigures()],
                 ),
               ),
               Text(
                 limit,
                 style: const TextStyle(
-                  color: AppColors.amberOnInk,
-                  fontWeight: FontWeight.w600,
+                  color: AppColors.muted,
+                  fontWeight: FontWeight.w500,
                   fontSize: 14,
                 ),
               ),
               const SizedBox(height: 6),
+              // O AnimatedDefaultTextStyle troca o estilo inteiro: a reserva
+              // de glifos precisa vir junto.
               AnimatedDefaultTextStyle(
                 duration: const Duration(milliseconds: 200),
                 style: TextStyle(
                   fontFamily: AppFonts.display,
+                  fontFamilyFallback: AppFonts.fallback,
                   fontWeight: FontWeight.w700,
                   fontSize: 18,
                   color: statusColor,
@@ -807,86 +496,7 @@ class _Readout extends StatelessWidget {
   }
 }
 
-class _GaugePainter extends CustomPainter {
-  _GaugePainter(this.motion, {required this.unit}) : super(repaint: motion);
-
-  final _LabMotion motion;
-  final String unit;
-
-  static const _start = math.pi * 0.75;
-  static const _sweep = math.pi * 1.5;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final c = size.center(Offset.zero);
-    final radius = size.shortestSide / 2;
-
-    canvas.drawCircle(c, radius, Paint()..color = const Color(0xFFF4F6FA));
-    const needleRed = Color(0xFFDC2626);
-    canvas.drawCircle(
-      c,
-      radius - 1,
-      Paint()
-        ..color = AppColors.inkLine
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2,
-    );
-
-    // Faixa vermelha acima do limite.
-    const limitFraction = 1 / _scaleOverLimit;
-    canvas.drawArc(
-      Rect.fromCircle(center: c, radius: radius - 10),
-      _start + _sweep * limitFraction,
-      _sweep * (1 - limitFraction),
-      false,
-      Paint()
-        ..color = AppColors.error.withValues(alpha: 0.75)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 6,
-    );
-
-    final tick = Paint()
-      ..color = AppColors.ink
-      ..strokeWidth = 2
-      ..strokeCap = StrokeCap.round;
-    for (var i = 0; i <= 8; i++) {
-      final a = _start + _sweep * i / 8;
-      final dir = Offset(math.cos(a), math.sin(a));
-      canvas.drawLine(c + dir * (radius - 18), c + dir * (radius - 24), tick);
-    }
-
-    final painter = TextPainter(
-      text: TextSpan(
-        text: unit,
-        style: const TextStyle(
-          fontFamily: AppFonts.display,
-          fontWeight: FontWeight.w800,
-          fontSize: 14,
-          color: Color(0xFF556070),
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    painter.paint(canvas, c + Offset(-painter.width / 2, radius * 0.38));
-
-    final a = _start + _sweep * motion.needle.clamp(0.0, 1.03);
-    final tip = c + Offset(math.cos(a), math.sin(a)) * (radius - 16);
-    canvas.drawLine(
-      c,
-      tip,
-      Paint()
-        ..color = needleRed
-        ..strokeWidth = 3
-        ..strokeCap = StrokeCap.round,
-    );
-    canvas.drawCircle(c, 6, Paint()..color = AppColors.ink);
-  }
-
-  @override
-  bool shouldRepaint(_GaugePainter oldDelegate) =>
-      oldDelegate.motion != motion || oldDelegate.unit != unit;
-}
-
+/// Abas de assunto. Selecionada: fundo tonal azul e contorno de estado.
 class _ModeTabs extends StatelessWidget {
   const _ModeTabs({required this.selected, required this.onSelect});
 
@@ -903,34 +513,40 @@ class _ModeTabs extends StatelessWidget {
             child: Semantics(
               selected: mode == selected,
               button: true,
-              child: GestureDetector(
-                onTap: () => onSelect(mode),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  height: 40,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: mode == selected
-                        ? AppColors.amber
-                        : AppColors.inkRaised,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: mode == selected
-                          ? AppColors.amber
-                          : AppColors.inkLine,
-                    ),
-                  ),
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: Text(
-                        mode.tab,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 13,
-                          color:
-                              mode == selected ? AppColors.ink : Colors.white,
+              // O fundo anima por fora; a tinta do toque fica por cima dele,
+              // num Material transparente.
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                height: 48,
+                decoration: BoxDecoration(
+                  color:
+                      mode == selected ? AppColors.blueSoft : AppColors.surface,
+                  borderRadius: BorderRadius.circular(AppRadii.small),
+                  border: mode == selected
+                      ? Border.all(color: AppColors.skyOnInk, width: 1.2)
+                      : null,
+                ),
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: InkWell(
+                    onTap: () => onSelect(mode),
+                    borderRadius: BorderRadius.circular(AppRadii.small),
+                    child: Center(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: Text(
+                            mode.tab,
+                            style: AppTextStyles.labelSmall.copyWith(
+                              fontWeight: mode == selected
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                              color: mode == selected
+                                  ? AppColors.text
+                                  : AppColors.muted,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -975,8 +591,7 @@ class _LabSlider extends StatelessWidget {
           children: [
             Expanded(
               child: Text(label,
-                  style: const TextStyle(
-                      color: AppColors.mutedOnInk, fontSize: 14)),
+                  style: const TextStyle(color: AppColors.muted, fontSize: 14)),
             ),
             Text(
               text,
@@ -984,21 +599,13 @@ class _LabSlider extends StatelessWidget {
                 fontFamily: AppFonts.display,
                 fontWeight: FontWeight.w700,
                 fontSize: 16,
-                color: Colors.white,
+                color: AppColors.text,
               ),
             ),
           ],
         ),
         SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            activeTrackColor: AppColors.amber,
-            inactiveTrackColor: AppColors.inkLine,
-            thumbColor: AppColors.amberOnInk,
-            overlayColor: AppColors.amber.withValues(alpha: 0.15),
-            trackHeight: 5,
-            tickMarkShape: SliderTickMarkShape.noTickMark,
-            showValueIndicator: ShowValueIndicator.never,
-          ),
+          data: labSliderTheme(context),
           child: Slider(
             value: value,
             min: min,
@@ -1016,14 +623,30 @@ class _LabSlider extends StatelessWidget {
   }
 }
 
+/// Controles deslizantes dos laboratórios: trilho azul suave e cursor claro,
+/// sem competir com o desenho.
+SliderThemeData labSliderTheme(BuildContext context) =>
+    SliderTheme.of(context).copyWith(
+      activeTrackColor: AppColors.progress,
+      inactiveTrackColor: AppColors.track,
+      thumbColor: AppColors.skyOnInk,
+      overlayColor: AppColors.skyOnInk.withValues(alpha: 0.12),
+      trackHeight: 5,
+      tickMarkShape: SliderTickMarkShape.noTickMark,
+      showValueIndicator: ShowValueIndicator.never,
+    );
+
 /// Linha de resultado: nome, barra proporcional e valor.
 class _OutputBar extends StatelessWidget {
-  const _OutputBar(this.label, this.fraction, this.value, this.color);
+  const _OutputBar(this.label, this.fraction, this.value,
+      {this.current = false});
 
   final String label;
   final double fraction;
   final String value;
-  final Color color;
+
+  /// Corrente elétrica: barra âmbar, como os elétrons no circuito.
+  final bool current;
 
   @override
   Widget build(BuildContext context) {
@@ -1033,19 +656,16 @@ class _OutputBar extends StatelessWidget {
           flex: 5,
           child: Text(
             label,
-            style: TextStyle(
-              color: color == Colors.white ? Colors.white : color,
-              fontSize: 14,
-              fontStyle: FontStyle.italic,
-            ),
+            style: const TextStyle(color: AppColors.muted, fontSize: 14),
           ),
         ),
         Container(
           width: 72,
-          height: 14,
+          height: 10,
+          clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
-            border: Border.all(color: AppColors.inkLine),
-            borderRadius: BorderRadius.circular(3),
+            color: AppColors.track,
+            borderRadius: BorderRadius.circular(5),
           ),
           child: Align(
             alignment: Alignment.centerLeft,
@@ -1056,7 +676,9 @@ class _OutputBar extends StatelessWidget {
               builder: (context, f, _) => FractionallySizedBox(
                 widthFactor: f,
                 heightFactor: 1,
-                child: ColoredBox(color: color),
+                child: ColoredBox(
+                  color: current ? CircuitColors.current : AppColors.progress,
+                ),
               ),
             ),
           ),
@@ -1066,12 +688,12 @@ class _OutputBar extends StatelessWidget {
           child: Text(
             value,
             textAlign: TextAlign.right,
-            style: TextStyle(
+            style: const TextStyle(
               fontFamily: AppFonts.display,
               fontWeight: FontWeight.w700,
               fontSize: 15,
-              color: color,
-              fontFeatures: const [FontFeature.tabularFigures()],
+              color: AppColors.text,
+              fontFeatures: [FontFeature.tabularFigures()],
             ),
           ),
         ),
@@ -1085,40 +707,44 @@ class _HistoryChart extends StatelessWidget {
   const _HistoryChart({required this.mode, required this.motion});
 
   final LabMode mode;
-  final _LabMotion motion;
+  final LabMotion motion;
 
   @override
   Widget build(BuildContext context) {
-    final what = mode.watchesPower ? 'potência' : 'corrente';
+    final power = mode.watchesPower;
+    final limit = power
+        ? 'nominal ${formatDecimal(LabLimits.lampWatts, 0)} W'
+        : 'fusível ${formatDecimal(LabLimits.fuseAmps, 0)} A';
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
       decoration: BoxDecoration(
-        color: AppColors.inkRaised,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.inkLine),
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadii.medium),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '$what – tempo',
-            style: const TextStyle(
-              color: AppColors.mutedOnInk,
-              fontSize: 13,
-              fontStyle: FontStyle.italic,
-            ),
+            power ? 'Potência nos últimos 6 s' : 'Corrente nos últimos 6 s',
+            style: const TextStyle(color: AppColors.muted, fontSize: 13),
           ),
-          const SizedBox(height: 6),
-          ExcludeSemantics(
+          const SizedBox(height: 8),
+          Semantics(
+            label: 'Gráfico da ${power ? 'potência' : 'corrente'} nos '
+                'últimos 6 segundos, com o limite de $limit',
+            excludeSemantics: true,
             child: SizedBox(
-              height: 96,
+              height: 120,
               width: double.infinity,
-              child: CustomPaint(
-                painter: _ChartPainter(
-                  motion,
-                  limitLabel: mode.watchesPower
-                      ? 'nominal ${formatDecimal(LabLimits.lampWatts, 0)} W'
-                      : 'fusível ${formatDecimal(LabLimits.fuseAmps, 0)} A',
+              child: RepaintBoundary(
+                child: CustomPaint(
+                  painter: HistoryChartPainter(
+                    motion,
+                    quantity: power ? 'P' : 'I',
+                    unit: power ? 'W' : 'A',
+                    limit: mode.limit,
+                    limitLabel: limit,
+                  ),
                 ),
               ),
             ),
@@ -1127,74 +753,4 @@ class _HistoryChart extends StatelessWidget {
       ),
     );
   }
-}
-
-class _ChartPainter extends CustomPainter {
-  _ChartPainter(this.motion, {required this.limitLabel})
-      : super(repaint: motion);
-
-  final _LabMotion motion;
-  final String limitLabel;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    const left = 8.0;
-    final bottom = size.height - 6;
-    const top = 4.0;
-    double yFor(double v) => bottom - (bottom - top) * v.clamp(0.0, 1.05);
-
-    final axis = Paint()
-      ..color = AppColors.mutedOnInk.withValues(alpha: 0.6)
-      ..strokeWidth = 1.2;
-    canvas.drawLine(const Offset(left, top), Offset(left, bottom), axis);
-    canvas.drawLine(Offset(left, bottom), Offset(size.width, bottom), axis);
-
-    final limitY = yFor(1 / _scaleOverLimit);
-    canvas.drawLine(
-      Offset(left, limitY),
-      Offset(size.width, limitY),
-      Paint()
-        ..color = AppColors.amber
-        ..strokeWidth = 1.4,
-    );
-    final label = TextPainter(
-      text: TextSpan(
-        text: limitLabel,
-        style: const TextStyle(
-          fontFamily: AppFonts.body,
-          color: AppColors.amberOnInk,
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    label.paint(
-        canvas, Offset(size.width - label.width, limitY - label.height - 2));
-
-    final data = motion.history;
-    if (data.length < 2) return;
-    final step = (size.width - left) / (_LabMotion.historyLength - 1);
-    final startX = size.width - step * (data.length - 1);
-    final path = Path()..moveTo(startX, yFor(data.first));
-    for (var i = 1; i < data.length; i++) {
-      path.lineTo(startX + step * i, yFor(data[i]));
-    }
-    final over = data.last > 1 / _scaleOverLimit;
-    final color = over ? AppColors.errorOnInk : const Color(0xFFFB7A5A);
-    canvas.drawPath(
-      path,
-      Paint()
-        ..color = color
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.2
-        ..strokeJoin = StrokeJoin.round,
-    );
-    canvas.drawCircle(
-        Offset(size.width, yFor(data.last)), 5, Paint()..color = color);
-  }
-
-  @override
-  bool shouldRepaint(_ChartPainter oldDelegate) =>
-      oldDelegate.motion != motion || oldDelegate.limitLabel != limitLabel;
 }

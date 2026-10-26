@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gabaritei/data/local/local_store.dart';
 import 'package:gabaritei/data/memory/sample_content.dart';
@@ -7,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
+  _visualTests();
 
   test('progresso do aluno sobrevive a reabrir o app', () async {
     final now = DateTime(2026, 10, 20, 10);
@@ -63,5 +66,63 @@ void main() {
         .contentRepository()
         .getCreatedQuestions();
     expect(saved.single.visual, QuestionVisual.circuitSeries);
+  });
+}
+
+void _visualTests() {
+  test('questão com a planta do quarto volta com o mesmo visual', () async {
+    SharedPreferences.setMockInitialValues({});
+    const q = Question(
+      id: 'q-planta',
+      topic: 'Instalações elétricas',
+      prompt: 'Quantos circuitos?',
+      options: ['1', '2', '3'],
+      correctIndex: 2,
+      explanation: 'Três números de circuito.',
+      hint: 'Conte os números.',
+      visual: QuestionVisual.bedroomPlan,
+    );
+    await (await LocalStore.open()).contentRepository().saveQuestion(q);
+    final saved = (await (await LocalStore.open())
+            .contentRepository()
+            .getCreatedQuestions())
+        .single;
+    expect(saved.visual, QuestionVisual.bedroomPlan);
+    expect(saved.options, q.options);
+    expect(saved.correctIndex, 2);
+    expect(saved.hint, q.hint);
+  });
+
+  test('questões salvas antes da planta do quarto continuam abrindo', () async {
+    // Formato v1 gravado antes de existir bedroomPlan: o visual vai pelo
+    // nome, então inserir um valor no meio do enum não muda o que se lê.
+    SharedPreferences.setMockInitialValues({
+      'gabaritei.questions.v1': jsonEncode([
+        {
+          'id': 'antiga-1',
+          'topic': 'CLP',
+          'prompt': 'Ciclo?',
+          'options': ['a', 'b'],
+          'correctIndex': 0,
+          'explanation': 'x',
+          'hint': null,
+          'visual': 'processControl',
+        },
+        {
+          'id': 'antiga-2',
+          'topic': 'Instalações elétricas',
+          'prompt': 'Planta?',
+          'options': ['a', 'b'],
+          'correctIndex': 1,
+          'explanation': 'y',
+          'hint': null,
+          'visual': null,
+        },
+      ]),
+    });
+    final saved = await (await LocalStore.open())
+        .contentRepository()
+        .getCreatedQuestions();
+    expect(saved.map((q) => q.visual), [QuestionVisual.processControl, null]);
   });
 }
