@@ -152,7 +152,7 @@ flowchart LR
 
 <br>
 
-- **Símbolo:** a bolha do gabarito marcada, um círculo âmbar com ✓ sobre fundo escuro. Desenhado em código (`app/lib/shared/brand.dart`), gera o ícone e o splash.
+- **Símbolo:** a bolha do gabarito marcada, um círculo âmbar com ✓ sobre fundo escuro, ligada por trilhas de circuito aos três pilares do domínio: teoria (livro aberto), prática (duas engrenagens) e contexto (lâmpada). Desenhado em código (`app/lib/shared/brand.dart`), gera o ícone e o splash.
 - **Estilo "planta técnica":** fundo azul-marinho `#0F1D33` com grade fina e cartões `#1A2A45`.
 - **Cores:** ação ![](https://img.shields.io/badge/-%233B6EF5-3B6EF5) · destaque ![](https://img.shields.io/badge/-%2393B4FA-93B4FA) · XP e conquistas ![](https://img.shields.io/badge/-%23F59E0B-F59E0B) ![](https://img.shields.io/badge/-%23FBBF24-FBBF24)
 - **Tipografia:** Bricolage Grotesque (títulos e números) e IBM Plex Sans (texto), embutidas no app.
