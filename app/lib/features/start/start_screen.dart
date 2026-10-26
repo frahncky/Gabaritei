@@ -65,7 +65,7 @@ class StartScreen extends StatelessWidget {
         children: [
           const Spacer(flex: 2),
           const Center(
-            child: GabariteiMark(size: 96, withBackground: false),
+            child: GabariteiMark(size: 108, withBackground: false),
           ),
           const SizedBox(height: 24),
           const Text(
