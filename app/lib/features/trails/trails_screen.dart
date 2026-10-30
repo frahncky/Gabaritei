@@ -332,6 +332,7 @@ class _ModuleTile extends StatelessWidget {
               if (!isLocked && module.lessonText != null) ...[
                 const SizedBox(height: 12),
                 ExpansionTile(
+                  key: PageStorageKey('lesson-${module.id}'),
                   tilePadding: EdgeInsets.zero,
                   title: const Text('Estudar o conteúdo'),
                   children: [
