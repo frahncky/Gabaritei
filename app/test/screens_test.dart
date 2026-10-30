@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gabaritei/app/app.dart';
 import 'package:gabaritei/app/dependencies.dart';
+import 'package:gabaritei/features/quiz/question_visual.dart';
 
 void main() {
   Future<void> pumpApp(WidgetTester tester, Size size) async {
@@ -153,6 +154,20 @@ void main() {
     await tester.tap(find.text('Publicar para a turma'));
     await tester.pumpAndSettle();
     expect(find.text('Paralelo turbo'), findsOneWidget);
+  });
+
+  testWidgets('professor confere figura e explicação antes de salvar rascunho', (tester) async {
+    await pumpApp(tester, const Size(1280, 1600));
+    await tester.tap(find.text('Entrar como professor'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Gerar questão'));
+    await tester.tap(find.text('Gerar questão'));
+    await tester.pumpAndSettle();
+    expect(find.byType(QuestionVisualCard), findsOneWidget);
+    expect(find.textContaining('Explicação:'), findsOneWidget);
+    expect(find.textContaining('Dica:'), findsOneWidget);
+    expect(find.text('Adicionar ao banco'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('laboratório anima o circuito e troca de assunto',
