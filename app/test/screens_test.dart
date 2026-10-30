@@ -90,6 +90,7 @@ void main() {
     expect(find.textContaining('Vrms = Vp/√2'), findsOneWidget);
     await tester.scrollUntilVisible(find.text('Continuar lição'), 100,
         scrollable: find.byType(Scrollable).first);
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Continuar lição'));
     await tester.pumpAndSettle();
     expect(find.textContaining('pico de 100√2 V'), findsOneWidget);
