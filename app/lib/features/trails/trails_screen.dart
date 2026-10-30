@@ -43,7 +43,9 @@ class _TrailsScreenState extends State<TrailsScreen> {
   Future<void> _startQuiz(String quizId) async {
     await openQuiz(context, quizId);
     if (!mounted) return;
-    setState(() => _trails = Dependencies.of(context).content.getTrails());
+    setState(() {
+      _trails = Dependencies.of(context).content.getTrails();
+    });
     widget.onDataChanged();
   }
 
@@ -51,8 +53,9 @@ class _TrailsScreenState extends State<TrailsScreen> {
   Widget build(BuildContext context) {
     return AsyncView<List<Trail>>(
       future: _trails!,
-      onRetry: () => setState(
-          () => _trails = Dependencies.of(context).content.getTrails()),
+      onRetry: () => setState(() {
+        _trails = Dependencies.of(context).content.getTrails();
+      }),
       builder: (context, trails) {
         final course = CourseCatalog.forType(_course);
         final courseTrails = CourseCatalog.trailsFor(_course, trails);
