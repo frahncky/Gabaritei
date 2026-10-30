@@ -119,6 +119,13 @@ Cada item deve ter implementação ou documento correspondente, validação prop
 
 Uma etapa só termina quando seu critério de conclusão for atendido. Ao iniciar trabalho, vincular uma issue ao item; ao encerrar, atualizar este arquivo no mesmo ciclo da entrega.
 
+## 📌 Avanços locais em M2
+
+- Banco local: 464 questões, com 141 figuras nas 26 disciplinas ([PR #12](https://github.com/frahncky/Gabaritei/pull/12)).
+- Autoria assistida: prévia da figura, explicação e dica antes de salvar; modelos aplicados de Ohm e paralelo com figuras parametrizadas ([issue #13](https://github.com/frahncky/Gabaritei/issues/13)).
+
+Esses avanços não concluem M2: edição completa, revisão docente, versionamento e publicação para turmas ainda estão pendentes.
+
 ## ⏭️ Próxima entrega
 
 **M0 — Validar a base.** A primeira decisão técnica subsequente é a arquitetura do backend em M1. A escolha deve considerar custo, autenticação, autorização, operação offline e capacidade de manutenção; este roadmap não pressupõe fornecedor contratado.
