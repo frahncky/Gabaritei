@@ -88,8 +88,8 @@ O aluno inicial e os indicadores de turma também usam dados de demonstração. 
 
 | Conteúdo | Recursos |
 | --- | --- |
-| ⚡ Circuitos e eletrônica | Série, paralelo, associação mista, diodos, capacitores e faixas de resistores |
-| 📈 Circuitos CA | Senoides, atraso de fase e componentes vetoriais de impedância e potência |
+| ⚡ Circuitos e eletrônica | Série, paralelo, associação mista, RC, RL, RLC, diodos e faixas de resistores |
+| 📈 Circuitos CA | Senoides, retificação, atraso de fase e componentes vetoriais de impedância e potência |
 | 🔢 Digital e CLP | Tabelas-verdade com saídas em aberto, Ladder e gráficos de sinais e temporização |
 | 🎛️ Instrumentação e processos | Curvas de escala, valores de referência e medição, malhas com realimentação |
 | ⚙️ Mecânica, pneumática e CAD | Engrenagens, forças, alavancas, cilindros, braço robótico e desenhos de escala |
@@ -171,7 +171,7 @@ O arquivo será gerado em `app/build/app/outputs/flutter-apk/app-release.apk`, c
 
 ## 🧪 Qualidade e testes
 
-A ampliação do banco de questões passou por **`flutter analyze` sem apontamentos e 99 testes aprovados**, em 30/10/2026. **[Ver execução validada](https://github.com/frahncky/Gabaritei/actions/runs/41092867489)**.
+O banco de questões e os recursos visuais passaram por **`flutter analyze` sem apontamentos e 109 testes aprovados**, em 30/10/2026. **[Ver execução validada](https://github.com/frahncky/Gabaritei/actions/runs/41123220106)**.
 
 A suíte cobre catálogo e vínculos dos cursos, questões e gabaritos, separação entre estudo e provas, cálculos representativos, progressão, medalhas, reconhecimento de notas antigas, persistência, reset e navegação. O workflow acompanha análise e testes na `main` e nos pull requests.
 

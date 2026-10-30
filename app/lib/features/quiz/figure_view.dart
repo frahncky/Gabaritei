@@ -236,8 +236,8 @@ class FigurePainter extends CustomPainter {
         c.drawCircle(Offset(x, bottom), 3, Paint()..color = AppColors.skyOnInk);
       }
     }
-    _text(c, 'Esquema de conexões', Offset(s.width / 2, s.height - 8),
-        color: AppColors.muted, fontSize: 10);
+    _text(c, 'Esquema de conexões', Offset(s.width / 2, s.height - 15),
+        width: s.width - 20, color: AppColors.muted, fontSize: 10);
   }
 
   void _chart(Canvas c, Size s) {

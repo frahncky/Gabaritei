@@ -8,7 +8,7 @@ Os vínculos são explícitos por ID em `app/lib/data/memory/question_figure_cat
 
 ## Recursos
 
-- **Circuitos:** conexões reais de série, paralelo e misto, com fontes e componentes identificados. Ramos paralelos compartilham os mesmos nós e não são desenhados como resistores em série.
+- **Circuitos:** conexões reais de série, paralelo e misto, incluindo RC, RL e RLC, com fontes CC/CA e componentes identificados. Ramos paralelos compartilham os mesmos nós e não são desenhados como resistores em série.
 - **Eletrônica:** símbolos de resistor, capacitor, indutor e diodo; faixas de resistores e diagramas funcionais.
 - **CA:** formas de onda com eixos e unidades, atrasos temporais, amplitude normalizada quando aplicável e componentes ortogonais.
 - **Digital e CLP:** tabelas-verdade com saídas desconhecidas, contatos NA/NF, bobinas e gráficos de temporização.
@@ -20,7 +20,7 @@ As figuras não são projetos executivos. Desenhos mecânicos e de escala são e
 
 ## Leitura e acessibilidade
 
-O cartão usa título, figura e descrição textual acessível. As tabelas usam células nativas e permitem rolagem horizontal. Legendas de curvas ficam fora do desenho. A opção “Descrição da figura” apresenta os dados e as convenções utilizadas.
+O cartão usa título, figura e descrição textual acessível. As tabelas usam células nativas e permitem rolagem horizontal. Os circuitos preservam uma largura mínima de 400 pixels, com rolagem horizontal em telas menores para manter componentes e rótulos legíveis. Legendas de curvas ficam fora do desenho. A opção “Descrição da figura” apresenta os dados e as convenções utilizadas.
 
 Os rótulos técnicos usam uma fonte embarcada com suporte a Ω, letras gregas, unidades e sinais matemáticos. A fonte foi derivada de DejaVu Sans e sua licença acompanha o arquivo em `app/assets/fonts/GabariteiTechnical-LICENSE.txt`.
 
