@@ -17,10 +17,12 @@ Uma disciplina compartilhada por vários cursos utiliza o mesmo progresso. Troca
 
 ## Conteúdo
 
-São 86 unidades com resumos e atividades, 26 provas finais e 182 questões distintas. As provas finais reutilizam as questões da respectiva disciplina. O desafio independente de código de cores permanece disponível.
+São 86 unidades com resumos e atividades, 26 provas finais e 464 questões distintas. As atividades de estudo têm pelo menos quatro questões; as provas usam 110 questões próprias, sem repetir enunciados e IDs do estudo. O desafio independente de código de cores permanece disponível.
 
 O conteúdo é introdutório: ampliar questões, exercícios visuais e revisão docente continua necessário antes de avaliação formal. Persistência é local; não há sincronização entre aparelhos nesta etapa.
 
 ## Medalhas
 
 Cada disciplina tem sua medalha “Domínio em [disciplina]”, concedida após pelo menos 70% em todos os módulos e na prova final, respeitado o pré-requisito. Todas as 86 unidades têm medalhas por assunto com limite de 80%, além da conquista de código de cores. O avanço do módulo continua em 70%. [Ver medalhas por assunto](medalhas.md). Os IDs das cinco disciplinas originais e suas conquistas salvas foram preservados.
+
+As notas e conquistas anteriores permanecem como histórico; a ampliação do banco não recalcula avaliações passadas. Novas tentativas usam as questões ampliadas. [Detalhes do banco](banco_questoes.md).

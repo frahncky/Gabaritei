@@ -79,7 +79,7 @@ O perfil agrupa conquistas por disciplina; medalhas de sequência permanecem no 
 
 As 86 unidades de estudo possuem conquistas por assunto, além da medalha independente de código de cores. São 87 medalhas por assunto, 26 de domínio e três de constância: 116 no total.
 
-A medalha por assunto exige pelo menos 80% de acerto; o limite de avanço de módulo permanece em 70%. Nas atividades com duas questões, é necessário acertar ambas para ganhar a medalha.
+A medalha por assunto exige pelo menos 80% de acerto; o limite de avanço de módulo permanece em 70%. Com quatro questões, é necessário acertar as quatro para atingir pelo menos 80%.
 
 Notas anteriores de pelo menos 80% reconhecem automaticamente as conquistas correspondentes ao carregar o progresso salvo. Isso não altera XP nem notas e não concede medalhas de domínio. Os IDs antigos continuam válidos e o reset limpa também as notas usadas nessa restauração.
 

@@ -7,6 +7,7 @@ library;
 import '../../domain/models/content.dart';
 import '../../domain/models/gamification.dart';
 import 'curriculum_content.dart';
+import 'expanded_question_bank.dart';
 
 class SampleContent {
   SampleContent._();
@@ -294,7 +295,6 @@ class SampleContent {
 
   /// Mantém os IDs existentes e vincula uma medalha a cada unidade de estudo.
   static Quiz _withSubjectMedal(Quiz quiz) {
-    if (quiz.badgeId != null) return quiz;
     final module = trails.expand((trail) => trail.modules).where(
         (module) => !module.isFinalExam && module.quizId == quiz.id).firstOrNull;
     if (module == null) return quiz;
@@ -302,21 +302,35 @@ class SampleContent {
       id: quiz.id,
       title: quiz.title,
       topic: quiz.topic,
-      questions: quiz.questions,
+      questions: [...quiz.questions, ...ExpandedQuestionBank.forModule(module)],
       rewardXp: quiz.rewardXp,
       timeLimitSeconds: quiz.timeLimitSeconds,
-      badgeId: 'assunto-${module.id}',
+      badgeId: quiz.badgeId ?? 'assunto-${module.id}',
     );
   }
 
+  static const _masteryBadgeIds = {
+    'eletricidade-basica': 'primeira-trilha',
+    'eletronica-analogica': 'dominio-analogica',
+    'eletronica-digital': 'dominio-digital',
+    'instalacoes-eletricas': 'dominio-instalacoes',
+    'clp-automacao': 'dominio-automacao',
+  };
+
   static final List<Quiz> quizzes = [
     ...lessons,
-    Quiz(id: 'q-eb-final', title: 'Prova final — Eletricidade Básica', topic: 'Eletricidade Básica', rewardXp: 300, badgeId: 'primeira-trilha', questions: [for (final quiz in lessons) if (const ['q-eb-1', 'q-ohm', 'q-eb-3', 'q-assoc', 'q-eb-5', 'q-eb-6'].contains(quiz.id)) ...quiz.questions]),
-    Quiz(id: 'q-ea-final', title: 'Prova final — Eletrônica Analógica', topic: 'Eletrônica Analógica', rewardXp: 300, badgeId: 'dominio-analogica', questions: [for (final quiz in lessons) if (const ['q-ea-1', 'q-ea-2', 'q-ea-3', 'q-ea-4', 'q-ea-5'].contains(quiz.id)) ...quiz.questions]),
-    Quiz(id: 'q-ed-final', title: 'Prova final — Eletrônica Digital', topic: 'Eletrônica Digital', rewardXp: 300, badgeId: 'dominio-digital', questions: [for (final quiz in lessons) if (const ['q-ed-1', 'q-ed-2', 'q-ed-3', 'q-ed-4'].contains(quiz.id)) ...quiz.questions]),
-    Quiz(id: 'q-ie-final', title: 'Prova final — Instalações Elétricas', topic: 'Instalações Elétricas', rewardXp: 300, badgeId: 'dominio-instalacoes', questions: [for (final quiz in lessons) if (const ['q-ie-1', 'q-ie-2', 'q-ie-3', 'q-ie-4'].contains(quiz.id)) ...quiz.questions]),
-    Quiz(id: 'q-clp-final', title: 'Prova final — CLP e Automação', topic: 'CLP e Automação', rewardXp: 300, badgeId: 'dominio-automacao', questions: [for (final quiz in lessons) if (const ['q-clp-1', 'q-clp-2', 'q-clp-3', 'q-clp-4'].contains(quiz.id)) ...quiz.questions]),
-    ...ExtendedContent.exams,
+    for (final trail in trails)
+      ExpandedQuestionBank.finalExam(
+        Quiz(
+          id: trail.modules.last.quizId!,
+          title: 'Prova final — ${trail.title}',
+          topic: trail.title,
+          questions: const [],
+          rewardXp: 300,
+          badgeId: _masteryBadgeIds[trail.id] ?? 'dominio-${trail.id}',
+        ),
+        trail.id,
+      ),
   ];
 
   static final List<Trail> trails = [..._baseTrails, ...ExtendedContent.trails];

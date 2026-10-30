@@ -1506,20 +1506,6 @@ class ExtendedContent {
         ),
   ];
 
-  static final List<Quiz> exams = [
-    for (final discipline in disciplines)
-      Quiz(
-        id: 'q-${discipline.id}-final',
-        title: 'Prova final — ${discipline.title}',
-        topic: discipline.title,
-        rewardXp: 300,
-        badgeId: 'dominio-${discipline.id}',
-        questions: [
-          for (final lesson in discipline.lessons) ...lesson.questions,
-        ],
-      ),
-  ];
-
   static final List<Trail> trails = [
     for (final discipline in disciplines)
       Trail(

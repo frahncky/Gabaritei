@@ -561,9 +561,10 @@ class QuestionGenerator {
     const voltage = 12;
     final resistance = resistances[sequence.abs() % resistances.length];
     final current = voltage * 1000 / resistance;
-    final answer = current % 1 == 0
-        ? '${current.toInt()} mA'
-        : '${current.toStringAsFixed(1).replaceAll('.', ',')} mA';
+    String formatCurrent(double value) => value % 1 == 0
+        ? '${value.toInt()} mA'
+        : '${value.toStringAsFixed(1).replaceAll('.', ',')} mA';
+    final answer = formatCurrent(current);
     return Question(
       id: 'generated-ohm-$sequence',
       topic: 'Eletricidade básica',
@@ -571,9 +572,9 @@ class QuestionGenerator {
           'Uma fonte de $voltage V alimenta um resistor de $resistance Ω. Qual é a corrente aproximada?',
       options: [
         answer,
-        '${resistance ~/ 10} mA',
-        '${voltage * 10} mA',
-        '$resistance mA'
+        formatCurrent(current * 2),
+        formatCurrent(current / 2),
+        formatCurrent(current * 10),
       ],
       correctIndex: 0,
       explanation:
