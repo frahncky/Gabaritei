@@ -82,6 +82,8 @@ A melhor nota de cada atividade fica salva. Uma tentativa pior não desfaz o ava
 
 O aluno inicial e os indicadores de turma também usam dados de demonstração. O app ainda não tem contas autenticadas, turmas reais nem sincronização entre aparelhos. Desafios e lembretes simulados no painel não são enviados a alunos reais.
 
+Na aba **Trilhas**, a navegação segue **curso → disciplinas do curso → módulos**. Cada curso mostra sua própria lista; disciplinas compartilhadas mantêm o mesmo progresso.
+
 ## 🖼️ Questões com recursos visuais
 
 **141 questões ilustradas, com cobertura das 26 disciplinas.** Os recursos são ligados ao ID e aos dados do exercício, com descrição acessível e valores consistentes com o enunciado.
