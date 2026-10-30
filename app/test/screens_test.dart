@@ -24,19 +24,27 @@ void main() {
 
     await tester.tap(find.text('Trilhas').last);
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('course-electrotechnics')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('discipline-eletricidade-basica')));
+    await tester.pumpAndSettle();
     await tester.scrollUntilVisible(
         find.text('4. Associação de resistores'), 200);
     expect(find.text('4. Associação de resistores'), findsOneWidget);
     await tester.drag(find.byType(ListView), const Offset(0, 2000));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(const ValueKey('course-selector')));
+    await tester.tap(find.byKey(const ValueKey('back-to-disciplines')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Técnico em Automação Industrial').last);
+    await tester.tap(find.byKey(const ValueKey('back-to-courses')));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('discipline-selector')));
+    await tester.tap(find.byKey(const ValueKey('course-automation')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('CLP e Automação · Bloqueada').last);
+    await tester.scrollUntilVisible(find.byKey(const ValueKey('discipline-clp-automacao')), 200,
+        scrollable: find.byType(Scrollable).first);
+    await Scrollable.ensureVisible(tester.element(find.byKey(const ValueKey('discipline-clp-automacao'))), alignment: .5);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('discipline-clp-automacao')));
     await tester.pumpAndSettle();
     expect(find.textContaining('para desbloquear esta'), findsOneWidget);
 
@@ -65,21 +73,32 @@ void main() {
     await tester.pumpAndSettle();
 
     for (final entry in {
-      'Técnico em Eletrônica': 16,
-      'Técnico em Automação Industrial': 17,
-      'Técnico em Mecatrônica': 23,
-      'Técnico em Eletrotécnica': 13,
+      'electronics': 16,
+      'automation': 17,
+      'mechatronics': 23,
+      'electrotechnics': 13,
     }.entries) {
-      await tester.tap(find.byKey(const ValueKey('course-selector')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text(entry.key).last);
+      final card = find.byKey(ValueKey('course-${entry.key}'));
+      await tester.ensureVisible(card);
+      await tester.tap(card);
       await tester.pumpAndSettle();
       expect(find.text('0 de ${entry.value} disciplinas concluídas'), findsOneWidget);
+      expect(find.byKey(const ValueKey('discipline-eletricidade-basica')), findsOneWidget);
+      if (entry.key == 'electrotechnics') {
+        expect(find.byKey(const ValueKey('discipline-cnc-manufatura')), findsNothing);
+      }
+      await tester.drag(find.byType(ListView).first, const Offset(0, 5000));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('back-to-courses')));
+      await tester.pumpAndSettle();
     }
-
-    await tester.tap(find.byKey(const ValueKey('discipline-selector')));
+    await tester.tap(find.byKey(const ValueKey('course-electrotechnics')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Circuitos CA').last);
+    final ca = find.byKey(const ValueKey('discipline-circuitos-ca'));
+    await tester.scrollUntilVisible(ca, 200, scrollable: find.byType(Scrollable).first);
+    await Scrollable.ensureVisible(tester.element(ca), alignment: .5);
+    await tester.pumpAndSettle();
+    await tester.tap(ca);
     await tester.pumpAndSettle();
     final study = find.text('Estudar o conteúdo').first;
     await tester.scrollUntilVisible(study, 100,
@@ -100,6 +119,8 @@ void main() {
     await tester.tap(find.text('Perfil').last);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Trilhas').last);
+    await tester.pumpAndSettle();
+    await tester.drag(find.byType(ListView).first, const Offset(0, 5000));
     await tester.pumpAndSettle();
     expect(find.text('Técnico em Eletrotécnica'), findsOneWidget);
     expect(find.text('Circuitos CA'), findsWidgets);

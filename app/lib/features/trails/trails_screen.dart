@@ -8,7 +8,7 @@ import '../../domain/services/question_generator.dart';
 import '../../shared/widgets.dart';
 import '../quiz/quiz_screen.dart';
 
-/// Trilhas de estudo: uma aba por disciplina e a lista de módulos.
+/// Navegação por curso, disciplinas do curso e módulos da disciplina.
 class TrailsScreen extends StatefulWidget {
   const TrailsScreen({super.key, required this.onDataChanged});
 
@@ -24,6 +24,7 @@ class _TrailsScreenState extends State<TrailsScreen> {
   String? _selectedId;
   TechnicalCourse _course = TechnicalCourse.electrotechnics;
   bool _restored = false;
+  bool _courseOpened = false;
 
   @override
   void didChangeDependencies() {
@@ -32,12 +33,39 @@ class _TrailsScreenState extends State<TrailsScreen> {
     if (!_restored) {
       final saved = PageStorage.of(context).readState(context,
           identifier: 'course-selection');
-      if (saved is TechnicalCourse) _course = saved;
+      if (saved is TechnicalCourse) {
+        _course = saved;
+        _courseOpened = true;
+      }
       final discipline = PageStorage.of(context).readState(context,
           identifier: 'discipline-selection');
       if (discipline is String) _selectedId = discipline;
       _restored = true;
     }
+  }
+
+  void _openCourse(TechnicalCourse value) {
+    setState(() {
+      _course = value;
+      _courseOpened = true;
+      _selectedId = null;
+    });
+    PageStorage.of(context).writeState(context, value, identifier: 'course-selection');
+    PageStorage.of(context).writeState(context, null, identifier: 'discipline-selection');
+  }
+
+  void _showCourses() {
+    setState(() {
+      _courseOpened = false;
+      _selectedId = null;
+    });
+    PageStorage.of(context).writeState(context, null, identifier: 'course-selection');
+    PageStorage.of(context).writeState(context, null, identifier: 'discipline-selection');
+  }
+
+  void _selectDiscipline(String? value) {
+    setState(() => _selectedId = value);
+    PageStorage.of(context).writeState(context, value, identifier: 'discipline-selection');
   }
 
   Future<void> _startQuiz(String quizId) async {
@@ -57,71 +85,84 @@ class _TrailsScreenState extends State<TrailsScreen> {
         _trails = Dependencies.of(context).content.getTrails();
       }),
       builder: (context, trails) {
+        if (!_courseOpened) {
+          return ListView(
+            key: const PageStorageKey('courses-list'),
+            padding: const EdgeInsets.all(20),
+            children: [
+              Text('Cursos', style: Theme.of(context).textTheme.headlineMedium),
+              const SizedBox(height: 8),
+              const Text('Escolha um curso para ver suas disciplinas.'),
+              const SizedBox(height: 16),
+              for (final item in CourseCatalog.courses)
+                Card(child: ListTile(
+                  key: ValueKey('course-${item.id}'),
+                  leading: Icon(switch (item.type) {
+                    TechnicalCourse.electrotechnics => Icons.electrical_services,
+                    TechnicalCourse.electronics => Icons.memory,
+                    TechnicalCourse.automation => Icons.settings_remote,
+                    TechnicalCourse.mechatronics => Icons.precision_manufacturing,
+                  }),
+                  title: Text(item.title),
+                  subtitle: Text('${item.description}\n'
+                      '${CourseCatalog.trailsFor(item.type, trails).length} disciplinas'),
+                  isThreeLine: true,
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => _openCourse(item.type),
+                )),
+            ],
+          );
+        }
         final course = CourseCatalog.forType(_course);
         final courseTrails = CourseCatalog.trailsFor(_course, trails);
         final completed = courseTrails.where((t) =>
             t.modules.every((m) => m.status == ModuleStatus.done)).length;
         if (courseTrails.isEmpty) return const Text('Nenhuma disciplina disponível.');
+        if (_selectedId == null || !courseTrails.any((t) => t.id == _selectedId)) {
+          return ListView(
+            key: PageStorageKey('disciplines-${course.id}'),
+            padding: const EdgeInsets.all(20),
+            children: [
+              Align(alignment: Alignment.centerLeft, child: TextButton.icon(
+                key: const ValueKey('back-to-courses'),
+                onPressed: _showCourses, icon: const Icon(Icons.arrow_back),
+                label: const Text('Todos os cursos'))),
+              Text(course.title, style: Theme.of(context).textTheme.headlineMedium),
+              const SizedBox(height: 8),
+              Text(course.description),
+              Text(course.objective, style: Theme.of(context).textTheme.bodySmall),
+              const SizedBox(height: 12),
+              Text('$completed de ${courseTrails.length} disciplinas concluídas'),
+              ProgressBar(value: completed / courseTrails.length),
+              const SizedBox(height: 16),
+              Text('Disciplinas do curso', style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 8),
+              for (final item in courseTrails)
+                Card(child: ListTile(
+                  key: ValueKey('discipline-${item.id}'),
+                  leading: Icon(item.unlocked ? Icons.menu_book_outlined : Icons.lock_outline),
+                  title: Text(item.title),
+                  subtitle: Text('${item.modulesDone} de ${item.modulesTotal} módulos'
+                      '${item.unlocked ? '' : ' · Bloqueada'}'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => _selectDiscipline(item.id),
+                )),
+            ],
+          );
+        }
         final trail = courseTrails.firstWhere(
           (t) => t.id == _selectedId,
           orElse: () => courseTrails.first,
         );
         return ListView(
+          key: PageStorageKey('modules-${trail.id}'),
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
           children: [
-            Text('Cursos e disciplinas', style: Theme.of(context).textTheme.headlineMedium),
-            const SizedBox(height: 8),
-            const Text('Escolha o curso para estudar suas disciplinas.'),
-            const SizedBox(height: 16),
-            const Text('Curso'),
-            DropdownButton<TechnicalCourse>(
-              key: const ValueKey('course-selector'),
-              value: _course,
-              isExpanded: true,
-              items: [
-                for (final item in CourseCatalog.courses)
-                  DropdownMenuItem(value: item.type, child: Text(item.title)),
-              ],
-              onChanged: (value) {
-                if (value == null) return;
-                setState(() {
-                  _course = value;
-                  _selectedId = null;
-                });
-                PageStorage.of(context).writeState(context, value,
-                    identifier: 'course-selection');
-                PageStorage.of(context).writeState(context, null,
-                    identifier: 'discipline-selection');
-              },
-            ),
-            Text(course.description),
-            const SizedBox(height: 4),
-            Text(course.objective, style: Theme.of(context).textTheme.bodySmall),
-            const SizedBox(height: 10),
-            Text('$completed de ${courseTrails.length} disciplinas concluídas'),
-            const SizedBox(height: 6),
-            ProgressBar(value: completed / courseTrails.length),
-            const SizedBox(height: 16),
-            const Text('Disciplina'),
-            DropdownButton<String>(
-              key: const ValueKey('discipline-selector'),
-              value: trail.id,
-              isExpanded: true,
-              items: [
-                for (final item in courseTrails)
-                  DropdownMenuItem(
-                    value: item.id,
-                    child: Text(item.unlocked ? item.title : '${item.title} · Bloqueada',
-                        overflow: TextOverflow.ellipsis),
-                  ),
-              ],
-              onChanged: (value) {
-                if (value == null) return;
-                setState(() => _selectedId = value);
-                PageStorage.of(context).writeState(context, value,
-                    identifier: 'discipline-selection');
-              },
-            ),
+            Align(alignment: Alignment.centerLeft, child: TextButton.icon(
+              key: const ValueKey('back-to-disciplines'),
+              onPressed: () => _selectDiscipline(null),
+              icon: const Icon(Icons.arrow_back), label: const Text('Disciplinas do curso'))),
+            Text(course.title, style: Theme.of(context).textTheme.bodySmall),
             const SizedBox(height: 12),
             Row(
               children: [
@@ -291,6 +332,7 @@ class _ModuleTile extends StatelessWidget {
               if (!isLocked && module.lessonText != null) ...[
                 const SizedBox(height: 12),
                 ExpansionTile(
+                  key: PageStorageKey('lesson-${module.id}'),
                   tilePadding: EdgeInsets.zero,
                   title: const Text('Estudar o conteúdo'),
                   children: [
