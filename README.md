@@ -35,11 +35,11 @@ O catálogo atual atende **Eletrotécnica, Eletrônica, Automação Industrial e
 
 | 🎓 Cursos | 📚 Disciplinas | 🧩 Unidades de estudo | ❓ Questões distintas |
 | :---: | :---: | :---: | :---: |
-| **4** | **26** | **86** | **182** |
+| **4** | **26** | **86** | **464** |
 
 **26 provas finais · 116 medalhas · progresso salvo localmente**
 
-> O conteúdo é introdutório. As provas finais reutilizam questões dos módulos; a ampliação do banco e a revisão docente fazem parte das próximas etapas.
+> O banco possui **354 questões de estudo e 110 exclusivas das provas finais**. Cada unidade tem pelo menos quatro questões. A revisão pedagógica por docentes e a ampliação com novos recursos visuais continuam previstas.
 
 ## 🎓 Cursos
 
@@ -54,7 +54,7 @@ As disciplinas são compartilhadas entre os cursos: **26 é o total de disciplin
 
 Cada curso possui descrição, objetivo e seleção de disciplinas na tela **Cursos e disciplinas**, acessível pela aba **Trilhas**. Essa organização didática não representa matrícula, certificação ou equivalência a um PPC institucional.
 
-📖 **[Ver as 26 disciplinas e suas unidades](docs/cursos.md)**
+📖 **[Ver as 26 disciplinas e suas unidades](docs/cursos.md)** · **[Banco de questões](docs/banco_questoes.md)**
 
 ## 🛤️ Como estudar
 
@@ -103,7 +103,7 @@ Todas as 86 unidades de estudo têm uma medalha por assunto; o desafio independe
 | Medalha de assunto | Pelo menos 80% na atividade correspondente |
 | Estrelas | 1 a partir de 70%; 2 a partir de 85%; 3 com 100% |
 
-Medalhas já salvas mantêm seus identificadores. Notas anteriores de pelo menos 80% reconhecem automaticamente as novas conquistas por assunto, sem exigir repetir a atividade nem alterar XP. Nos módulos de duas questões, a medalha exige acertar as duas. Repetir uma atividade não concede novamente a mesma medalha. **Recomeçar progresso** zera também as notas das trilhas.
+Medalhas já salvas mantêm seus identificadores. Notas anteriores de pelo menos 80% reconhecem automaticamente as novas conquistas por assunto, sem exigir repetir a atividade nem alterar XP. O número mínimo de acertos depende do tamanho da atividade; com quatro questões, são necessários quatro acertos para atingir pelo menos 80%. Repetir uma atividade não concede novamente a mesma medalha. **Recomeçar progresso** zera também as notas das trilhas.
 
 ### ⚡ XP e níveis
 
@@ -198,7 +198,7 @@ Os arquivos em `design/mockup` são referências de design, não capturas das te
 **Protótipo local em desenvolvimento ativo.** O catálogo e a progressão funcionam no aparelho; a plataforma com turmas reais é a próxima frente.
 
 - [x] Quatro cursos com disciplinas vinculadas
-- [x] 26 disciplinas, 86 unidades de estudo e 182 questões distintas
+- [x] 26 disciplinas, 86 unidades de estudo e 464 questões distintas
 - [x] Resumos, atividades e 26 provas finais
 - [x] 87 medalhas por assunto, 26 de domínio e três de constância
 - [x] Reconhecimento de notas antigas e progresso salvo

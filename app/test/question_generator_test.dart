@@ -2,6 +2,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:gabaritei/domain/services/question_generator.dart';
 
 void main() {
+  test('gerador de Ohm não repete a alternativa correta nos distratores', () {
+    for (var sequence = 0; sequence < 16; sequence++) {
+      final q = QuestionGenerator.generate(topic: 'Eletricidade básica', sequence: sequence);
+      expect(q.options.toSet().length, 4);
+    }
+    final q = QuestionGenerator.generate(topic: 'Eletricidade básica', sequence: 0);
+    expect(q.options[q.correctIndex], '120 mA');
+  });
+
   test('gera questão válida para todas as áreas do catálogo', () {
     for (final topic in QuestionGenerator.topics) {
       final question = QuestionGenerator.generate(topic: topic, sequence: 1);

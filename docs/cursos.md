@@ -44,9 +44,11 @@ Os vínculos completos estão em `QuestionGenerator.curriculum`; `CourseCatalog`
 | Projetos e manutenção | 3 | 1 |
 | Qualidade, gestão e meio ambiente | 3 | 1 |
 
-São **86 unidades de estudo, 26 provas finais e 182 questões distintas**. As 21 novas disciplinas acrescentam 63 unidades e 126 questões. As provas finais reutilizam as questões da disciplina; não são questões inéditas.
+São **86 unidades de estudo, 26 provas finais e 464 questões distintas**: 354 de estudo e 110 exclusivas de avaliação.
 
-Cada unidade tem resumo, atividade e explicação das respostas. Os módulos novos têm duas questões cada: o conteúdo é introdutório e ainda exige ampliação e revisão pedagógica antes de uso como avaliação formal.
+Cada unidade tem resumo, atividade com pelo menos quatro questões e explicação das respostas. As provas finais usam enunciados e IDs diferentes dos usados no estudo. Há quatro questões em cada prova, exceto Eletrônica Analógica, com dez.
+
+O banco continua sendo material didático do protótipo, sujeito à revisão docente. [Estrutura, validação e limites do banco](banco_questoes.md).
 
 ## Navegação
 

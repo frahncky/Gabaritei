@@ -6,7 +6,7 @@ O catálogo possui **116 medalhas**: 87 por assunto, 26 de domínio e três de c
 
 - Cada uma das 86 unidades de estudo tem sua medalha por assunto, com nome no formato “Disciplina · Assunto”.
 - Código de cores de resistores continua com uma conquista independente em Eletrônica Analógica, totalizando 87 assuntos.
-- Medalhas de assunto exigem pelo menos 80% de acerto na atividade. Nos módulos de duas questões, é necessário acertar as duas.
+- Medalhas de assunto exigem pelo menos 80% de acerto na atividade. Com quatro questões, é necessário acertar as quatro para atingir pelo menos 80%.
 - Avançar de módulo continua exigindo 70%; conquistar a medalha é um objetivo adicional.
 - Domínio exige pelo menos 70% em todos os módulos e na prova final, respeitando os pré-requisitos.
 - Repetir uma atividade não concede a mesma medalha outra vez.
