@@ -154,9 +154,9 @@ O arquivo será gerado em `app/build/app/outputs/flutter-apk/app-release.apk`, c
 
 ## 🧪 Qualidade e testes
 
-A entrega dos cursos e disciplinas passou por **`flutter analyze` sem apontamentos e 61 testes aprovados**, em 30/10/2026. **[Ver execução validada](https://github.com/frahncky/Gabaritei/actions/runs/41086358163)**.
+A expansão das medalhas por assunto passou por **`flutter analyze` sem apontamentos e 92 testes aprovados**, em 30/10/2026. **[Ver execução validada](https://github.com/frahncky/Gabaritei/actions/runs/41089155344)**.
 
-A suíte cobre catálogo e vínculos dos cursos, integridade das questões, progressão, medalhas, persistência e navegação. O workflow acompanha análise e testes na `main` e nos pull requests.
+A suíte cobre catálogo e vínculos dos cursos, integridade das questões, progressão, conquista de medalhas nas 26 disciplinas, limite de 80%, repetição sem duplicação, reconhecimento de notas antigas, persistência, reset e navegação. O workflow acompanha análise e testes na `main` e nos pull requests.
 
 ```bash
 cd app
@@ -200,7 +200,8 @@ Os arquivos em `design/mockup` são referências de design, não capturas das te
 - [x] Quatro cursos com disciplinas vinculadas
 - [x] 26 disciplinas, 86 unidades de estudo e 182 questões distintas
 - [x] Resumos, atividades e 26 provas finais
-- [x] Medalhas por disciplina e progresso salvo
+- [x] 87 medalhas por assunto, 26 de domínio e três de constância
+- [x] Reconhecimento de notas antigas e progresso salvo
 - [x] Laboratórios de eletricidade e automação
 - [x] Análise e testes automatizados
 - [ ] Ampliar o conteúdo e concluir revisão pedagógica
