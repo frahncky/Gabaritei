@@ -6,9 +6,19 @@ import 'package:gabaritei/data/memory/question_figure_catalog.dart';
 import 'package:gabaritei/data/memory/sample_content.dart';
 import 'package:gabaritei/domain/models/content.dart';
 import 'package:gabaritei/domain/models/question_figure.dart';
+import 'package:gabaritei/features/quiz/figure_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  test('eixos digitais marcam 0 e 1 e ondas normalizadas marcam menos um a um', () {
+    expect(FigurePainter.verticalTicks(
+      QuestionFigureCatalog.figures['bank-v2-clp-3-0']!), [0,1]);
+    expect(FigurePainter.verticalTicks(
+      QuestionFigureCatalog.figures['bank-v2-ed-4-0']!), [0,1]);
+    expect(FigurePainter.verticalTicks(
+      QuestionFigureCatalog.figures['exam-v2-circuitos-ca-3']!), [-1,0,1]);
+  });
+
   test('todas as 26 disciplinas têm figuras específicas e nenhum vínculo é órfão', () {
     final bank = {for (final quiz in SampleContent.quizzes)
       for (final question in quiz.questions) question.id: question};
@@ -79,6 +89,10 @@ void main() {
     final mixed = QuestionFigureCatalog.figures['bank-v2-eb-4-1']!;
     expect(mixed.kind, FigureKind.mixedCircuit);
     expect(mixed.elements.map((e) => e.label), ['R1 = 10 Ω','R2 = 20 Ω','R3 = 20 Ω']);
+    final rlc = QuestionFigureCatalog.figures['circuitos-ca-2-2']!;
+    expect(rlc.alternatingSource, isTrue);
+    expect(rlc.elements.map((e) => e.symbol),
+      [CircuitSymbol.resistor, CircuitSymbol.inductor, CircuitSymbol.capacitor]);
   });
 
   test('onda atrasada respeita 50 Hz e atraso de 5 ms', () {

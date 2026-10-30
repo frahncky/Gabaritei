@@ -73,7 +73,7 @@ A melhor nota de cada atividade fica salva. Uma tentativa pior não desfaz o ava
 | --- | --- |
 | 🏠 **Início do aluno** | Nível, XP, sequência, missões de exemplo e desafio relâmpago |
 | 📚 **Cursos e disciplinas** | Quatro cursos, 26 trilhas, resumos e atividades em todas as unidades de estudo |
-| 🧩 **Questões e explicações** | 464 questões; 137 possuem figuras, gráficos ou tabelas específicos, cobrindo as 26 disciplinas |
+| 🧩 **Questões e explicações** | 464 questões; 141 possuem figuras, gráficos ou tabelas específicos, cobrindo as 26 disciplinas |
 | 🔬 **Laboratórios** | Circuitos, Lei de Ohm, potência, código de cores e controle de nível com CLP |
 | 👤 **Perfil** | Estatísticas, calendário de estudo e medalhas agrupadas por disciplina |
 | 💾 **Persistência local** | Notas, XP, sequência, medalhas, missões e questões criadas pelo professor |
@@ -84,7 +84,7 @@ O aluno inicial e os indicadores de turma também usam dados de demonstração. 
 
 ## 🖼️ Questões com recursos visuais
 
-**137 questões ilustradas, com cobertura das 26 disciplinas.** Os recursos são ligados ao ID e aos dados do exercício, com descrição acessível e valores consistentes com o enunciado.
+**141 questões ilustradas, com cobertura das 26 disciplinas.** Os recursos são ligados ao ID e aos dados do exercício, com descrição acessível e valores consistentes com o enunciado.
 
 | Conteúdo | Recursos |
 | --- | --- |

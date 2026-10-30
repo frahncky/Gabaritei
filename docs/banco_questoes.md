@@ -57,4 +57,4 @@ O gerador de Lei de Ohm usado no painel também recebeu correção para impedir 
 
 ## Figuras, gráficos e tabelas
 
-137 questões possuem recursos visuais próprios, cobrindo as 26 disciplinas. Os dados são ligados ao ID da questão; as figuras não utilizam o gabarito para obter valores. Circuitos, formas de onda, tabelas-verdade, Ladder e gráficos de processo têm representação específica. [Ver recursos e validação](questoes_visuais.md).
+141 questões possuem recursos visuais próprios, cobrindo as 26 disciplinas. Os dados são ligados ao ID da questão; as figuras não utilizam o gabarito para obter valores. Circuitos, formas de onda, tabelas-verdade, Ladder e gráficos de processo têm representação específica. [Ver recursos e validação](questoes_visuais.md).

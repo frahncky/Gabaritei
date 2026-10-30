@@ -2,7 +2,7 @@
 
 ## Cobertura e dados
 
-O banco mantém 464 questões. Delas, 137 possuem figuras parametrizadas próprias, distribuídas pelas 26 disciplinas. Cada disciplina tem pelo menos três questões ilustradas; isso não significa que todas as questões ou todos os módulos tenham figuras.
+O banco mantém 464 questões. Delas, 141 possuem figuras parametrizadas próprias, distribuídas pelas 26 disciplinas. Cada disciplina tem pelo menos três questões ilustradas; isso não significa que todas as questões ou todos os módulos tenham figuras.
 
 Os vínculos são explícitos por ID em `app/lib/data/memory/question_figure_catalog.dart`. Dados numéricos não são extraídos automaticamente do texto nem do gabarito. O modelo `QuestionFigure` guarda componentes, curvas, escalas, rótulos e células de tabela.
 

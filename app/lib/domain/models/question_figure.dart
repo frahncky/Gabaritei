@@ -62,6 +62,7 @@ class QuestionFigure {
     this.yMin = 0,
     this.yMax = 1,
     this.feedback = false,
+    this.alternatingSource = false,
   });
 
   final FigureKind kind;
@@ -78,6 +79,7 @@ class QuestionFigure {
   final String yLabel;
   final double xMin, xMax, yMin, yMax;
   final bool feedback;
+  final bool alternatingSource;
 
   Map<String, dynamic> toJson() => {
     'kind': kind.name, 'title': title, 'description': description,
@@ -88,6 +90,7 @@ class QuestionFigure {
     'xLabel': xLabel, 'yLabel': yLabel,
     'xMin': xMin, 'xMax': xMax, 'yMin': yMin, 'yMax': yMax,
     'feedback': feedback,
+    'alternatingSource': alternatingSource,
   };
 
   factory QuestionFigure.fromJson(Map<String, dynamic> json) => QuestionFigure(
@@ -110,5 +113,6 @@ class QuestionFigure {
     yMin: (json['yMin'] as num? ?? 0).toDouble(),
     yMax: (json['yMax'] as num? ?? 1).toDouble(),
     feedback: json['feedback'] as bool? ?? false,
+    alternatingSource: json['alternatingSource'] as bool? ?? false,
   );
 }

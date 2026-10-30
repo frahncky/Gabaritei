@@ -99,6 +99,14 @@ class QuestionFigureCatalog {
     'exam-v2-clp-automacao-0': _ladder([['A','B'], ['C']], 'Y', 'A = 1; B = 0; C = 1.'),
     'exam-v2-clp-automacao-2': _calibration(4, 20, 0, 80, 'Corrente (mA)', 'Vazão (L/min)'),
     // Circuitos CC e CA.
+    'circuitos-cc-3-1': _series('Fonte', ['R = 10 kΩ', 'C = 100 µF'],
+      note: 'Rede RC de primeira ordem. A constante de tempo é desconhecida.'),
+    'circuitos-cc-3-2': _series('Fonte', ['R = 10 Ω', 'L = 0,2 H'],
+      note: 'Rede RL de primeira ordem. A constante de tempo é desconhecida.'),
+    'circuitos-ca-2-1': _series('CA', ['R = 3 Ω', 'XL = 4 Ω'], alternating: true,
+      note: 'R é resistência; XL é a reatância indutiva na frequência de operação.'),
+    'circuitos-ca-2-2': _series('CA', ['R', 'XL = 20 Ω', 'XC = 30 Ω'], alternating: true,
+      note: 'RLC série. Somente as reatâncias XL e XC são dadas; a pergunta trata da reatância resultante.'),
     'bank-v2-circuitos-cc-1-0': _series('V = ?', ['R1 = 5 Ω', 'R2 = 15 Ω'], note: 'Corrente de 0,4 A.'),
     'bank-v2-circuitos-cc-1-1': _parallel('24 V', ['R1 = 12 Ω', 'R2 = 12 Ω']),
     'bank-v2-circuitos-cc-2-1': _series('18 V', ['R1 = 3 Ω', 'R2 = ?'], note: 'Corrente de 2 A.'),
@@ -333,14 +341,16 @@ class QuestionFigureCatalog {
 }
 
 CircuitElement _element(String label) => CircuitElement(label,
-  symbol: label.startsWith('C =') ? CircuitSymbol.capacitor
-    : label.startsWith('L =') ? CircuitSymbol.inductor
+  symbol: label.startsWith('C =') || label.startsWith('XC') ? CircuitSymbol.capacitor
+    : label.startsWith('L =') || label.startsWith('XL') ? CircuitSymbol.inductor
     : label.startsWith('D =') ? CircuitSymbol.diode : CircuitSymbol.resistor);
 
-QuestionFigure _series(String source, List<String> parts, {String note = ''}) => QuestionFigure(
+QuestionFigure _series(String source, List<String> parts,
+    {String note = '', bool alternating = false}) => QuestionFigure(
   kind: FigureKind.seriesCircuit, title: 'Circuito em série',
   description: 'Fonte: $source. Em série: ${parts.join('; ')}. $note',
   sourceLabel: source, elements: [for (final p in parts) _element(p)],
+  alternatingSource: alternating,
 );
 
 QuestionFigure _parallel(String source, List<String> parts) => QuestionFigure(

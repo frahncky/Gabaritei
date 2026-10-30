@@ -142,7 +142,8 @@ class FigurePainter extends CustomPainter {
     _text(c, label, center, width: width - 8);
   }
 
-  void _element(Canvas c, Offset center, CircuitElement e, {bool vertical = false}) {
+  void _element(Canvas c, Offset center, CircuitElement e,
+      {bool vertical = false, bool compact = false}) {
     c.save();
     c.translate(center.dx, center.dy);
     if (vertical) c.rotate(math.pi / 2);
@@ -174,19 +175,29 @@ class FigurePainter extends CustomPainter {
         c.drawLine(const Offset(10, 0), const Offset(25, 0), p);
     }
     c.restore();
-    _text(c, e.label, center + (vertical ? const Offset(0, 40) : const Offset(0, -25)),
-        width: vertical ? 65 : 90);
+    _text(c, e.label, center + (vertical ? Offset(compact ? -36 : -44, 0) : const Offset(0, -25)),
+        width: vertical ? (compact ? 50 : 65) : 90, fontSize: compact ? 10 : 11);
   }
 
   void _circuit(Canvas c, Size s) {
     final top = s.height * .26, bottom = s.height * .84;
-    const left = 36.0;
+    const left = 30.0;
     final mid = (top + bottom) / 2;
     c.drawLine(Offset(left, top), Offset(left, mid - 17), ink);
     c.drawLine(Offset(left, mid + 17), Offset(left, bottom), ink);
     c.drawCircle(Offset(left, mid), 17, ink);
-    _text(c, '+', Offset(left, mid - 6), width: 24);
-    _text(c, '−', Offset(left, mid + 7), width: 24);
+    if (figure.alternatingSource) {
+      final path = Path();
+      for (var i=0; i<=24; i++) {
+        final x = left - 11 + 22*i/24;
+        final y = mid - 6*math.sin(2*math.pi*i/24);
+        if (i==0) { path.moveTo(x,y); } else { path.lineTo(x,y); }
+      }
+      c.drawPath(path, ink);
+    } else {
+      _text(c, '+', Offset(left, mid - 6), width: 24);
+      _text(c, '−', Offset(left, mid + 7), width: 24);
+    }
     _text(c, figure.sourceLabel, Offset(46, top - 29), width: 88);
     final elements = figure.elements;
     if (figure.kind == FigureKind.seriesCircuit) {
@@ -201,8 +212,9 @@ class FigurePainter extends CustomPainter {
     } else {
       final mixed = figure.kind == FigureKind.mixedCircuit;
       final branchElements = mixed ? elements.skip(1).toList() : elements;
-      final start = mixed ? s.width * .63 : s.width * .46;
-      final end = s.width - 51;
+      final start = mixed ? s.width * .63
+          : s.width * (branchElements.length > 2 ? .40 : .46);
+      final end = s.width - 26;
       c.drawLine(Offset(left, top), Offset(end, top), ink);
       c.drawLine(Offset(left, bottom), Offset(end, bottom), ink);
       if (mixed) _element(c, Offset(s.width * .35, top), elements.first);
@@ -210,7 +222,8 @@ class FigurePainter extends CustomPainter {
         final x = branchElements.length == 1 ? end
             : start + (end - start) * i / (branchElements.length - 1);
         c.drawLine(Offset(x, top), Offset(x, bottom), ink);
-        _element(c, Offset(x, mid), branchElements[i], vertical: true);
+        _element(c, Offset(x, mid), branchElements[i],
+            vertical: true, compact: branchElements.length > 2);
         c.drawCircle(Offset(x, top), 3, Paint()..color = AppColors.skyOnInk);
         c.drawCircle(Offset(x, bottom), 3, Paint()..color = AppColors.skyOnInk);
       }
@@ -233,12 +246,7 @@ class FigurePainter extends CustomPainter {
       _text(c, number(figure.xMin + (figure.xMax - figure.xMin) * i / 4),
         Offset(x, rect.bottom + 12), width: 45, fontSize: 10);
     }
-    final ticks = figure.yLabel.toLowerCase().contains('lógico')
-        ? <double>[0,1]
-        : figure.yLabel.toLowerCase().contains('amplitude normalizada')
-          ? <double>[-1,0,1]
-          : [for (var i=0; i<=4; i++) figure.yMin + (figure.yMax-figure.yMin)*i/4];
-    for (final value in ticks) {
+    for (final value in verticalTicks(figure)) {
       final y = rect.bottom - (value-figure.yMin)/(figure.yMax-figure.yMin)*rect.height;
       c.drawLine(Offset(rect.left,y), Offset(rect.right,y), grid);
       _text(c, number(value), Offset(22,y), width: 42, fontSize: 10);
@@ -260,6 +268,13 @@ class FigurePainter extends CustomPainter {
     _text(c, figure.yLabel, Offset(s.width / 2, 9), width: s.width - 20);
     _text(c, figure.xLabel, Offset(s.width / 2, s.height - 7), width: s.width - 20);
   }
+
+  static List<double> verticalTicks(QuestionFigure figure) =>
+    figure.yLabel.toLowerCase().contains('lógic')
+        ? <double>[0,1]
+        : figure.yLabel.toLowerCase().contains('amplitude normalizada')
+          ? <double>[-1,0,1]
+          : [for (var i=0; i<=4; i++) figure.yMin + (figure.yMax-figure.yMin)*i/4];
 
   void _phasor(Canvas c, Size s) {
     final r = figure.values[0], x = figure.values[1];
