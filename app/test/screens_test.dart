@@ -29,7 +29,13 @@ void main() {
     await tester.drag(find.byType(ListView), const Offset(0, 2000));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('CLP e Automação'));
+    await tester.tap(find.byKey(const ValueKey('course-selector')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Técnico em Automação Industrial').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('discipline-selector')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('CLP e Automação · Bloqueada').last);
     await tester.pumpAndSettle();
     expect(find.textContaining('para desbloquear esta'), findsOneWidget);
 
@@ -45,9 +51,58 @@ void main() {
     await tester.tap(find.text('Perfil').last);
     await tester.pumpAndSettle();
     expect(find.text('Ana Souza'), findsOneWidget);
-    await tester.scrollUntilVisible(find.text('2 de 13'), 200,
+    await tester.scrollUntilVisible(find.text('2 de 34'), 200,
         scrollable: find.byType(Scrollable).first);
-    expect(find.text('2 de 13'), findsOneWidget);
+    expect(find.text('2 de 34'), findsOneWidget);
+  });
+
+  testWidgets('cursos filtram disciplinas e abrem resumo e atividade', (tester) async {
+    await pumpApp(tester, const Size(400, 860));
+    await tester.tap(find.text('Entrar como aluno'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Trilhas').last);
+    await tester.pumpAndSettle();
+
+    for (final entry in {
+      'Técnico em Eletrônica': 16,
+      'Técnico em Automação Industrial': 17,
+      'Técnico em Mecatrônica': 23,
+      'Técnico em Eletrotécnica': 13,
+    }.entries) {
+      await tester.tap(find.byKey(const ValueKey('course-selector')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(entry.key).last);
+      await tester.pumpAndSettle();
+      expect(find.text('0 de ${entry.value} disciplinas concluídas'), findsOneWidget);
+    }
+
+    await tester.tap(find.byKey(const ValueKey('discipline-selector')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Circuitos CA').last);
+    await tester.pumpAndSettle();
+    final study = find.text('Estudar o conteúdo').first;
+    await tester.scrollUntilVisible(study, 100,
+        scrollable: find.byType(Scrollable).first);
+    await tester.drag(find.byType(ListView).first, const Offset(0, -160));
+    await tester.pumpAndSettle();
+    await tester.tap(study);
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Vrms = Vp/√2'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Continuar lição'), 100,
+        scrollable: find.byType(Scrollable).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Continuar lição'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('pico de 100√2 V'), findsOneWidget);
+    await tester.tap(find.byTooltip('Sair do desafio'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Perfil').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Trilhas').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Técnico em Eletrotécnica'), findsOneWidget);
+    expect(find.text('Circuitos CA'), findsWidgets);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('desafio da tela inicial soma XP ao voltar', (tester) async {

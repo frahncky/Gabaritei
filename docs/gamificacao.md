@@ -59,7 +59,7 @@ O nome e os níveis são gerais. Cada curso pode ter um vocabulário próprio (p
 
 ## Medalhas por disciplina
 
-Cada trilha executável possui sua própria medalha de domínio, identificada pelo nome da disciplina:
+Cada uma das 26 trilhas executáveis possui sua própria medalha de domínio, identificada pelo nome da disciplina. Exemplos:
 
 | Disciplina | Nome |
 | --- | --- |
@@ -73,4 +73,4 @@ A conquista requer pelo menos 70% em cada módulo e na prova final; para CLP, ta
 
 As medalhas de assuntos usam o formato “Disciplina · Assunto”, como “Eletricidade Básica · Lei de Ohm” e “Eletrônica Analógica · Resistores”, e exigem pelo menos 80% na atividade correspondente. Potência e Kirchhoff agora possuem atividades vinculadas às suas medalhas.
 
-O perfil agrupa conquistas por disciplina; medalhas de sequência permanecem no grupo Constância. IDs antigos são mantidos: renomear não apaga medalhas já salvas. Novas disciplinas deverão receber medalhas próprias quando suas trilhas forem implementadas.
+O perfil agrupa conquistas por disciplina; medalhas de sequência permanecem no grupo Constância. IDs antigos são mantidos: renomear não apaga medalhas já salvas. As 21 disciplinas adicionais também possuem suas próprias medalhas. O catálogo completo está em [Cursos e disciplinas](cursos.md).

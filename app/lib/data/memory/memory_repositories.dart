@@ -288,6 +288,7 @@ class MemoryContentRepository implements ContentRepository {
     order: module.order,
     title: module.title,
     subtitle: module.subtitle,
+    lessonText: module.lessonText,
     status: !available ? ModuleStatus.locked
         : score >= 0.7 ? ModuleStatus.done : ModuleStatus.current,
     stars: !available ? 0 : score >= 1 ? 3 : score >= 0.85 ? 2 : score >= 0.7 ? 1 : 0,

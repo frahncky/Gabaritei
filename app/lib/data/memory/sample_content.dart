@@ -6,6 +6,7 @@ library;
 
 import '../../domain/models/content.dart';
 import '../../domain/models/gamification.dart';
+import 'curriculum_content.dart';
 
 class SampleContent {
   SampleContent._();
@@ -196,7 +197,7 @@ class SampleContent {
   );
 
   /// Atividades iniciais por módulo, sem progresso fictício.
-  static const List<Quiz> lessons = [
+  static const List<Quiz> _baseLessons = [
     leiDeOhm,
     codigoDeCores,
     associacaoDeResistores,
@@ -286,6 +287,8 @@ class SampleContent {
     ]),
   ];
 
+  static final List<Quiz> lessons = [..._baseLessons, ...ExtendedContent.lessons];
+
   static final List<Quiz> quizzes = [
     ...lessons,
     Quiz(id: 'q-eb-final', title: 'Prova final — Eletricidade Básica', topic: 'Eletricidade Básica', rewardXp: 300, badgeId: 'primeira-trilha', questions: [for (final quiz in lessons) if (const ['q-eb-1', 'q-ohm', 'q-eb-3', 'q-assoc', 'q-eb-5', 'q-eb-6'].contains(quiz.id)) ...quiz.questions]),
@@ -293,45 +296,48 @@ class SampleContent {
     Quiz(id: 'q-ed-final', title: 'Prova final — Eletrônica Digital', topic: 'Eletrônica Digital', rewardXp: 300, badgeId: 'dominio-digital', questions: [for (final quiz in lessons) if (const ['q-ed-1', 'q-ed-2', 'q-ed-3', 'q-ed-4'].contains(quiz.id)) ...quiz.questions]),
     Quiz(id: 'q-ie-final', title: 'Prova final — Instalações Elétricas', topic: 'Instalações Elétricas', rewardXp: 300, badgeId: 'dominio-instalacoes', questions: [for (final quiz in lessons) if (const ['q-ie-1', 'q-ie-2', 'q-ie-3', 'q-ie-4'].contains(quiz.id)) ...quiz.questions]),
     Quiz(id: 'q-clp-final', title: 'Prova final — CLP e Automação', topic: 'CLP e Automação', rewardXp: 300, badgeId: 'dominio-automacao', questions: [for (final quiz in lessons) if (const ['q-clp-1', 'q-clp-2', 'q-clp-3', 'q-clp-4'].contains(quiz.id)) ...quiz.questions]),
+    ...ExtendedContent.exams,
   ];
 
-  static const List<Trail> trails = [
+  static final List<Trail> trails = [..._baseTrails, ...ExtendedContent.trails];
+
+  static const List<Trail> _baseTrails = [
     Trail(id: 'eletricidade-basica', title: 'Eletricidade Básica', modules: [
-        TrailModule(id: 'eb-1', order: 1, title: 'Grandezas elétricas', subtitle: 'Tensão, corrente e resistência', status: ModuleStatus.current, quizId: 'q-eb-1'),
-        TrailModule(id: 'eb-2', order: 2, title: 'Lei de Ohm', subtitle: 'Relacionar tensão, resistência e corrente', status: ModuleStatus.locked, quizId: 'q-ohm'),
-        TrailModule(id: 'eb-3', order: 3, title: 'Potência e energia', subtitle: 'Watts, kWh e consumo', status: ModuleStatus.locked, quizId: 'q-eb-3'),
-        TrailModule(id: 'eb-4', order: 4, title: 'Associação de resistores', subtitle: 'Série e paralelo', status: ModuleStatus.locked, quizId: 'q-assoc'),
-        TrailModule(id: 'eb-5', order: 5, title: 'Leis de Kirchhoff', subtitle: 'Conservação de carga e energia', status: ModuleStatus.locked, quizId: 'q-eb-5'),
-        TrailModule(id: 'eb-6', order: 6, title: 'Divisores de tensão e corrente', subtitle: 'Distribuição de grandezas', status: ModuleStatus.locked, quizId: 'q-eb-6'),
+        TrailModule(id: 'eb-1', lessonText: 'Tensão é diferença de potencial; corrente é fluxo de carga e resistência relaciona tensão e corrente em um elemento ôhmico. Use unidades coerentes: 1 kΩ = 1000 Ω e 1 mA = 0,001 A.', order: 1, title: 'Grandezas elétricas', subtitle: 'Tensão, corrente e resistência', status: ModuleStatus.current, quizId: 'q-eb-1'),
+        TrailModule(id: 'eb-2', lessonText: 'Em um resistor ôhmico, V = R·I. Isole a grandeza procurada: I = V/R ou R = V/I. Por exemplo, 12 V em 220 Ω produzem aproximadamente 54,5 mA.', order: 2, title: 'Lei de Ohm', subtitle: 'Relacionar tensão, resistência e corrente', status: ModuleStatus.locked, quizId: 'q-ohm'),
+        TrailModule(id: 'eb-3', lessonText: 'Potência elétrica é taxa de transferência de energia. Em CC, P = V·I; para potência constante, E = P·t. Uma carga de 1 kW durante 2 h consome 2 kWh.', order: 3, title: 'Potência e energia', subtitle: 'Watts, kWh e consumo', status: ModuleStatus.locked, quizId: 'q-eb-3'),
+        TrailModule(id: 'eb-4', lessonText: 'Resistores em série têm corrente comum e Req igual à soma. Em paralelo, a tensão é comum e somam-se os inversos das resistências. Dois resistores iguais de 100 Ω em paralelo equivalem a 50 Ω.', order: 4, title: 'Associação de resistores', subtitle: 'Série e paralelo', status: ModuleStatus.locked, quizId: 'q-assoc'),
+        TrailModule(id: 'eb-5', lessonText: 'A lei dos nós conserva carga: correntes que entram e saem se equilibram. A lei das malhas conserva energia: a soma algébrica das tensões em um percurso fechado é zero.', order: 5, title: 'Leis de Kirchhoff', subtitle: 'Conservação de carga e energia', status: ModuleStatus.locked, quizId: 'q-eb-5'),
+        TrailModule(id: 'eb-6', lessonText: 'Em série, Vout = Vin·R2/(R1+R2) num divisor sem carga. Em paralelo, a corrente de cada ramo é V/R; ramos de menor resistência conduzem mais corrente.', order: 6, title: 'Divisores de tensão e corrente', subtitle: 'Distribuição de grandezas', status: ModuleStatus.locked, quizId: 'q-eb-6'),
         TrailModule(id: 'eb-final', order: 7, title: 'Prova final da trilha', subtitle: 'Revisão dos módulos · mínimo de 70% para concluir', status: ModuleStatus.locked, quizId: 'q-eb-final', isFinalExam: true),
     ]),
     Trail(id: 'eletronica-analogica', title: 'Eletrônica Analógica', modules: [
-        TrailModule(id: 'ea-1', order: 1, title: 'Semicondutores', subtitle: 'Materiais tipo P e N', status: ModuleStatus.current, quizId: 'q-ea-1'),
-        TrailModule(id: 'ea-2', order: 2, title: 'Diodos e retificadores', subtitle: 'Condução e conversão CA-CC', status: ModuleStatus.locked, quizId: 'q-ea-2'),
-        TrailModule(id: 'ea-3', order: 3, title: 'Transistores', subtitle: 'Chaveamento e amplificação', status: ModuleStatus.locked, quizId: 'q-ea-3'),
-        TrailModule(id: 'ea-4', order: 4, title: 'Amplificadores operacionais', subtitle: 'Realimentação negativa', status: ModuleStatus.locked, quizId: 'q-ea-4'),
-        TrailModule(id: 'ea-5', order: 5, title: 'Filtros RC', subtitle: 'Resposta em frequência', status: ModuleStatus.locked, quizId: 'q-ea-5'),
+        TrailModule(id: 'ea-1', lessonText: 'Semicondutores podem receber dopagem. No tipo N, os portadores majoritários são elétrons; no tipo P, lacunas. Junções entre regiões P e N permitem construir dispositivos eletrônicos.', order: 1, title: 'Semicondutores', subtitle: 'Materiais tipo P e N', status: ModuleStatus.current, quizId: 'q-ea-1'),
+        TrailModule(id: 'ea-2', lessonText: 'O diodo ideal conduz em polarização direta e bloqueia em reversa. Retificadores usam essa assimetria para produzir saída unidirecional a partir de CA; uma ponte monofásica usual possui quatro diodos.', order: 2, title: 'Diodos e retificadores', subtitle: 'Condução e conversão CA-CC', status: ModuleStatus.locked, quizId: 'q-ea-2'),
+        TrailModule(id: 'ea-3', lessonText: 'BJT e MOSFET podem atuar como chaves ou amplificadores. O BJT possui base, coletor e emissor; o MOSFET possui porta, dreno e fonte, com porta isolada.', order: 3, title: 'Transistores', subtitle: 'Chaveamento e amplificação', status: ModuleStatus.locked, quizId: 'q-ea-3'),
+        TrailModule(id: 'ea-4', lessonText: 'No modelo ideal com realimentação negativa e operação linear, as entradas têm tensões aproximadamente iguais. O amplificador inversor tem ganho −Rf/Rin; um seguidor tem ganho unitário.', order: 4, title: 'Amplificadores operacionais', subtitle: 'Realimentação negativa', status: ModuleStatus.locked, quizId: 'q-ea-4'),
+        TrailModule(id: 'ea-5', lessonText: 'Um filtro RC de primeira ordem tem frequência de corte fc = 1/(2πRC). Num passa-baixas com saída no capacitor, componentes de alta frequência são atenuadas.', order: 5, title: 'Filtros RC', subtitle: 'Resposta em frequência', status: ModuleStatus.locked, quizId: 'q-ea-5'),
         TrailModule(id: 'ea-final', order: 6, title: 'Prova final da trilha', subtitle: 'Revisão dos módulos · mínimo de 70% para concluir', status: ModuleStatus.locked, quizId: 'q-ea-final', isFinalExam: true),
     ]),
     Trail(id: 'eletronica-digital', title: 'Eletrônica Digital', modules: [
-        TrailModule(id: 'ed-1', order: 1, title: 'Sistemas de numeração', subtitle: 'Binário, decimal e hexadecimal', status: ModuleStatus.current, quizId: 'q-ed-1'),
-        TrailModule(id: 'ed-2', order: 2, title: 'Portas lógicas', subtitle: 'Tabelas-verdade', status: ModuleStatus.locked, quizId: 'q-ed-2'),
-        TrailModule(id: 'ed-3', order: 3, title: 'Lógica combinacional', subtitle: 'Expressões booleanas', status: ModuleStatus.locked, quizId: 'q-ed-3'),
-        TrailModule(id: 'ed-4', order: 4, title: 'Lógica sequencial', subtitle: 'Memória e contadores', status: ModuleStatus.locked, quizId: 'q-ed-4'),
+        TrailModule(id: 'ed-1', lessonText: 'Sistemas de numeração usam bases. Em binário, cada posição vale uma potência de 2; em hexadecimal, os símbolos A a F representam 10 a 15. Assim, 1010₂ = 10₁₀.', order: 1, title: 'Sistemas de numeração', subtitle: 'Binário, decimal e hexadecimal', status: ModuleStatus.current, quizId: 'q-ed-1'),
+        TrailModule(id: 'ed-2', lessonText: 'Portas lógicas implementam operações booleanas. AND exige todas as entradas verdadeiras; OR exige pelo menos uma. XOR de duas entradas vale 1 quando elas são diferentes.', order: 2, title: 'Portas lógicas', subtitle: 'Tabelas-verdade', status: ModuleStatus.locked, quizId: 'q-ed-2'),
+        TrailModule(id: 'ed-3', lessonText: 'Circuitos combinacionais dependem das entradas atuais. Álgebra booleana ajuda a simplificar expressões; multiplexadores selecionam uma entrada. Um multiplexador 4:1 usa dois bits de seleção.', order: 3, title: 'Lógica combinacional', subtitle: 'Expressões booleanas', status: ModuleStatus.locked, quizId: 'q-ed-3'),
+        TrailModule(id: 'ed-4', lessonText: 'Circuitos sequenciais armazenam estado. Um flip-flop armazena um bit; contadores percorrem sequências de estados. Com n bits, há até 2ⁿ estados distintos.', order: 4, title: 'Lógica sequencial', subtitle: 'Memória e contadores', status: ModuleStatus.locked, quizId: 'q-ed-4'),
         TrailModule(id: 'ed-final', order: 5, title: 'Prova final da trilha', subtitle: 'Revisão dos módulos · mínimo de 70% para concluir', status: ModuleStatus.locked, quizId: 'q-ed-final', isFinalExam: true),
     ]),
     Trail(id: 'instalacoes-eletricas', title: 'Instalações Elétricas', modules: [
-        TrailModule(id: 'ie-1', order: 1, title: 'Simbologia e diagramas', subtitle: 'Plantas e representação', status: ModuleStatus.current, quizId: 'q-ie-1'),
-        TrailModule(id: 'ie-2', order: 2, title: 'Dimensionamento de condutores', subtitle: 'Resistência e queda de tensão', status: ModuleStatus.locked, quizId: 'q-ie-2'),
-        TrailModule(id: 'ie-3', order: 3, title: 'Proteção elétrica', subtitle: 'Função dos dispositivos', status: ModuleStatus.locked, quizId: 'q-ie-3'),
-        TrailModule(id: 'ie-4', order: 4, title: 'Comandos elétricos', subtitle: 'Contator e intertravamento', status: ModuleStatus.locked, quizId: 'q-ie-4'),
+        TrailModule(id: 'ie-1', lessonText: 'Plantas elétricas mostram a distribuição de pontos e circuitos. Diagramas unifilares simplificam conexões; a legenda define o significado dos símbolos utilizados no projeto.', order: 1, title: 'Simbologia e diagramas', subtitle: 'Plantas e representação', status: ModuleStatus.current, quizId: 'q-ie-1'),
+        TrailModule(id: 'ie-2', lessonText: 'A resistência de um condutor é R = ρL/A. Maior seção reduz a resistência para mesmo material e comprimento. A queda de tensão depende da corrente e da resistência de todo o percurso considerado.', order: 2, title: 'Dimensionamento de condutores', subtitle: 'Resistência e queda de tensão', status: ModuleStatus.locked, quizId: 'q-ie-2'),
+        TrailModule(id: 'ie-3', lessonText: 'Proteções têm funções diferentes. Fusíveis e disjuntores protegem contra sobrecorrentes conforme suas características; dispositivos diferenciais identificam desequilíbrio entre correntes de ida e retorno.', order: 3, title: 'Proteção elétrica', subtitle: 'Função dos dispositivos', status: ModuleStatus.locked, quizId: 'q-ie-3'),
+        TrailModule(id: 'ie-4', lessonText: 'Contatores comandam cargas e seus contatos auxiliares permitem lógicas como selo. Intertravamentos evitam acionamentos incompatíveis. Estudar lógica de comando não autoriza intervenção em instalações reais.', order: 4, title: 'Comandos elétricos', subtitle: 'Contator e intertravamento', status: ModuleStatus.locked, quizId: 'q-ie-4'),
         TrailModule(id: 'ie-final', order: 5, title: 'Prova final da trilha', subtitle: 'Revisão dos módulos · mínimo de 70% para concluir', status: ModuleStatus.locked, quizId: 'q-ie-final', isFinalExam: true),
     ]),
     Trail(id: 'clp-automacao', title: 'CLP e Automação', unlocked: false, requiresTrailId: 'eletronica-digital', modules: [
-        TrailModule(id: 'clp-1', order: 1, title: 'Lógica Ladder', subtitle: 'Contatos, bobinas e selos', status: ModuleStatus.locked, quizId: 'q-clp-1'),
-        TrailModule(id: 'clp-2', order: 2, title: 'Ciclo de varredura', subtitle: 'Entradas, programa e saídas', status: ModuleStatus.locked, quizId: 'q-clp-2'),
-        TrailModule(id: 'clp-3', order: 3, title: 'Temporizadores e contadores', subtitle: 'Tempo e eventos', status: ModuleStatus.locked, quizId: 'q-clp-3'),
-        TrailModule(id: 'clp-4', order: 4, title: 'Sinais analógicos', subtitle: 'Escala e instrumentação', status: ModuleStatus.locked, quizId: 'q-clp-4'),
+        TrailModule(id: 'clp-1', lessonText: 'Ladder representa lógica de comando por contatos e bobinas. Contatos em série correspondem à operação E; contatos em paralelo correspondem à operação OU.', order: 1, title: 'Lógica Ladder', subtitle: 'Contatos, bobinas e selos', status: ModuleStatus.locked, quizId: 'q-clp-1'),
+        TrailModule(id: 'clp-2', lessonText: 'No ciclo básico, o CLP lê entradas, executa o programa e atualiza saídas. Entradas digitais representam estados discretos; a lógica utiliza esses estados para determinar comandos.', order: 2, title: 'Ciclo de varredura', subtitle: 'Entradas, programa e saídas', status: ModuleStatus.locked, quizId: 'q-clp-2'),
+        TrailModule(id: 'clp-3', lessonText: 'Temporizadores relacionam eventos a intervalos. Um TON retarda a ativação após uma condição sustentada; contadores de eventos normalmente usam transições para não contar repetidamente um sinal mantido.', order: 3, title: 'Temporizadores e contadores', subtitle: 'Tempo e eventos', status: ModuleStatus.locked, quizId: 'q-clp-3'),
+        TrailModule(id: 'clp-4', lessonText: 'Sinais analógicos representam faixas contínuas. Num transmissor linear de 4–20 mA, a fração da escala é (I−4)/16. A conversão digital tem número de códigos definido pela resolução em bits.', order: 4, title: 'Sinais analógicos', subtitle: 'Escala e instrumentação', status: ModuleStatus.locked, quizId: 'q-clp-4'),
         TrailModule(id: 'clp-final', order: 5, title: 'Prova final da trilha', subtitle: 'Revisão dos módulos · mínimo de 70% para concluir', status: ModuleStatus.locked, quizId: 'q-clp-final', isFinalExam: true),
     ]),
   ];
@@ -367,7 +373,9 @@ class SampleContent {
     ),
   ];
 
-  static const List<Medal> medals = [
+  static final List<Medal> medals = [..._baseMedals, ...ExtendedContent.medals];
+
+  static const List<Medal> _baseMedals = [
     Medal(
       id: 'dominio-automacao',
       name: 'Domínio em CLP e Automação',

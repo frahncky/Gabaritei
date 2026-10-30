@@ -20,7 +20,7 @@ void main() {
     final quizzes = {for (final q in SampleContent.quizzes) q.id: q};
     final trails = {for (final t in SampleContent.trails) t.id: t};
     expect(quizzes.length, SampleContent.quizzes.length);
-    expect(trails.length, 5);
+    expect(trails.length, 26);
     for (final trail in trails.values) {
       if (trail.requiresTrailId != null) {
         expect(trails.containsKey(trail.requiresTrailId), isTrue);
@@ -48,7 +48,7 @@ void main() {
       expect(trail.modules.skip(1).every((m) => m.status == ModuleStatus.locked), isTrue);
     }
     expect(trails.first.modules.first.status, ModuleStatus.current);
-    expect(trails.last.unlocked, isFalse);
+    expect(trails.firstWhere((t) => t.id == 'clp-automacao').unlocked, isFalse);
   });
 
   test('aprovação libera o próximo módulo e tentativa pior preserva o melhor resultado', () async {
@@ -95,12 +95,12 @@ void main() {
       final quiz = await content.getQuiz(module.quizId!);
       await student.submitQuiz(quiz, answersFor(quiz));
     }
-    expect((await content.getTrails()).last.unlocked, isFalse);
+    expect((await content.getTrails()).firstWhere((t) => t.id == 'clp-automacao').unlocked, isFalse);
     digital = (await content.getTrails()).firstWhere((t) => t.id == 'eletronica-digital');
     expect(digital.modules.last.status, ModuleStatus.current);
     final exam = await content.getQuiz(digital.modules.last.quizId!);
     await student.submitQuiz(exam, answersFor(exam));
-    final clp = (await content.getTrails()).last;
+    final clp = (await content.getTrails()).firstWhere((t) => t.id == 'clp-automacao');
     expect(clp.unlocked, isTrue);
     expect(clp.modules.first.status, ModuleStatus.current);
     expect(clp.modules[1].status, ModuleStatus.locked);
@@ -121,6 +121,6 @@ void main() {
     final reset = await LocalStore.open();
     final resetContent = reset.contentRepository(students: reset.studentRepository());
     expect((await resetContent.getTrails()).first.modules.first.status, ModuleStatus.current);
-    expect((await resetContent.getTrails()).last.unlocked, isFalse);
+    expect((await resetContent.getTrails()).firstWhere((t) => t.id == 'clp-automacao').unlocked, isFalse);
   });
 }
