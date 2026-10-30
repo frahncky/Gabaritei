@@ -40,7 +40,10 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('course-automation')));
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.byKey(const ValueKey('discipline-clp-automacao')));
+    await tester.scrollUntilVisible(find.byKey(const ValueKey('discipline-clp-automacao')), 200,
+        scrollable: find.byType(Scrollable).first);
+    await Scrollable.ensureVisible(tester.element(find.byKey(const ValueKey('discipline-clp-automacao'))), alignment: .5);
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('discipline-clp-automacao')));
     await tester.pumpAndSettle();
     expect(find.textContaining('para desbloquear esta'), findsOneWidget);
@@ -80,17 +83,23 @@ void main() {
       await tester.tap(card);
       await tester.pumpAndSettle();
       expect(find.text('0 de ${entry.value} disciplinas concluídas'), findsOneWidget);
+      await tester.scrollUntilVisible(find.byKey(const ValueKey('discipline-circuitos-ca')), 200,
+          scrollable: find.byType(Scrollable).first);
       expect(find.byKey(const ValueKey('discipline-circuitos-ca')), findsOneWidget);
       if (entry.key == 'electrotechnics') {
         expect(find.byKey(const ValueKey('discipline-cnc-manufatura')), findsNothing);
       }
+      await tester.drag(find.byType(ListView).first, const Offset(0, 5000));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('back-to-courses')));
       await tester.pumpAndSettle();
     }
     await tester.tap(find.byKey(const ValueKey('course-electrotechnics')));
     await tester.pumpAndSettle();
     final ca = find.byKey(const ValueKey('discipline-circuitos-ca'));
-    await tester.ensureVisible(ca);
+    await tester.scrollUntilVisible(ca, 200, scrollable: find.byType(Scrollable).first);
+    await Scrollable.ensureVisible(tester.element(ca), alignment: .5);
+    await tester.pumpAndSettle();
     await tester.tap(ca);
     await tester.pumpAndSettle();
     final study = find.text('Estudar o conteúdo').first;
