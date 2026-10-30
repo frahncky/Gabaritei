@@ -204,11 +204,11 @@ class SampleContent {
       Question(id: 'eb-1-q1', topic: 'Grandezas elétricas', prompt: 'Qual grandeza é medida em ampères?', options: ['Corrente elétrica', 'Tensão elétrica', 'Resistência elétrica', 'Energia elétrica'], correctIndex: 0, explanation: 'O ampère (A) é a unidade de corrente elétrica.'),
       Question(id: 'eb-1-q2', topic: 'Grandezas elétricas', prompt: 'Uma resistência de 2 kΩ equivale a:', options: ['2 Ω', '200 Ω', '2000 Ω', '20000 Ω'], correctIndex: 2, explanation: 'O prefixo quilo representa mil: 2 kΩ = 2000 Ω.'),
     ]),
-    Quiz(id: 'q-eb-3', title: 'Potência e energia', topic: 'Eletricidade Básica', rewardXp: 30, questions: [
+    Quiz(id: 'q-eb-3', badgeId: 'potencia-total', title: 'Potência e energia', topic: 'Eletricidade Básica', rewardXp: 30, questions: [
       Question(id: 'eb-3-q1', topic: 'Potência e energia', prompt: 'Uma carga resistiva recebe 12 V e conduz 2 A. Qual é a potência?', options: ['6 W', '14 W', '24 W', '144 W'], correctIndex: 2, explanation: 'P = V × I = 12 × 2 = 24 W.'),
       Question(id: 'eb-3-q2', topic: 'Potência e energia', prompt: 'Um aparelho de 1000 W funciona por 2 h. Qual energia consome?', options: ['0,5 kWh', '2 kWh', '2000 kWh', '1002 kWh'], correctIndex: 1, explanation: '1000 W = 1 kW; E = P × t = 1 × 2 = 2 kWh.'),
     ]),
-    Quiz(id: 'q-eb-5', title: 'Leis de Kirchhoff', topic: 'Eletricidade Básica', rewardXp: 30, questions: [
+    Quiz(id: 'q-eb-5', badgeId: 'kirchhoff', title: 'Leis de Kirchhoff', topic: 'Eletricidade Básica', rewardXp: 30, questions: [
       Question(id: 'eb-5-q1', topic: 'Leis de Kirchhoff', prompt: 'Em um nó entram 5 A e saem 2 A por um ramo. Quanto sai pelo outro?', options: ['7 A', '10 A', '2,5 A', '3 A'], correctIndex: 3, explanation: 'A soma das correntes que entram é igual à das que saem: 5 − 2 = 3 A.'),
       Question(id: 'eb-5-q2', topic: 'Leis de Kirchhoff', prompt: 'Uma fonte de 12 V alimenta duas quedas de tensão em série. Se uma é 5 V, qual é a outra?', options: ['7 V', '17 V', '60 V', '2,4 V'], correctIndex: 0, explanation: 'Pela lei das malhas, 12 − 5 − V = 0; logo V = 7 V.'),
     ]),
@@ -289,10 +289,10 @@ class SampleContent {
   static final List<Quiz> quizzes = [
     ...lessons,
     Quiz(id: 'q-eb-final', title: 'Prova final — Eletricidade Básica', topic: 'Eletricidade Básica', rewardXp: 300, badgeId: 'primeira-trilha', questions: [for (final quiz in lessons) if (const ['q-eb-1', 'q-ohm', 'q-eb-3', 'q-assoc', 'q-eb-5', 'q-eb-6'].contains(quiz.id)) ...quiz.questions]),
-    Quiz(id: 'q-ea-final', title: 'Prova final — Eletrônica Analógica', topic: 'Eletrônica Analógica', rewardXp: 300, questions: [for (final quiz in lessons) if (const ['q-ea-1', 'q-ea-2', 'q-ea-3', 'q-ea-4', 'q-ea-5'].contains(quiz.id)) ...quiz.questions]),
-    Quiz(id: 'q-ed-final', title: 'Prova final — Eletrônica Digital', topic: 'Eletrônica Digital', rewardXp: 300, questions: [for (final quiz in lessons) if (const ['q-ed-1', 'q-ed-2', 'q-ed-3', 'q-ed-4'].contains(quiz.id)) ...quiz.questions]),
-    Quiz(id: 'q-ie-final', title: 'Prova final — Instalações Elétricas', topic: 'Instalações Elétricas', rewardXp: 300, questions: [for (final quiz in lessons) if (const ['q-ie-1', 'q-ie-2', 'q-ie-3', 'q-ie-4'].contains(quiz.id)) ...quiz.questions]),
-    Quiz(id: 'q-clp-final', title: 'Prova final — CLP e Automação', topic: 'CLP e Automação', rewardXp: 300, questions: [for (final quiz in lessons) if (const ['q-clp-1', 'q-clp-2', 'q-clp-3', 'q-clp-4'].contains(quiz.id)) ...quiz.questions]),
+    Quiz(id: 'q-ea-final', title: 'Prova final — Eletrônica Analógica', topic: 'Eletrônica Analógica', rewardXp: 300, badgeId: 'dominio-analogica', questions: [for (final quiz in lessons) if (const ['q-ea-1', 'q-ea-2', 'q-ea-3', 'q-ea-4', 'q-ea-5'].contains(quiz.id)) ...quiz.questions]),
+    Quiz(id: 'q-ed-final', title: 'Prova final — Eletrônica Digital', topic: 'Eletrônica Digital', rewardXp: 300, badgeId: 'dominio-digital', questions: [for (final quiz in lessons) if (const ['q-ed-1', 'q-ed-2', 'q-ed-3', 'q-ed-4'].contains(quiz.id)) ...quiz.questions]),
+    Quiz(id: 'q-ie-final', title: 'Prova final — Instalações Elétricas', topic: 'Instalações Elétricas', rewardXp: 300, badgeId: 'dominio-instalacoes', questions: [for (final quiz in lessons) if (const ['q-ie-1', 'q-ie-2', 'q-ie-3', 'q-ie-4'].contains(quiz.id)) ...quiz.questions]),
+    Quiz(id: 'q-clp-final', title: 'Prova final — CLP e Automação', topic: 'CLP e Automação', rewardXp: 300, badgeId: 'dominio-automacao', questions: [for (final quiz in lessons) if (const ['q-clp-1', 'q-clp-2', 'q-clp-3', 'q-clp-4'].contains(quiz.id)) ...quiz.questions]),
   ];
 
   static const List<Trail> trails = [
@@ -369,15 +369,49 @@ class SampleContent {
 
   static const List<Medal> medals = [
     Medal(
+      id: 'dominio-automacao',
+      name: 'Domínio em CLP e Automação',
+      discipline: 'CLP e Automação',
+      description: 'Todos os módulos e a prova final de CLP e Automação com pelo menos 70% de acerto',
+      icon: MedalIcon.automation,
+    ),
+
+    Medal(
+      id: 'dominio-instalacoes',
+      name: 'Domínio em Instalações Elétricas',
+      discipline: 'Instalações Elétricas',
+      description: 'Todos os módulos e a prova final de Instalações Elétricas com pelo menos 70% de acerto',
+      icon: MedalIcon.installation,
+    ),
+
+    Medal(
+      id: 'dominio-digital',
+      name: 'Domínio em Eletrônica Digital',
+      discipline: 'Eletrônica Digital',
+      description: 'Todos os módulos e a prova final de Eletrônica Digital com pelo menos 70% de acerto',
+      icon: MedalIcon.digital,
+    ),
+
+    Medal(
+      id: 'dominio-analogica',
+      name: 'Domínio em Eletrônica Analógica',
+      discipline: 'Eletrônica Analógica',
+      description: 'Todos os módulos e a prova final de Eletrônica Analógica com pelo menos 70% de acerto',
+      icon: MedalIcon.analog,
+    ),
+
+    Medal(
       id: 'mestre-ohm',
-      name: 'Mestre de Ohm',
+      name: 'Eletricidade Básica · Lei de Ohm',
+      discipline: 'Eletricidade Básica',
       description: 'Desafio de Lei de Ohm com 80% ou mais de acerto',
       icon: MedalIcon.ohm,
     ),
     Medal(
       id: 'potencia-total',
-      name: 'Potência Total',
-      description: 'Concluiu o módulo de Potência e energia com 3 estrelas',
+      name: 'Eletricidade Básica · Potência',
+      discipline: 'Eletricidade Básica',
+      description: 'Atividade de Potência e energia com 80% ou mais de acerto',
       icon: MedalIcon.bolt,
     ),
     Medal(
@@ -389,13 +423,15 @@ class SampleContent {
     ),
     Medal(
       id: 'mestre-cores',
-      name: 'Olho de Resistor',
+      name: 'Eletrônica Analógica · Resistores',
+      discipline: 'Eletrônica Analógica',
       description: 'Desafio de código de cores com 80% ou mais de acerto',
       icon: MedalIcon.resistor,
     ),
     Medal(
       id: 'rei-paralelo',
-      name: 'Rei do Paralelo',
+      name: 'Eletricidade Básica · Associações',
+      discipline: 'Eletricidade Básica',
       description: 'Desafio de associação de resistores com 80% ou mais',
       icon: MedalIcon.parallel,
     ),
@@ -408,14 +444,16 @@ class SampleContent {
     ),
     Medal(
       id: 'primeira-trilha',
-      name: 'Eletricista de Base',
-      description: 'Concluiu a trilha de Eletricidade Básica',
+      name: 'Domínio em Eletricidade Básica',
+      discipline: 'Eletricidade Básica',
+      description: 'Todos os módulos e a prova final de Eletricidade Básica com pelo menos 70% de acerto',
       icon: MedalIcon.electrician,
     ),
     Medal(
       id: 'kirchhoff',
-      name: 'Kirchhoff',
-      description: 'Concluiu o módulo de Leis de Kirchhoff',
+      name: 'Eletricidade Básica · Kirchhoff',
+      discipline: 'Eletricidade Básica',
+      description: 'Atividade de Leis de Kirchhoff com 80% ou mais de acerto',
       icon: MedalIcon.kirchhoff,
     ),
     Medal(

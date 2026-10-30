@@ -90,6 +90,10 @@ IconData _iconFor(MedalIcon icon) => switch (icon) {
       MedalIcon.parallel => Icons.call_split,
       MedalIcon.electrician => Icons.electrical_services,
       MedalIcon.kirchhoff => Icons.device_hub,
+      MedalIcon.analog => Icons.graphic_eq,
+      MedalIcon.digital => Icons.memory,
+      MedalIcon.installation => Icons.electrical_services,
+      MedalIcon.automation => Icons.precision_manufacturing,
     };
 
 class _MedalPainter extends CustomPainter {

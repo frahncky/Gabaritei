@@ -39,11 +39,15 @@ class Medal {
     required this.description,
     required this.icon,
     this.iconLabel,
+    this.discipline,
   });
 
   final String id;
   final String name;
   final String description;
+
+  /// Disciplina da conquista; null identifica medalhas de constância.
+  final String? discipline;
 
   /// Ícone que representa a conquista, independente do desenho da medalha.
   final MedalIcon icon;
@@ -60,6 +64,10 @@ enum MedalIcon {
   parallel,
   electrician,
   kirchhoff,
+  analog,
+  digital,
+  installation,
+  automation,
 }
 
 enum RankingPeriod {

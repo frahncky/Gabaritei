@@ -78,15 +78,17 @@ O app funciona **sem servidor**: o progresso fica salvo no próprio aparelho, co
 
 ### 🏅 Medalhas
 
-<div align="center">
+| Disciplina | Medalha de domínio |
+| --- | --- |
+| ⚡ Eletricidade Básica | Domínio em Eletricidade Básica |
+| 📈 Eletrônica Analógica | Domínio em Eletrônica Analógica |
+| 🔢 Eletrônica Digital | Domínio em Eletrônica Digital |
+| 🔌 Instalações Elétricas | Domínio em Instalações Elétricas |
+| ⚙️ CLP e Automação | Domínio em CLP e Automação |
 
-| Ω **Mestre de Ohm** | ⚡ **Potência Total** | 🎨 **Olho de Resistor** | 🔀 **Rei do Paralelo** | 🔧 **Eletricista de Base** | 🔁 **Kirchhoff** |
-| :---: | :---: | :---: | :---: | :---: | :---: |
+As medalhas são organizadas por disciplina no perfil. As conquistas por assunto também identificam a disciplina no nome. A seção **Constância** reúne as medalhas de 7, 30 e 100 dias seguidos.
 
-| 🔥 **7 dias seguidos** | 🔥 **30 dias seguidos** | 🔥 **100 dias seguidos** |
-| :---: | :---: | :---: |
-
-</div>
+A medalha de domínio exige pelo menos 70% em todos os módulos e na prova final, além do pré-requisito da trilha. Medalhas de desafios específicos exigem 80%. IDs de conquistas anteriores são preservados.
 
 Regras que mantêm o jogo justo:
 
