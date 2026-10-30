@@ -63,7 +63,7 @@ void main() {
       const densities = {'mdpi': 1.0, 'hdpi': 1.5, 'xhdpi': 2.0,
         'xxhdpi': 3.0, 'xxxhdpi': 4.0};
       for (final entry in densities.entries) {
-        final root = 'android/app/src/main/res';
+        const root = 'android/app/src/main/res';
         await _render('$root/drawable-${entry.key}/splash.png',
           (128 * entry.value).round(),
           const GabariteiMarkPainter(withBackground: false));

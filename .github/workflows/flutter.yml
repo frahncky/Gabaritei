@@ -34,6 +34,7 @@ jobs:
             app/assets/brand/
             app/android/app/src/main/res/
           retention-days: 7
+      - run: git diff --exit-code -- assets/brand android/app/src/main/res
       - run: flutter analyze
       - run: flutter test
       - uses: actions/upload-artifact@v4
