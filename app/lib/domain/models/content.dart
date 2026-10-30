@@ -82,6 +82,7 @@ class TrailModule {
     this.lessonsTotal = 0,
     this.quizId,
     this.isFinalExam = false,
+    this.lessonText,
   });
 
   final String id;
@@ -96,6 +97,9 @@ class TrailModule {
   final int lessonsTotal;
   final String? quizId;
   final bool isFinalExam;
+
+  /// Resumo introdutório apresentado antes da atividade.
+  final String? lessonText;
 
   double get lessonFraction =>
       lessonsTotal == 0 ? 0 : lessonsDone / lessonsTotal;

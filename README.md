@@ -19,6 +19,7 @@ Trilhas, desafios, XP e ranking para o ensino médio técnico e regular, com pai
 
 [Sobre](#-sobre) ·
 [Funcionalidades](#-funcionalidades) ·
+[Cursos](docs/cursos.md) ·
 [Gamificação](#-gamificação) ·
 [Instalar](#-instalar-no-celular) ·
 [Como executar](#-como-executar) ·
@@ -40,7 +41,7 @@ O app funciona **sem servidor**: o progresso fica salvo no próprio aparelho, co
 | | |
 | --- | --- |
 | 🏠 **Início do aluno** | Nível, XP, sequência, missões do dia e desafio relâmpago num só lugar. |
-| 🛤️ **Trilhas** | Disciplinas em módulos que se desbloqueiam em ordem, com estrelas e prova final. |
+| 🛤️ **Cursos e disciplinas** | Quatro cursos, 26 disciplinas, 86 unidades de estudo e 26 provas finais, com resumos e atividades. |
 | ⚡ **Desafios** | Quizzes cronometrados com combo por acertos seguidos, dica que custa XP e explicação a cada resposta. |
 | 🧩 **Questões visuais** | Circuitos em série e paralelo, código de cores, planta elétrica e controle de processo desenhados no app. |
 | 🔬 **Laboratório** | Circuito animado com Lei de Ohm e potência, código de cores dos resistores e controle de nível com CLP. |
@@ -49,7 +50,7 @@ O app funciona **sem servidor**: o progresso fica salvo no próprio aparelho, co
 | 💾 **Progresso salvo** | XP, sequência, medalhas e missões continuam lá ao reabrir o app. |
 | 🧑‍🏫 **Painel do professor** | Acerto por tópico, alunos que precisam de atenção, lembretes e criação de desafios. |
 
-📚 **[Disciplinas e progressão](docs/disciplinas.md)** — cinco trilhas com atividades iniciais, provas finais e notas salvas no aparelho. O mapa curricular de 26 áreas inclui disciplinas ainda planejadas.
+📚 **[Disciplinas e progressão](docs/disciplinas.md)** — 26 disciplinas com resumos, atividades iniciais, provas finais e notas salvas no aparelho, organizadas em quatro cursos. [Ver cursos e matriz](docs/cursos.md).
 
 ## 🎮 Gamificação
 
@@ -77,6 +78,8 @@ O app funciona **sem servidor**: o progresso fica salvo no próprio aparelho, co
 <sub>Combo: a partir de 3 acertos seguidos, o XP do desafio dobra.</sub>
 
 ### 🏅 Medalhas
+
+Cada uma das 26 disciplinas possui uma medalha “Domínio em [disciplina]”. Exemplos:
 
 | Disciplina | Medalha de domínio |
 | --- | --- |
