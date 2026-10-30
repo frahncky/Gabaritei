@@ -81,7 +81,10 @@ void main() {
     await tester.tap(find.text('Circuitos CA').last);
     await tester.pumpAndSettle();
     final study = find.text('Estudar o conteúdo').first;
-    await tester.ensureVisible(study);
+    await tester.scrollUntilVisible(study, 100,
+        scrollable: find.byType(Scrollable).first);
+    await tester.drag(find.byType(ListView).first, const Offset(0, -160));
+    await tester.pumpAndSettle();
     await tester.tap(study);
     await tester.pumpAndSettle();
     expect(find.textContaining('Vrms = Vp/√2'), findsOneWidget);

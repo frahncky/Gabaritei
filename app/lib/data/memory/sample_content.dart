@@ -290,13 +290,13 @@ class SampleContent {
   static final List<Quiz> lessons = [..._baseLessons, ...ExtendedContent.lessons];
 
   static final List<Quiz> quizzes = [
-    ...ExtendedContent.exams,
     ...lessons,
     Quiz(id: 'q-eb-final', title: 'Prova final — Eletricidade Básica', topic: 'Eletricidade Básica', rewardXp: 300, badgeId: 'primeira-trilha', questions: [for (final quiz in lessons) if (const ['q-eb-1', 'q-ohm', 'q-eb-3', 'q-assoc', 'q-eb-5', 'q-eb-6'].contains(quiz.id)) ...quiz.questions]),
     Quiz(id: 'q-ea-final', title: 'Prova final — Eletrônica Analógica', topic: 'Eletrônica Analógica', rewardXp: 300, badgeId: 'dominio-analogica', questions: [for (final quiz in lessons) if (const ['q-ea-1', 'q-ea-2', 'q-ea-3', 'q-ea-4', 'q-ea-5'].contains(quiz.id)) ...quiz.questions]),
     Quiz(id: 'q-ed-final', title: 'Prova final — Eletrônica Digital', topic: 'Eletrônica Digital', rewardXp: 300, badgeId: 'dominio-digital', questions: [for (final quiz in lessons) if (const ['q-ed-1', 'q-ed-2', 'q-ed-3', 'q-ed-4'].contains(quiz.id)) ...quiz.questions]),
     Quiz(id: 'q-ie-final', title: 'Prova final — Instalações Elétricas', topic: 'Instalações Elétricas', rewardXp: 300, badgeId: 'dominio-instalacoes', questions: [for (final quiz in lessons) if (const ['q-ie-1', 'q-ie-2', 'q-ie-3', 'q-ie-4'].contains(quiz.id)) ...quiz.questions]),
     Quiz(id: 'q-clp-final', title: 'Prova final — CLP e Automação', topic: 'CLP e Automação', rewardXp: 300, badgeId: 'dominio-automacao', questions: [for (final quiz in lessons) if (const ['q-clp-1', 'q-clp-2', 'q-clp-3', 'q-clp-4'].contains(quiz.id)) ...quiz.questions]),
+    ...ExtendedContent.exams,
   ];
 
   static final List<Trail> trails = [..._baseTrails, ...ExtendedContent.trails];
