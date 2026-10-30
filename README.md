@@ -22,7 +22,8 @@ Trilhas, desafios, XP e ranking para o ensino médio técnico e regular, com pai
 [Gamificação](#-gamificação) ·
 [Instalar](#-instalar-no-celular) ·
 [Como executar](#-como-executar) ·
-[Arquitetura](#-arquitetura)
+[Arquitetura](#-arquitetura) ·
+[Roadmap](docs/roadmap.md)
 
 </div>
 
@@ -171,6 +172,10 @@ As telas estão em [`design/mockup/`](design/mockup/): início, trilhas, quiz, r
 ## 🚧 Status
 
 Protótipo funcional em **desenvolvimento ativo**.
+
+🗺️ **[Roadmap completo](docs/roadmap.md)** — etapas, prioridades, dependências e critérios de conclusão, da validação do protótipo ao piloto com uma turma real.
+
+**Próximo marco:** validar a base atual (M0), antes de implementar contas, backend e turmas (M1).
 
 - [x] Mockup das telas do aluno e do painel do professor
 - [x] Protótipo navegável: início, trilhas, desafio, resultado, ranking, perfil e professor
