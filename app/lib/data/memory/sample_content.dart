@@ -196,7 +196,7 @@ class SampleContent {
   );
 
   /// Atividades iniciais por módulo, sem progresso fictício.
-  static final List<Quiz> lessons = [
+  static const List<Quiz> lessons = [
     leiDeOhm,
     codigoDeCores,
     associacaoDeResistores,
