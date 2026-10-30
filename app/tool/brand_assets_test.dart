@@ -22,6 +22,13 @@ Future<void> _render(
     ..writeAsBytesSync(bytes!.buffer.asUint8List());
 }
 
+/// Zona segura do ícone adaptativo: círculo de 66 dp numa camada de 108 dp.
+final _foregroundScale = GabariteiMarkPainter.bubbleScaleToFit(66 / 108 / 2);
+
+/// Splash do Android 12: só o círculo de 768 px (de 1152) aparece; folga
+/// de 4%.
+final _splash12Scale = GabariteiMarkPainter.bubbleScaleToFit(0.32);
+
 void main() {
   testWidgets('gera ícone e splash', (tester) async {
     await tester.runAsync(() async {
@@ -31,24 +38,41 @@ void main() {
         1024,
         const GabariteiMarkPainter(fullBleed: true),
       );
-      // Ícone adaptativo: só a bolha, dentro da zona segura (66% centrais).
+      // Ícone adaptativo: a marca sem fundo, inteira na zona segura.
       await _render(
         'assets/brand/icon_foreground.png',
         1024,
-        const GabariteiMarkPainter(withBackground: false, bubbleScale: 0.46),
+        GabariteiMarkPainter(
+            withBackground: false, bubbleScale: _foregroundScale),
       );
-      // Splash do Android 12+: 1152 px, ícone dentro do círculo de 768 px.
+      // Splash do Android 12+: 1152 px, marca dentro do círculo de 768 px.
       await _render(
         'assets/brand/splash_android12.png',
         1152,
-        const GabariteiMarkPainter(withBackground: false, bubbleScale: 0.42),
+        GabariteiMarkPainter(
+            withBackground: false, bubbleScale: _splash12Scale),
       );
       // Splash até o Android 11.
       await _render(
         'assets/brand/splash.png',
         512,
-        const GabariteiMarkPainter(withBackground: false, bubbleScale: 0.9),
+        const GabariteiMarkPainter(withBackground: false),
       );
+
+      // Splash nativo em todas as densidades, incluindo o tema escuro.
+      const densities = {'mdpi': 1.0, 'hdpi': 1.5, 'xhdpi': 2.0,
+        'xxhdpi': 3.0, 'xxxhdpi': 4.0};
+      for (final entry in densities.entries) {
+        const root = 'android/app/src/main/res';
+        await _render('$root/drawable-${entry.key}/splash.png',
+          (128 * entry.value).round(),
+          const GabariteiMarkPainter(withBackground: false));
+        for (final prefix in ['drawable', 'drawable-night']) {
+          await _render('$root/$prefix-${entry.key}/android12splash.png',
+            (288 * entry.value).round(), GabariteiMarkPainter(
+              withBackground: false, bubbleScale: _splash12Scale));
+        }
+      }
 
       // Recursos efetivamente usados pelo launcher Android. Mantê-los aqui
       // evita que o PNG-fonte mude sem atualizar o ícone instalado.
@@ -77,9 +101,9 @@ void main() {
         await _render(
           'android/app/src/main/res/drawable-${entry.key}/ic_launcher_foreground.png',
           entry.value,
-          const GabariteiMarkPainter(
+          GabariteiMarkPainter(
             withBackground: false,
-            bubbleScale: 0.46,
+            bubbleScale: _foregroundScale,
           ),
         );
       }
