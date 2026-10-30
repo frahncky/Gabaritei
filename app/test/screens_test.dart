@@ -83,9 +83,7 @@ void main() {
       await tester.tap(card);
       await tester.pumpAndSettle();
       expect(find.text('0 de ${entry.value} disciplinas concluídas'), findsOneWidget);
-      await tester.scrollUntilVisible(find.byKey(const ValueKey('discipline-circuitos-ca')), 200,
-          scrollable: find.byType(Scrollable).first);
-      expect(find.byKey(const ValueKey('discipline-circuitos-ca')), findsOneWidget);
+      expect(find.byKey(const ValueKey('discipline-eletricidade-basica')), findsOneWidget);
       if (entry.key == 'electrotechnics') {
         expect(find.byKey(const ValueKey('discipline-cnc-manufatura')), findsNothing);
       }
