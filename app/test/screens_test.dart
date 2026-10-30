@@ -120,6 +120,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Trilhas').last);
     await tester.pumpAndSettle();
+    await tester.drag(find.byType(ListView).first, const Offset(0, 5000));
+    await tester.pumpAndSettle();
     expect(find.text('Técnico em Eletrotécnica'), findsOneWidget);
     expect(find.text('Circuitos CA'), findsWidgets);
     expect(tester.takeException(), isNull);
