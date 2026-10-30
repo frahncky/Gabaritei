@@ -27,6 +27,8 @@ Cursos técnicos, disciplinas e atividades com explicações, progresso e medalh
 
 ---
 
+A marca reúne o **✓ do gabarito**, o **livro (teoria)**, as **engrenagens (prática)** e a **lâmpada (contexto)**. O desenho é usado no ícone Android, no splash e dentro do app.
+
 ## ✨ O projeto
 
 O **Gabaritei** organiza o estudo de conteúdos técnicos em trilhas com resumos, questões, explicações e provas finais. O aluno escolhe um curso, estuda suas disciplinas e acompanha a evolução no próprio aparelho.

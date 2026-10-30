@@ -26,6 +26,14 @@ jobs:
           java-version: '17'
       - run: flutter --version
       - run: flutter pub get
+      - run: flutter test tool/brand_assets_test.dart
+      - uses: actions/upload-artifact@v4
+        with:
+          name: brand-resources
+          path: |
+            app/assets/brand/
+            app/android/app/src/main/res/
+          retention-days: 7
       - run: flutter analyze
       - run: flutter test
       - uses: actions/upload-artifact@v4
