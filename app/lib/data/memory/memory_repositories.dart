@@ -4,6 +4,8 @@
 /// `lib/data/local/` as restaura e salva no aparelho via `onChanged`.
 library;
 
+import 'dart:async';
+
 import '../../domain/models/content.dart';
 import '../../domain/models/gamification.dart';
 import '../../domain/models/quiz_result.dart';
@@ -256,7 +258,8 @@ class MemoryContentRepository implements ContentRepository {
   final MemoryStudentRepository? studentRepository;
 
   /// Chamado após salvar uma questão, para quem quiser persistir.
-  final void Function(List<Question> createdQuestions)? onChanged;
+  final FutureOr<void> Function(List<Question> createdQuestions)? onChanged;
+  Future<void> _pendingSave = Future.value();
 
   @override
   Future<List<Trail>> getTrails() async {
@@ -318,10 +321,18 @@ class MemoryContentRepository implements ContentRepository {
       List.unmodifiable(_createdQuestions);
 
   @override
-  Future<void> saveQuestion(Question question) async {
-    _createdQuestions.removeWhere((item) => item.id == question.id);
-    _createdQuestions.add(question);
-    onChanged?.call(List.unmodifiable(_createdQuestions));
+  Future<void> saveQuestion(Question question) {
+    final save = _pendingSave.then((_) async {
+      final updated = [
+        ..._createdQuestions.where((item) => item.id != question.id), question,
+      ];
+      await onChanged?.call(List.unmodifiable(updated));
+      _createdQuestions
+        ..clear()
+        ..addAll(updated);
+    });
+    _pendingSave = save.catchError((Object _) {});
+    return save;
   }
 }
 
