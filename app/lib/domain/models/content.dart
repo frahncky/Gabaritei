@@ -38,6 +38,12 @@ class Question {
     hint: hint, visual: visual, figure: value,
   );
 
+  Question withId(String value) => Question(
+    id: value, topic: topic, prompt: prompt, options: options,
+    correctIndex: correctIndex, explanation: explanation,
+    hint: hint, visual: visual, figure: figure,
+  );
+
   bool isCorrect(int selectedIndex) => selectedIndex == correctIndex;
 }
 

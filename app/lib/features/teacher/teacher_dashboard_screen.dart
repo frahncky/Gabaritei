@@ -407,6 +407,7 @@ class _QuestionGeneratorCardState extends State<_QuestionGeneratorCard> {
       };
 
   void _generate() {
+    if (_saving) return;
     setState(() {
       _draft = QuestionGenerator.generate(
         topic: _topic,
@@ -420,8 +421,17 @@ class _QuestionGeneratorCardState extends State<_QuestionGeneratorCard> {
     final draft = _draft;
     if (draft == null || _saving) return;
     setState(() => _saving = true);
-    await widget.onSave(draft);
-    if (mounted) setState(() => _saving = false);
+    try {
+      await widget.onSave(draft);
+      if (mounted && identical(_draft, draft)) setState(() => _draft = null);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Não foi possível salvar. O rascunho foi mantido; tente novamente.')));
+      }
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
   }
 
   @override
@@ -535,7 +545,7 @@ class _QuestionGeneratorCardState extends State<_QuestionGeneratorCard> {
         ),
         const SizedBox(height: 12),
         OutlinedButton.icon(
-          onPressed: _generate,
+          onPressed: _saving ? null : _generate,
           icon: const Icon(Icons.auto_awesome_outlined),
           label: const Text('Gerar questão'),
         ),

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import '../models/content.dart';
 import '../models/question_figure.dart';
 
@@ -346,7 +348,20 @@ class QuestionGenerator {
   static List<CurriculumTopic> unitsFor(String discipline) =>
       syllabus[discipline] ?? const [];
 
+  static final _random = Random.secure();
+
   static Question generate({
+    required String topic,
+    required int sequence,
+    String? unit,
+  }) {
+    final question = _generate(topic: topic, sequence: sequence, unit: unit);
+    final suffix = List.generate(16, (_) =>
+        _random.nextInt(256).toRadixString(16).padLeft(2, '0')).join();
+    return question.withId('authored-$suffix');
+  }
+
+  static Question _generate({
     required String topic,
     required int sequence,
     String? unit,

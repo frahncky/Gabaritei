@@ -55,10 +55,13 @@ class LocalStore {
     return MemoryContentRepository(
       studentRepository: students,
       createdQuestions: [for (final q in saved) _questionFromJson(q)],
-      onChanged: (questions) => _prefs.setString(
-        _questionsKey,
-        jsonEncode([for (final q in questions) _questionToJson(q)]),
-      ),
+      onChanged: (questions) async {
+        final saved = await _prefs.setString(
+          _questionsKey,
+          jsonEncode([for (final q in questions) _questionToJson(q)]),
+        );
+        if (!saved) throw StateError('Falha ao persistir questões.');
+      },
     );
   }
 
