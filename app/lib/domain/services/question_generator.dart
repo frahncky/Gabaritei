@@ -600,7 +600,7 @@ class QuestionGenerator {
         id: 'generated-plan-$sequence',
         topic: 'Instalações elétricas',
         prompt:
-            'Na planta elétrica, qual elemento recebe energia diretamente do quadro de distribuição?',
+            'No diagrama conceitual, os circuitos alimentados pelo quadro atendem quais pontos da instalação?',
         options: const [
           'Interruptor',
           'Tomada',
@@ -610,7 +610,7 @@ class QuestionGenerator {
         correctIndex: 3,
         explanation:
             'O quadro alimenta os circuitos que atendem tomadas, interruptores e luminárias.',
-        hint: 'Siga o condutor destacado a partir do QD.',
+        hint: 'Observe a sequência: quadro, circuitos e pontos da instalação.',
         visual: QuestionVisual.electricalPlan,
       );
 

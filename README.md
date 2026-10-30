@@ -73,7 +73,7 @@ A melhor nota de cada atividade fica salva. Uma tentativa pior não desfaz o ava
 | --- | --- |
 | 🏠 **Início do aluno** | Nível, XP, sequência, missões de exemplo e desafio relâmpago |
 | 📚 **Cursos e disciplinas** | Quatro cursos, 26 trilhas, resumos e atividades em todas as unidades de estudo |
-| 🧩 **Questões e explicações** | Exercícios conceituais e numéricos, com recursos visuais em parte das questões |
+| 🧩 **Questões e explicações** | 464 questões; 141 possuem figuras, gráficos ou tabelas específicos, cobrindo as 26 disciplinas |
 | 🔬 **Laboratórios** | Circuitos, Lei de Ohm, potência, código de cores e controle de nível com CLP |
 | 👤 **Perfil** | Estatísticas, calendário de estudo e medalhas agrupadas por disciplina |
 | 💾 **Persistência local** | Notas, XP, sequência, medalhas, missões e questões criadas pelo professor |
@@ -81,6 +81,23 @@ A melhor nota de cada atividade fica salva. Uma tentativa pior não desfaz o ava
 | 🧑‍🏫 **Painel docente demonstrativo** | Indicadores e turmas de exemplo, criação de questões e simulação de desafios e lembretes |
 
 O aluno inicial e os indicadores de turma também usam dados de demonstração. O app ainda não tem contas autenticadas, turmas reais nem sincronização entre aparelhos. Desafios e lembretes simulados no painel não são enviados a alunos reais.
+
+## 🖼️ Questões com recursos visuais
+
+**141 questões ilustradas, com cobertura das 26 disciplinas.** Os recursos são ligados ao ID e aos dados do exercício, com descrição acessível e valores consistentes com o enunciado.
+
+| Conteúdo | Recursos |
+| --- | --- |
+| ⚡ Circuitos e eletrônica | Série, paralelo, associação mista, RC, RL, RLC, diodos e faixas de resistores |
+| 📈 Circuitos CA | Senoides, retificação, atraso de fase e componentes vetoriais de impedância e potência |
+| 🔢 Digital e CLP | Tabelas-verdade com saídas em aberto, Ladder e gráficos de sinais e temporização |
+| 🎛️ Instrumentação e processos | Curvas de escala, valores de referência e medição, malhas com realimentação |
+| ⚙️ Mecânica, pneumática e CAD | Engrenagens, forças, alavancas, cilindros, braço robótico e desenhos de escala |
+| 🌐 Demais disciplinas | Topologias, diagramas funcionais, tabelas de dados e comparações em barras |
+
+As demais questões continuam textuais. As figuras são esquemas didáticos; quando há normalização ou valores apenas ilustrativos, isso é identificado na descrição.
+
+📐 **[Tipos de figura, acessibilidade e validação](docs/questoes_visuais.md)**
 
 ## 🏅 Medalhas e progressão
 
@@ -154,7 +171,7 @@ O arquivo será gerado em `app/build/app/outputs/flutter-apk/app-release.apk`, c
 
 ## 🧪 Qualidade e testes
 
-A ampliação do banco de questões passou por **`flutter analyze` sem apontamentos e 99 testes aprovados**, em 30/10/2026. **[Ver execução validada](https://github.com/frahncky/Gabaritei/actions/runs/41092867489)**.
+O banco de questões e os recursos visuais passaram por **`flutter analyze` sem apontamentos e 109 testes aprovados**, em 30/10/2026. **[Ver execução validada](https://github.com/frahncky/Gabaritei/actions/runs/41123220106)**.
 
 A suíte cobre catálogo e vínculos dos cursos, questões e gabaritos, separação entre estudo e provas, cálculos representativos, progressão, medalhas, reconhecimento de notas antigas, persistência, reset e navegação. O workflow acompanha análise e testes na `main` e nos pull requests.
 
@@ -200,6 +217,7 @@ Os arquivos em `design/mockup` são referências de design, não capturas das te
 - [x] Quatro cursos com disciplinas vinculadas
 - [x] 26 disciplinas, 86 unidades de estudo e 464 questões distintas
 - [x] Resumos, atividades e 26 provas finais
+- [x] Figuras, gráficos e tabelas específicos em questões das 26 disciplinas
 - [x] 87 medalhas por assunto, 26 de domínio e três de constância
 - [x] Reconhecimento de notas antigas e progresso salvo
 - [x] Laboratórios de eletricidade e automação

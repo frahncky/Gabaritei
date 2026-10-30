@@ -10,6 +10,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../domain/models/content.dart';
+import '../../domain/models/question_figure.dart';
 import '../../domain/models/student.dart';
 import '../memory/memory_repositories.dart';
 
@@ -121,6 +122,7 @@ class LocalStore {
         'explanation': q.explanation,
         'hint': q.hint,
         'visual': q.visual?.name,
+        'figure': q.figure?.toJson(),
       };
 
   static Question _questionFromJson(Map<String, dynamic> j) => Question(
@@ -131,6 +133,8 @@ class LocalStore {
         correctIndex: j['correctIndex'],
         explanation: j['explanation'],
         hint: j['hint'],
+        figure: j['figure'] == null ? null : QuestionFigure.fromJson(
+            Map<String, dynamic>.from(j['figure'] as Map)),
         visual: j['visual'] == null
             ? null
             : QuestionVisual.values.byName(j['visual']),

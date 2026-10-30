@@ -201,10 +201,11 @@ class _QuizBodyState extends State<_QuizBody> {
                 ),
               ),
               const SizedBox(height: 16),
-              if (question.visual != null) ...[
+              if (question.figure != null || question.visual != null) ...[
                 QuestionVisualCard(
                   key: ValueKey(question.id),
-                  visual: question.visual!,
+                  visual: question.visual,
+                  figure: question.figure,
                 ),
                 const SizedBox(height: 16),
               ],

@@ -1,4 +1,5 @@
 import '../../domain/models/content.dart';
+import 'question_figure_catalog.dart';
 
 /// Enunciados próprios para prática e avaliação. As listas não se misturam.
 class BankItem {
@@ -14,14 +15,14 @@ class BankItem {
     final shift = position % options.length;
     final rotated = [...options.skip(options.length - shift),
       ...options.take(options.length - shift)];
-    return Question(
+    return QuestionFigureCatalog.attach(Question(
       id: id,
       topic: topic,
       prompt: prompt,
       options: List.unmodifiable(rotated),
       correctIndex: shift,
       explanation: explanation,
-    );
+    ));
   }
 }
 
