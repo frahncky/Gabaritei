@@ -20,11 +20,16 @@ class _StudentShellState extends State<StudentShell> {
   int _tab = 0;
   final List<int> _revisions = List<int>.filled(4, 0);
 
-  void _goTo(int tab) => setState(() => _tab = tab);
+  void _goTo(int tab) => setState(() {
+    if (_tab != tab) _revisions[tab]++;
+    _tab = tab;
+  });
 
-  /// Recria somente a aba cuja atividade alterou os dados. As demais mantêm
-  /// rolagem e estado local quando o aluno alterna pela navegação inferior.
-  void _refresh() => setState(() => _revisions[_tab]++);
+  /// Trilhas recarregam seus dados sem perder a disciplina selecionada.
+  /// Outras abas são recarregadas ao retornar para exibir XP e reset atuais.
+  void _refresh() {
+    if (_tab != 1) setState(() => _revisions[_tab]++);
+  }
 
   @override
   Widget build(BuildContext context) {

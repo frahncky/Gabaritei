@@ -49,6 +49,8 @@ O app funciona **sem servidor**: o progresso fica salvo no próprio aparelho, co
 | 💾 **Progresso salvo** | XP, sequência, medalhas e missões continuam lá ao reabrir o app. |
 | 🧑‍🏫 **Painel do professor** | Acerto por tópico, alunos que precisam de atenção, lembretes e criação de desafios. |
 
+📚 **[Disciplinas e progressão](docs/disciplinas.md)** — cinco trilhas com atividades iniciais, provas finais e notas salvas no aparelho. O mapa curricular de 26 áreas inclui disciplinas ainda planejadas.
+
 ## 🎮 Gamificação
 
 ### 📈 Níveis

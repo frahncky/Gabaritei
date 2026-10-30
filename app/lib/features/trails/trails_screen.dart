@@ -92,6 +92,8 @@ class _TrailsScreenState extends State<TrailsScreen> {
             ),
             const SizedBox(height: 8),
             ProgressBar(value: trail.fraction),
+            const SizedBox(height: 8),
+            const Text('Acerte pelo menos 70% para liberar o próximo módulo.'),
             const SizedBox(height: 16),
             if (!trail.unlocked) ...[
               _LockedTrailNotice(trail: trail, trails: trails),
