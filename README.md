@@ -154,9 +154,9 @@ O arquivo será gerado em `app/build/app/outputs/flutter-apk/app-release.apk`, c
 
 ## 🧪 Qualidade e testes
 
-A expansão das medalhas por assunto passou por **`flutter analyze` sem apontamentos e 92 testes aprovados**, em 30/10/2026. **[Ver execução validada](https://github.com/frahncky/Gabaritei/actions/runs/41089155344)**.
+A ampliação do banco de questões passou por **`flutter analyze` sem apontamentos e 99 testes aprovados**, em 30/10/2026. **[Ver execução validada](https://github.com/frahncky/Gabaritei/actions/runs/41092867489)**.
 
-A suíte cobre catálogo e vínculos dos cursos, integridade das questões, progressão, conquista de medalhas nas 26 disciplinas, limite de 80%, repetição sem duplicação, reconhecimento de notas antigas, persistência, reset e navegação. O workflow acompanha análise e testes na `main` e nos pull requests.
+A suíte cobre catálogo e vínculos dos cursos, questões e gabaritos, separação entre estudo e provas, cálculos representativos, progressão, medalhas, reconhecimento de notas antigas, persistência, reset e navegação. O workflow acompanha análise e testes na `main` e nos pull requests.
 
 ```bash
 cd app
