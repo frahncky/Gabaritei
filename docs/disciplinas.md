@@ -23,4 +23,4 @@ O conteúdo é introdutório: ampliar questões, exercícios visuais e revisão 
 
 ## Medalhas
 
-Cada disciplina tem sua medalha “Domínio em [disciplina]”, concedida após pelo menos 70% em todos os módulos e na prova final, respeitado o pré-requisito. Medalhas de desafios específicos mantêm 80%. Os IDs das cinco disciplinas originais e suas conquistas salvas foram preservados.
+Cada disciplina tem sua medalha “Domínio em [disciplina]”, concedida após pelo menos 70% em todos os módulos e na prova final, respeitado o pré-requisito. Todas as 86 unidades têm medalhas por assunto com limite de 80%, além da conquista de código de cores. O avanço do módulo continua em 70%. [Ver medalhas por assunto](medalhas.md). Os IDs das cinco disciplinas originais e suas conquistas salvas foram preservados.
