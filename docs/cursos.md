@@ -53,7 +53,7 @@ Cada unidade tem resumo, atividade e explicação das respostas. Os módulos nov
 1. Abra a aba Trilhas e escolha um curso em “Cursos e disciplinas”.
 2. Leia a descrição e o objetivo do curso e selecione uma disciplina.
 3. Abra “Estudar o conteúdo” no módulo disponível e realize a atividade.
-4. Avance com pelo menos 70% de acerto; ao concluir módulos e prova, conquiste a medalha da disciplina.
+4. Avance com pelo menos 70% de acerto; com 80%, ganhe a medalha do assunto. Ao concluir módulos e prova, conquiste a medalha da disciplina.
 
 A tela mostra apenas as disciplinas do curso escolhido. A seleção é preservada durante a sessão ao alternar as abas. O progresso confirmado e as medalhas continuam salvos no aparelho ao reabrir o aplicativo.
 
@@ -68,3 +68,5 @@ Questões de segurança tratam conceitos de análise de risco e prevenção. O m
 ## Validação
 
 Os testes cobrem vínculo de todas as áreas a trilhas, resumos e atividades por unidade, integridade das questões, progresso compartilhado, desbloqueios e conquista de medalhas. A suíte de interface verifica seleção de cursos, disciplinas e acesso ao conteúdo.
+
+🏅 [Medalhas de todas as unidades de estudo](medalhas.md).

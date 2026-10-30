@@ -74,3 +74,13 @@ A conquista requer pelo menos 70% em cada módulo e na prova final; para CLP, ta
 As medalhas de assuntos usam o formato “Disciplina · Assunto”, como “Eletricidade Básica · Lei de Ohm” e “Eletrônica Analógica · Resistores”, e exigem pelo menos 80% na atividade correspondente. Potência e Kirchhoff agora possuem atividades vinculadas às suas medalhas.
 
 O perfil agrupa conquistas por disciplina; medalhas de sequência permanecem no grupo Constância. IDs antigos são mantidos: renomear não apaga medalhas já salvas. As 21 disciplinas adicionais também possuem suas próprias medalhas. O catálogo completo está em [Cursos e disciplinas](cursos.md).
+
+## Conquistas em todas as unidades
+
+As 86 unidades de estudo possuem conquistas por assunto, além da medalha independente de código de cores. São 87 medalhas por assunto, 26 de domínio e três de constância: 116 no total.
+
+A medalha por assunto exige pelo menos 80% de acerto; o limite de avanço de módulo permanece em 70%. Nas atividades com duas questões, é necessário acertar ambas para ganhar a medalha.
+
+Notas anteriores de pelo menos 80% reconhecem automaticamente as conquistas correspondentes ao carregar o progresso salvo. Isso não altera XP nem notas e não concede medalhas de domínio. Os IDs antigos continuam válidos e o reset limpa também as notas usadas nessa restauração.
+
+[Catálogo completo de medalhas e assuntos](medalhas.md).

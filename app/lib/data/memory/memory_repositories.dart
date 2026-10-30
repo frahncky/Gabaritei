@@ -35,6 +35,13 @@ class MemoryStudentRepository implements StudentRepository {
       for (final m in SampleContent.dailyMissions)
         _withProgress(m, missionProgress?[m.id] ?? m.progress),
     ];
+    final restoredMedals = SampleContent.subjectMedalIdsForScores(bestQuizScores)
+        .difference(_student.earnedBadgeIds);
+    if (restoredMedals.isNotEmpty) {
+      _student = _student.copyWith(
+          earnedBadgeIds: {..._student.earnedBadgeIds, ...restoredMedals});
+      onChanged?.call(this);
+    }
   }
 
   final Clock _clock;

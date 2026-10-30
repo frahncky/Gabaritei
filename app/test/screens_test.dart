@@ -51,9 +51,9 @@ void main() {
     await tester.tap(find.text('Perfil').last);
     await tester.pumpAndSettle();
     expect(find.text('Ana Souza'), findsOneWidget);
-    await tester.scrollUntilVisible(find.text('2 de 34'), 200,
+    await tester.scrollUntilVisible(find.text('2 de 116'), 200,
         scrollable: find.byType(Scrollable).first);
-    expect(find.text('2 de 34'), findsOneWidget);
+    expect(find.text('2 de 116'), findsOneWidget);
   });
 
   testWidgets('cursos filtram disciplinas e abrem resumo e atividade', (tester) async {

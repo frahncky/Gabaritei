@@ -37,7 +37,7 @@ O catálogo atual atende **Eletrotécnica, Eletrônica, Automação Industrial e
 | :---: | :---: | :---: | :---: |
 | **4** | **26** | **86** | **182** |
 
-**26 provas finais · 34 medalhas · progresso salvo localmente**
+**26 provas finais · 116 medalhas · progresso salvo localmente**
 
 > O conteúdo é introdutório. As provas finais reutilizam questões dos módulos; a ampliação do banco e a revisão docente fazem parte das próximas etapas.
 
@@ -84,7 +84,7 @@ O aluno inicial e os indicadores de turma também usam dados de demonstração. 
 
 ## 🏅 Medalhas e progressão
 
-Cada disciplina tem uma conquista **“Domínio em [disciplina]”**. São **26 medalhas de domínio**, **cinco por assunto** e **três de constância**.
+Cada disciplina tem uma conquista **“Domínio em [disciplina]”**. São **26 medalhas de domínio**, **87 por assunto** e **três de constância**.
 
 | Disciplina | Medalha de domínio |
 | --- | --- |
@@ -94,7 +94,7 @@ Cada disciplina tem uma conquista **“Domínio em [disciplina]”**. São **26 
 | ⚙️ CLP e Automação | Domínio em CLP e Automação |
 | 🤖 Robótica | Domínio em Robótica |
 
-As conquistas por assunto também identificam a disciplina, como **Eletricidade Básica · Lei de Ohm** e **Eletrônica Analógica · Resistores**. As de **7, 30 e 100 dias** aparecem no grupo **Constância**.
+Todas as 86 unidades de estudo têm uma medalha por assunto; o desafio independente de código de cores completa as 87 conquistas. Os nomes identificam a disciplina, como **Eletricidade Básica · Lei de Ohm** e **Eletrônica Analógica · Resistores**. As de **7, 30 e 100 dias** aparecem no grupo **Constância**.
 
 | Conquista ou avanço | Regra |
 | --- | --- |
@@ -103,7 +103,7 @@ As conquistas por assunto também identificam a disciplina, como **Eletricidade 
 | Medalha de assunto | Pelo menos 80% na atividade correspondente |
 | Estrelas | 1 a partir de 70%; 2 a partir de 85%; 3 com 100% |
 
-Medalhas já salvas mantêm seus identificadores. Repetir uma atividade não concede novamente a mesma medalha. **Recomeçar progresso** zera também as notas das trilhas.
+Medalhas já salvas mantêm seus identificadores. Notas anteriores de pelo menos 80% reconhecem automaticamente as novas conquistas por assunto, sem exigir repetir a atividade nem alterar XP. Nos módulos de duas questões, a medalha exige acertar as duas. Repetir uma atividade não concede novamente a mesma medalha. **Recomeçar progresso** zera também as notas das trilhas.
 
 ### ⚡ XP e níveis
 
@@ -118,6 +118,8 @@ Medalhas já salvas mantêm seus identificadores. Repetir uma atividade não con
 O bônus de conclusão do quiz exige pelo menos 50% de acerto. Ele é separado do limite de **70% para avançar na trilha**.
 
 Os níveis seguem a sequência **Faísca → Aprendiz → Afiado → Craque → Domínio**. Os quatro primeiros possuem três subníveis.
+
+🏅 **[Ver todas as 87 conquistas por assunto](docs/medalhas.md)**
 
 📘 **[Progressão das disciplinas](docs/disciplinas.md)** · **[Regras de gamificação](docs/gamificacao.md)**
 

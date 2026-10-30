@@ -287,7 +287,27 @@ class SampleContent {
     ]),
   ];
 
-  static final List<Quiz> lessons = [..._baseLessons, ...ExtendedContent.lessons];
+  static final List<Quiz> lessons = [
+    for (final quiz in [..._baseLessons, ...ExtendedContent.lessons])
+      _withSubjectMedal(quiz),
+  ];
+
+  /// Mantém os IDs existentes e vincula uma medalha a cada unidade de estudo.
+  static Quiz _withSubjectMedal(Quiz quiz) {
+    if (quiz.badgeId != null) return quiz;
+    final module = trails.expand((trail) => trail.modules).where(
+        (module) => !module.isFinalExam && module.quizId == quiz.id).firstOrNull;
+    if (module == null) return quiz;
+    return Quiz(
+      id: quiz.id,
+      title: quiz.title,
+      topic: quiz.topic,
+      questions: quiz.questions,
+      rewardXp: quiz.rewardXp,
+      timeLimitSeconds: quiz.timeLimitSeconds,
+      badgeId: 'assunto-${module.id}',
+    );
+  }
 
   static final List<Quiz> quizzes = [
     ...lessons,
@@ -373,7 +393,40 @@ class SampleContent {
     ),
   ];
 
-  static final List<Medal> medals = [..._baseMedals, ...ExtendedContent.medals];
+  static final List<Medal> medals = [
+    ..._baseMedals,
+    ...ExtendedContent.medals,
+    ..._subjectMedals,
+  ];
+
+  static final List<Medal> _subjectMedals = _buildSubjectMedals();
+
+  static List<Medal> _buildSubjectMedals() {
+    final existing = [..._baseMedals, ...ExtendedContent.medals];
+    final existingIds = existing.map((medal) => medal.id).toSet();
+    final byQuiz = {for (final quiz in lessons) quiz.id: quiz};
+    return [
+      for (final trail in trails)
+        for (final module in trail.modules.where((m) => !m.isFinalExam))
+          if (!existingIds.contains(byQuiz[module.quizId]!.badgeId))
+            Medal(
+              id: byQuiz[module.quizId]!.badgeId!,
+              name: '${trail.title} · ${module.title}',
+              discipline: trail.title,
+              description: 'Atividade de ${module.title} com 80% ou mais de acerto',
+              icon: existing.firstWhere((medal) =>
+                  medal.discipline == trail.title &&
+                  medal.name.startsWith('Domínio em ')).icon,
+            ),
+    ];
+  }
+
+  /// Reconhece atividades anteriores sem alterar XP nem notas salvas.
+  static Set<String> subjectMedalIdsForScores(Map<String, double> scores) => {
+    for (final quiz in lessons)
+      if (quiz.badgeId != null && (scores[quiz.id] ?? 0) >= 0.8)
+        quiz.badgeId!,
+  };
 
   static const List<Medal> _baseMedals = [
     Medal(
@@ -417,7 +470,7 @@ class SampleContent {
     ),
     Medal(
       id: 'potencia-total',
-      name: 'Eletricidade Básica · Potência',
+      name: 'Eletricidade Básica · Potência e energia',
       discipline: 'Eletricidade Básica',
       description: 'Atividade de Potência e energia com 80% ou mais de acerto',
       icon: MedalIcon.bolt,
@@ -438,7 +491,7 @@ class SampleContent {
     ),
     Medal(
       id: 'rei-paralelo',
-      name: 'Eletricidade Básica · Associações',
+      name: 'Eletricidade Básica · Associação de resistores',
       discipline: 'Eletricidade Básica',
       description: 'Desafio de associação de resistores com 80% ou mais',
       icon: MedalIcon.parallel,
@@ -459,7 +512,7 @@ class SampleContent {
     ),
     Medal(
       id: 'kirchhoff',
-      name: 'Eletricidade Básica · Kirchhoff',
+      name: 'Eletricidade Básica · Leis de Kirchhoff',
       discipline: 'Eletricidade Básica',
       description: 'Atividade de Leis de Kirchhoff com 80% ou mais de acerto',
       icon: MedalIcon.kirchhoff,

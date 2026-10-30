@@ -301,6 +301,10 @@ class _ModuleTile extends StatelessWidget {
                   ],
                 ),
               ],
+              if (!isLocked && !module.isFinalExam) ...[
+                const SizedBox(height: 8),
+                const Text('Medalha do assunto: mínimo de 80% de acerto.'),
+              ],
               if (isCurrent) ...[
                 if (module.lessonsTotal > 0) ...[
                   const SizedBox(height: 12),
