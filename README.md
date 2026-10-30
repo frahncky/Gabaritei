@@ -146,7 +146,7 @@ Os níveis seguem a sequência **Faísca → Aprendiz → Afiado → Craque → 
 
 ### Código atual da main
 
-Requer **Flutter 3.27+**, Dart compatível e emulador ou aparelho Android. Use uma versão estável compatível com as dependências do projeto.
+Requer **Flutter 3.44+ e Dart 3.12+**, conforme as dependências em `app/pubspec.lock`. A CI usa **Flutter 3.47.9**. Para Android, use JDK 17 e emulador ou aparelho conectado.
 
 ```bash
 git clone https://github.com/frahncky/Gabaritei.git
@@ -156,6 +156,19 @@ flutter run
 ```
 
 Para atualizar uma cópia existente, execute `git pull origin main` na pasta do repositório e depois `flutter pub get` dentro de `app`.
+
+### Erros no VS Code
+
+Se vários arquivos aparecerem com erros, confira `flutter --version`: Flutter 3.27 não atende às dependências atuais. No terminal, dentro de `app`, execute:
+
+```bash
+flutter channel stable
+flutter upgrade
+flutter pub get
+flutter analyze
+```
+
+No VS Code, selecione a mesma instalação em **Flutter: Change SDK** e execute **Dart: Restart Analysis Server**. Confira que `app/pubspec.yaml` pertence à pasta aberta. Se continuar, use a mensagem de `flutter analyze` para identificar a causa; a cor das pastas no Explorer, sozinha, não determina o erro.
 
 ### APK publicado
 
