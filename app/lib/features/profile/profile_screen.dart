@@ -107,11 +107,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             }) ...[
               Text(discipline, style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 10),
-              GridView.count(
-                crossAxisCount: MediaQuery.sizeOf(context).width < 600 ? 2 : 4,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                mainAxisExtent: 190,
+              GridView(
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 180,
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  mainAxisExtent: 190,
+                ),
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
