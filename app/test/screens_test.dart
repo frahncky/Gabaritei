@@ -45,9 +45,9 @@ void main() {
     await tester.tap(find.text('Perfil').last);
     await tester.pumpAndSettle();
     expect(find.text('Ana Souza'), findsOneWidget);
-    await tester.scrollUntilVisible(find.text('2 de 9'), 200,
+    await tester.scrollUntilVisible(find.text('2 de 13'), 200,
         scrollable: find.byType(Scrollable).first);
-    expect(find.text('2 de 9'), findsOneWidget);
+    expect(find.text('2 de 13'), findsOneWidget);
   });
 
   testWidgets('desafio da tela inicial soma XP ao voltar', (tester) async {

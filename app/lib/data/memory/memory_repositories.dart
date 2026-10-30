@@ -186,9 +186,19 @@ class MemoryStudentRepository implements StudentRepository {
     // Medalhas novas.
     final earned = Set<String>.of(before.earnedBadgeIds);
     final newMedalIds = <String>[];
-    final accuracy = answers.isEmpty ? 0.0 : correct / answers.length;
     final quizBadge = quiz.badgeId;
-    if (quizBadge != null && accuracy >= 0.8 && earned.add(quizBadge)) {
+    final finalTrail = SampleContent.trails.where((trail) =>
+        trail.modules.any((m) => m.isFinalExam && m.quizId == quiz.id)).firstOrNull;
+    bool trailPassed(Trail trail) => trail.modules.every(
+        (module) => (bestQuizScores[module.quizId] ?? 0) >= 0.7);
+    final prerequisite = SampleContent.trails.where(
+        (trail) => trail.id == finalTrail?.requiresTrailId).firstOrNull;
+    final qualifies = finalTrail == null
+        ? moduleScore >= 0.8
+        : trailPassed(finalTrail) &&
+            (finalTrail.requiresTrailId == null ||
+                (prerequisite != null && trailPassed(prerequisite)));
+    if (quizBadge != null && qualifies && earned.add(quizBadge)) {
       newMedalIds.add(quizBadge);
     }
     for (final milestone in StreakRules.milestones) {

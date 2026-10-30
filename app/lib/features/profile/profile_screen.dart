@@ -102,24 +102,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 24),
             SectionHeader('Medalhas', trailing: '$earned de ${medals.length}'),
             const SizedBox(height: 10),
-            GridView.builder(
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 180,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                mainAxisExtent: 166,
+            for (final discipline in {
+              for (final medal in medals) medal.discipline ?? 'Constância',
+            }) ...[
+              Text(discipline, style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 10),
+              GridView(
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 180,
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  mainAxisExtent: 190,
+                ),
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                children: [
+                  for (final medal in medals.where((m) =>
+                      (m.discipline ?? 'Constância') == discipline))
+                    _MedalTile(
+                      medal: medal,
+                      earned: student.earnedBadgeIds.contains(medal.id),
+                    ),
+                ],
               ),
-              itemCount: medals.length,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemBuilder: (context, index) {
-                final medal = medals[index];
-                return _MedalTile(
-                  medal: medal,
-                  earned: student.earnedBadgeIds.contains(medal.id),
-                );
-              },
-            ),
+              const SizedBox(height: 16),
+            ],
             const SizedBox(height: 24),
             Center(
               child: TextButton.icon(
@@ -262,7 +269,7 @@ class _MedalTile extends StatelessWidget {
                 Text(
                   medal.name,
                   textAlign: TextAlign.center,
-                  maxLines: 2,
+                  maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 12,

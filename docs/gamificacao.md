@@ -56,3 +56,21 @@ O XP exigido cresce aos poucos a cada subnível. Chegar a um novo grande nível 
 ## Ensino médio regular
 
 O nome e os níveis são gerais. Cada curso pode ter um vocabulário próprio (por exemplo, XP em joules na Eletrotécnica) sem mudar a marca.
+
+## Medalhas por disciplina
+
+Cada trilha executável possui sua própria medalha de domínio, identificada pelo nome da disciplina:
+
+| Disciplina | Nome |
+| --- | --- |
+| Eletricidade Básica | Domínio em Eletricidade Básica |
+| Eletrônica Analógica | Domínio em Eletrônica Analógica |
+| Eletrônica Digital | Domínio em Eletrônica Digital |
+| Instalações Elétricas | Domínio em Instalações Elétricas |
+| CLP e Automação | Domínio em CLP e Automação |
+
+A conquista requer pelo menos 70% em cada módulo e na prova final; para CLP, também é necessário concluir Eletrônica Digital. Repetições preservam a melhor nota e não concedem a mesma medalha novamente.
+
+As medalhas de assuntos usam o formato “Disciplina · Assunto”, como “Eletricidade Básica · Lei de Ohm” e “Eletrônica Analógica · Resistores”, e exigem pelo menos 80% na atividade correspondente. Potência e Kirchhoff agora possuem atividades vinculadas às suas medalhas.
+
+O perfil agrupa conquistas por disciplina; medalhas de sequência permanecem no grupo Constância. IDs antigos são mantidos: renomear não apaga medalhas já salvas. Novas disciplinas deverão receber medalhas próprias quando suas trilhas forem implementadas.
