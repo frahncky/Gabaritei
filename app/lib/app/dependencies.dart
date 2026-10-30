@@ -22,7 +22,7 @@ class AppDependencies {
     final students = MemoryStudentRepository();
     return AppDependencies(
       students: students,
-      content: MemoryContentRepository(),
+      content: MemoryContentRepository(studentRepository: students),
       ranking: MemoryRankingRepository(students),
       teacher: MemoryTeacherRepository(),
     );
@@ -34,7 +34,7 @@ class AppDependencies {
     final students = store.studentRepository();
     return AppDependencies(
       students: students,
-      content: store.contentRepository(),
+      content: store.contentRepository(students: students),
       ranking: MemoryRankingRepository(students),
       teacher: MemoryTeacherRepository(),
     );
