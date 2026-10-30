@@ -59,10 +59,10 @@ void main() {
   test('80% concede assunto; 75% e respostas erradas não concedem', () async {
     final student = MemoryStudentRepository();
     await student.resetProgress();
-    final quiz = SampleContent.associacaoDeResistores;
+    const quiz = SampleContent.associacaoDeResistores;
     final below = await student.submitQuiz(quiz, answers(quiz, count: 3));
     expect(below.newMedals.map((m) => m.id), isNot(contains(quiz.badgeId)));
-    final ohm = SampleContent.leiDeOhm;
+    const ohm = SampleContent.leiDeOhm;
     final forged = await student.submitQuiz(ohm, [
       for (final q in ohm.questions)
         AnswerRecord(questionId: q.id,
