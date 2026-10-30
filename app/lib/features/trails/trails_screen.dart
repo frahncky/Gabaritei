@@ -32,6 +32,8 @@ class _TrailsScreenState extends State<TrailsScreen> {
 
   Future<void> _startQuiz(String quizId) async {
     await openQuiz(context, quizId);
+    if (!mounted) return;
+    setState(() => _trails = Dependencies.of(context).content.getTrails());
     widget.onDataChanged();
   }
 
@@ -90,6 +92,8 @@ class _TrailsScreenState extends State<TrailsScreen> {
             ),
             const SizedBox(height: 8),
             ProgressBar(value: trail.fraction),
+            const SizedBox(height: 8),
+            const Text('Acerte pelo menos 70% para liberar o próximo módulo.'),
             const SizedBox(height: 16),
             if (!trail.unlocked) ...[
               _LockedTrailNotice(trail: trail, trails: trails),
@@ -98,7 +102,7 @@ class _TrailsScreenState extends State<TrailsScreen> {
             for (final module in trail.modules) ...[
               _ModuleTile(
                 module: module,
-                onStart: module.quizId == null ||
+                onStart: !trail.unlocked || module.quizId == null ||
                         module.status == ModuleStatus.locked
                     ? null
                     : () => _startQuiz(module.quizId!),

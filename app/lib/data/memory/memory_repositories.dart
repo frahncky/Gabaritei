@@ -23,10 +23,12 @@ class MemoryStudentRepository implements StudentRepository {
     Clock? clock,
     Student? initial,
     Map<String, int>? missionProgress,
+    Map<String, double>? quizScores,
     DateTime? missionsDay,
     this.weeklyXp = 515,
     this.onChanged,
   }) : _clock = clock ?? DateTime.now {
+    bestQuizScores = Map.of(quizScores ?? const {});
     _student = initial ?? _sampleStudent(_clock());
     _missionsDay = missionsDay ?? _today();
     _missions = [
@@ -37,6 +39,9 @@ class MemoryStudentRepository implements StudentRepository {
 
   final Clock _clock;
   late Student _student;
+
+  /// Melhor acerto por atividade; salvo separadamente do XP.
+  late final Map<String, double> bestQuizScores;
   late List<Mission> _missions;
   late DateTime _missionsDay;
 
@@ -145,6 +150,7 @@ class MemoryStudentRepository implements StudentRepository {
       for (final m in SampleContent.dailyMissions) _withProgress(m, 0),
     ];
     weeklyXp = 0;
+    bestQuizScores.clear();
     onChanged?.call(this);
   }
 
@@ -162,6 +168,20 @@ class MemoryStudentRepository implements StudentRepository {
       lastStudyDay: before.lastStudyDay,
       today: today,
     );
+
+    // Recalcula a partir do gabarito; respostas ausentes contam como erro.
+    final validAnswers = {
+      for (final answer in answers) answer.questionId: answer,
+    };
+    final moduleCorrect = quiz.questions.where((question) {
+      final answer = validAnswers[question.id];
+      return answer != null && question.isCorrect(answer.selectedIndex);
+    }).length;
+    final moduleScore =
+        quiz.questions.isEmpty ? 0.0 : moduleCorrect / quiz.questions.length;
+    if (moduleScore > (bestQuizScores[quiz.id] ?? 0)) {
+      bestQuizScores[quiz.id] = moduleScore;
+    }
 
     // Medalhas novas.
     final earned = Set<String>.of(before.earnedBadgeIds);
@@ -211,16 +231,61 @@ class MemoryStudentRepository implements StudentRepository {
 }
 
 class MemoryContentRepository implements ContentRepository {
-  MemoryContentRepository({List<Question>? createdQuestions, this.onChanged})
+  MemoryContentRepository({List<Question>? createdQuestions, this.onChanged,
+    this.studentRepository})
       : _createdQuestions = List.of(createdQuestions ?? const []);
 
   final List<Question> _createdQuestions;
+  final MemoryStudentRepository? studentRepository;
 
   /// Chamado após salvar uma questão, para quem quiser persistir.
   final void Function(List<Question> createdQuestions)? onChanged;
 
   @override
-  Future<List<Trail>> getTrails() async => SampleContent.trails;
+  Future<List<Trail>> getTrails() async {
+    final scores = studentRepository?.bestQuizScores ?? const <String, double>{};
+    bool passed(TrailModule module) =>
+        module.quizId != null && (scores[module.quizId] ?? 0) >= 0.7;
+    final completed = {
+      for (final trail in SampleContent.trails)
+        if (trail.modules.every(passed)) trail.id,
+    };
+    return [
+      for (final trail in SampleContent.trails)
+        Trail(
+          id: trail.id,
+          title: trail.title,
+          requiresTrailId: trail.requiresTrailId,
+          unlocked: trail.requiresTrailId == null ||
+              completed.contains(trail.requiresTrailId),
+          modules: [
+            for (var i = 0; i < trail.modules.length; i++)
+              _withProgress(
+                trail.modules[i],
+                scores[trail.modules[i].quizId] ?? 0,
+                (trail.requiresTrailId == null ||
+                    completed.contains(trail.requiresTrailId)) &&
+                    trail.modules.take(i).every(passed),
+              ),
+          ],
+        ),
+    ];
+  }
+
+  static TrailModule _withProgress(
+      TrailModule module, double score, bool available) => TrailModule(
+    id: module.id,
+    order: module.order,
+    title: module.title,
+    subtitle: module.subtitle,
+    status: !available ? ModuleStatus.locked
+        : score >= 0.7 ? ModuleStatus.done : ModuleStatus.current,
+    stars: !available ? 0 : score >= 1 ? 3 : score >= 0.85 ? 2 : score >= 0.7 ? 1 : 0,
+    lessonsDone: available && score >= 0.7 ? 1 : 0,
+    lessonsTotal: 1,
+    quizId: module.quizId,
+    isFinalExam: module.isFinalExam,
+  );
 
   @override
   Future<Quiz> getQuiz(String quizId) async {

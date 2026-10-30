@@ -28,6 +28,8 @@ class LocalStore {
     final saved = _readJson(_studentKey);
     return MemoryStudentRepository(
       clock: clock,
+      quizScores: (saved?['quizScores'] as Map?)?.map(
+        (key, value) => MapEntry(key as String, (value as num).toDouble())),
       initial: saved == null ? null : _studentFromJson(saved['student']),
       missionProgress:
           saved == null ? null : (saved['missions'] as Map).cast<String, int>(),
@@ -40,15 +42,17 @@ class LocalStore {
           'missions': repo.missionProgress,
           'missionsDay': repo.missionsDay.toIso8601String(),
           'weeklyXp': repo.weeklyXp,
+          'quizScores': repo.bestQuizScores,
         }),
       ),
     );
   }
 
-  MemoryContentRepository contentRepository() {
+  MemoryContentRepository contentRepository({MemoryStudentRepository? students}) {
     final raw = _prefs.getString(_questionsKey);
     final saved = raw == null ? const <dynamic>[] : jsonDecode(raw) as List;
     return MemoryContentRepository(
+      studentRepository: students,
       createdQuestions: [for (final q in saved) _questionFromJson(q)],
       onChanged: (questions) => _prefs.setString(
         _questionsKey,
