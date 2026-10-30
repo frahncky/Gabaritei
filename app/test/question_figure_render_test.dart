@@ -51,7 +51,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     const ids = [
-      'ohm-1', 'assoc-3', 'bank-v2-eb-4-0', 'bank-v2-eb-4-1', 'bank-v2-ea-2-0',
+      'ohm-1', 'assoc-3', 'exam-v2-eletricidade-basica-1', 'bank-v2-ea-2-1', 'bank-v2-eb-4-0', 'bank-v2-eb-4-1', 'bank-v2-ea-2-0',
       'bank-v2-ea-5-0', 'cores-1', 'bank-v2-ed-2-0', 'bank-v2-clp-1-0',
       'circuitos-cc-3-2', 'circuitos-ca-2-2',
       'bank-v2-clp-1-1', 'bank-v2-clp-3-0', 'bank-v2-clp-4-1',

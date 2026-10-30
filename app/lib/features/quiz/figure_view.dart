@@ -37,10 +37,18 @@ class QuestionFigureView extends StatelessWidget {
             Semantics(
               label: figure.description,
               image: true,
-              child: AspectRatio(
-                aspectRatio: 1.5,
-                child: CustomPaint(painter: FigurePainter(figure)),
-              ),
+              child: LayoutBuilder(builder: (context, constraints) {
+                final circuit = figure.kind == FigureKind.seriesCircuit ||
+                    figure.kind == FigureKind.parallelCircuit ||
+                    figure.kind == FigureKind.mixedCircuit;
+                final width = circuit ? math.max(400.0, constraints.maxWidth)
+                    : constraints.maxWidth;
+                return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: SizedBox(width: width, height: width / 1.5,
+                    child: CustomPaint(painter: FigurePainter(figure))),
+                );
+              }),
             ),
           if (figure.traces.isNotEmpty)
             Wrap(spacing: 14, runSpacing: 6, children: [

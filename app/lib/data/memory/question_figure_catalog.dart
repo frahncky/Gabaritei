@@ -38,7 +38,7 @@ class QuestionFigureCatalog {
     'cores-3': _bands(['amarelo', 'violeta', 'laranja']),
     'bank-v2-ea-2-0': _series('10 V', ['D = 0,7 V', 'R = 1 kΩ'],
       note: 'Diodo em condução direta, segundo a queda adotada no problema.'),
-    'bank-v2-ea-2-1': _wave(60, 1, 'Entrada senoidal de 60 Hz; amplitude normalizada.'),
+    'bank-v2-ea-2-1': _rectifiedWave(),
     'bank-v2-ea-3-0': _table(['Grandeza', 'Dado'],
       [['β', '100'], ['IB', '20 µA'], ['IC', '?']],
       'Modelo ativo IC = βIB; β = 100 e IB = 20 µA.'),
@@ -452,3 +452,21 @@ QuestionFigure _bands(List<String> names) => QuestionFigure(
 QuestionFigure _topology(List<String> labels, String description) =>
   QuestionFigure(kind: FigureKind.topology, title: 'Conexões do sistema',
     description: description, labels: labels);
+
+QuestionFigure _rectifiedWave() {
+  const hz = 60.0;
+  const duration = 2000 / hz;
+  return QuestionFigure(
+    kind: FigureKind.waveform, title: 'Retificação de onda completa',
+    description: 'Entrada senoidal de 60 Hz e saída ideal de uma ponte sem filtro. '
+        'A saída retificada mantém ambos os semiciclos positivos. Amplitudes normalizadas.',
+    xLabel: 'Tempo (ms)', yLabel: 'Amplitude normalizada',
+    xMin: 0, xMax: duration, yMin: -1.15, yMax: 1.15,
+    traces: [
+      FigureTrace('Entrada CA', [for (var i=0; i<=200; i++)
+        FigurePoint(duration*i/200, math.sin(4*math.pi*i/200))]),
+      FigureTrace('Saída retificada', [for (var i=0; i<=200; i++)
+        FigurePoint(duration*i/200, math.sin(4*math.pi*i/200).abs())]),
+    ],
+  );
+}
