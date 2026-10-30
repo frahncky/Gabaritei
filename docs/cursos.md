@@ -72,3 +72,5 @@ Questões de segurança tratam conceitos de análise de risco e prevenção. O m
 Os testes cobrem vínculo de todas as áreas a trilhas, resumos e atividades por unidade, integridade das questões, progresso compartilhado, desbloqueios e conquista de medalhas. A suíte de interface verifica seleção de cursos, disciplinas e acesso ao conteúdo.
 
 🏅 [Medalhas de todas as unidades de estudo](medalhas.md).
+
+As 26 disciplinas possuem questões com figuras, gráficos ou tabelas próprios. [Cobertura visual](questoes_visuais.md).

@@ -1,6 +1,8 @@
 /// Conteúdo pedagógico: trilhas, módulos, questões e desafios.
 library;
 
+import 'question_figure.dart';
+
 class Question {
   const Question({
     required this.id,
@@ -11,6 +13,7 @@ class Question {
     required this.explanation,
     this.hint,
     this.visual,
+    this.figure,
   });
 
   final String id;
@@ -27,6 +30,13 @@ class Question {
 
   /// Recurso visual opcional exibido antes das alternativas.
   final QuestionVisual? visual;
+  final QuestionFigure? figure;
+
+  Question withFigure(QuestionFigure value) => Question(
+    id: id, topic: topic, prompt: prompt, options: options,
+    correctIndex: correctIndex, explanation: explanation,
+    hint: hint, visual: visual, figure: value,
+  );
 
   bool isCorrect(int selectedIndex) => selectedIndex == correctIndex;
 }

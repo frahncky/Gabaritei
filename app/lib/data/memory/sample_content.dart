@@ -8,6 +8,7 @@ import '../../domain/models/content.dart';
 import '../../domain/models/gamification.dart';
 import 'curriculum_content.dart';
 import 'expanded_question_bank.dart';
+import 'question_figure_catalog.dart';
 
 class SampleContent {
   SampleContent._();
@@ -297,12 +298,17 @@ class SampleContent {
   static Quiz _withSubjectMedal(Quiz quiz) {
     final module = trails.expand((trail) => trail.modules).where(
         (module) => !module.isFinalExam && module.quizId == quiz.id).firstOrNull;
-    if (module == null) return quiz;
+    if (module == null) return Quiz(
+      id: quiz.id, title: quiz.title, topic: quiz.topic,
+      questions: [for (final question in quiz.questions) QuestionFigureCatalog.attach(question)],
+      rewardXp: quiz.rewardXp, timeLimitSeconds: quiz.timeLimitSeconds, badgeId: quiz.badgeId,
+    );
     return Quiz(
       id: quiz.id,
       title: quiz.title,
       topic: quiz.topic,
-      questions: [...quiz.questions, ...ExpandedQuestionBank.forModule(module)],
+      questions: [for (final question in [...quiz.questions, ...ExpandedQuestionBank.forModule(module)])
+        QuestionFigureCatalog.attach(question)],
       rewardXp: quiz.rewardXp,
       timeLimitSeconds: quiz.timeLimitSeconds,
       badgeId: quiz.badgeId ?? 'assunto-${module.id}',

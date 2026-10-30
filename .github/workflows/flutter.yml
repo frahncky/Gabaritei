@@ -22,3 +22,10 @@ jobs:
       - run: flutter pub get
       - run: flutter analyze
       - run: flutter test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: question-figure-previews
+          path: app/build/figure_previews
+          if-no-files-found: ignore
+          retention-days: 7
