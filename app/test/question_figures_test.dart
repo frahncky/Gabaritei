@@ -35,7 +35,9 @@ void main() {
       expect(decoded.toJson(), f.toJson(), reason: entry.key);
       if (f.kind == FigureKind.truthTable || f.kind == FigureKind.referenceTable) {
         expect(f.headers, isNotEmpty);
-        for (final row in f.rows) expect(row.length, f.headers.length, reason: entry.key);
+        for (final row in f.rows) {
+          expect(row.length, f.headers.length, reason: entry.key);
+        }
       }
       if (f.kind == FigureKind.chart || f.kind == FigureKind.waveform) {
         expect(f.xMax, greaterThan(f.xMin));

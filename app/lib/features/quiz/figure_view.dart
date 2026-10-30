@@ -277,8 +277,9 @@ class FigurePainter extends CustomPainter {
             Paint()..color = AppColors.surface);
         c.drawLine(Offset(x - 8, y - 11), Offset(x - 8, y + 11), ink);
         c.drawLine(Offset(x + 8, y - 11), Offset(x + 8, y + 11), ink);
-        if (contacts[i].startsWith('!')) c.drawLine(
-            Offset(x - 11, y + 9), Offset(x + 11, y - 9), ink);
+        if (contacts[i].startsWith('!')) {
+          c.drawLine(Offset(x - 11, y + 9), Offset(x + 11, y - 9), ink);
+        }
         _text(c, contacts[i].replaceAll('!', ''), Offset(x, y - 24), width: 55);
       }
     }
@@ -301,8 +302,10 @@ class FigurePainter extends CustomPainter {
       Offset(width / 2 + i * (s.width - width) / math.max(1, n - 1), y)];
     for (var i = 0; i < n; i++) {
       _box(c, figure.labels[i], centers[i], width: width, height: 54);
-      if (i > 0) _arrow(c, centers[i - 1] + Offset(width / 2, 0),
-          centers[i] - Offset(width / 2, 0));
+      if (i > 0) {
+        _arrow(c, centers[i - 1] + Offset(width / 2, 0),
+            centers[i] - Offset(width / 2, 0));
+      }
     }
     if (figure.feedback && n > 1) {
       final backY = s.height * .84;
@@ -377,7 +380,9 @@ class FigurePainter extends CustomPainter {
         _text(c, 'F = ?', Offset(w - 40, h * .38), width: 70);
       case FigureKind.robotArm:
         final points = [Offset(35, h - 35), Offset(w * .46, 50), Offset(w - 30, h * .55)];
-        for (var i = 1; i < points.length; i++) c.drawLine(points[i-1], points[i], ink..strokeWidth = 7);
+        for (var i = 1; i < points.length; i++) {
+          c.drawLine(points[i-1], points[i], ink..strokeWidth = 7);
+        }
         for (var i = 0; i < points.length; i++) {
           c.drawCircle(points[i], 11, Paint()..color = AppColors.amber);
           _text(c, figure.labels[i], points[i] + const Offset(0, -25), width: 90);
