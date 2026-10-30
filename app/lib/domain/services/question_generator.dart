@@ -1,4 +1,5 @@
 import '../models/content.dart';
+import '../models/question_figure.dart';
 
 enum TechnicalCourse {
   electronics('Técnico em Eletrônica'),
@@ -581,6 +582,13 @@ class QuestionGenerator {
           'Pela Lei de Ohm, I = V / R. A corrente calculada é $answer.',
       hint: 'Use I = V / R e converta amperes para miliamperes.',
       visual: QuestionVisual.circuitSeries,
+      figure: QuestionFigure(
+        kind: FigureKind.seriesCircuit, title: 'Circuito da questão',
+        sourceLabel: '$voltage V',
+        elements: [CircuitElement('R = $resistance Ω')],
+        description: 'Fonte de $voltage V ligada a um resistor de $resistance Ω. '
+            'A corrente é a grandeza procurada.',
+      ),
     );
   }
 
@@ -594,6 +602,13 @@ class QuestionGenerator {
         explanation: 'Para resistores iguais em paralelo, Req = R / 2: 50 Ω.',
         hint: 'A resistência equivalente é menor que o menor resistor.',
         visual: QuestionVisual.circuitParallel,
+        figure: const QuestionFigure(
+          kind: FigureKind.parallelCircuit, title: 'Resistores em paralelo',
+          sourceLabel: 'Fonte',
+          elements: [CircuitElement('R1 = 100 Ω'), CircuitElement('R2 = 100 Ω')],
+          description: 'Dois resistores de 100 Ω conectados aos mesmos dois nós. '
+              'A resistência equivalente é a grandeza procurada; a tensão não foi especificada.',
+        ),
       );
 
   static Question _electricalPlan(int sequence) => Question(

@@ -1,7 +1,28 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gabaritei/domain/services/question_generator.dart';
+import 'package:gabaritei/domain/models/question_figure.dart';
 
 void main() {
+  test('figuras geradas preservam os valores de cada variação de Ohm', () {
+    const resistances = [100, 220, 470, 1000];
+    for (var i = 0; i < 16; i++) {
+      final q = QuestionGenerator.generate(topic: 'Eletricidade básica', sequence: i);
+      expect(q.figure!.kind, FigureKind.seriesCircuit);
+      expect(q.figure!.sourceLabel, '12 V');
+      expect(q.figure!.elements.single.label, 'R = ${resistances[i % 4]} Ω');
+      expect(q.prompt, contains('${resistances[i % 4]} Ω'));
+      expect(QuestionFigure.fromJson(q.figure!.toJson()).toJson(), q.figure!.toJson());
+    }
+  });
+
+  test('figura gerada de paralelo mantém ramos e valores sem inventar tensão', () {
+    final q = QuestionGenerator.generate(topic: 'Circuitos CC', sequence: 1);
+    expect(q.figure!.kind, FigureKind.parallelCircuit);
+    expect(q.figure!.elements.map((e) => e.label), ['R1 = 100 Ω', 'R2 = 100 Ω']);
+    expect(q.figure!.sourceLabel, 'Fonte');
+    expect(q.figure!.description, contains('não foi especificada'));
+  });
+
   test('gerador de Ohm não repete a alternativa correta nos distratores', () {
     for (var sequence = 0; sequence < 16; sequence++) {
       final q = QuestionGenerator.generate(topic: 'Eletricidade básica', sequence: sequence);

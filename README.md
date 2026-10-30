@@ -97,6 +97,8 @@ O aluno inicial e os indicadores de turma também usam dados de demonstração. 
 
 As demais questões continuam textuais. As figuras são esquemas didáticos; quando há normalização ou valores apenas ilustrativos, isso é identificado na descrição.
 
+No painel docente, o rascunho mostra figura, explicação e dica antes de salvar. Em “Assunto”, a opção “Exercício aplicado da disciplina” permite usar os modelos aplicados; Ohm e paralelo geram circuitos com os valores do próprio exercício.
+
 📐 **[Tipos de figura, acessibilidade e validação](docs/questoes_visuais.md)**
 
 ## 🏅 Medalhas e progressão

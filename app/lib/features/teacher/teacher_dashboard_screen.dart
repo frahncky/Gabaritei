@@ -7,6 +7,7 @@ import '../../domain/models/teacher.dart';
 import '../../domain/services/question_generator.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets.dart';
+import '../quiz/question_visual.dart';
 
 typedef _ModuleOption = ({String id, String label});
 
@@ -409,7 +410,7 @@ class _QuestionGeneratorCardState extends State<_QuestionGeneratorCard> {
     setState(() {
       _draft = QuestionGenerator.generate(
         topic: _topic,
-        unit: _unit,
+        unit: _unit == '__applied__' ? null : _unit,
         sequence: _sequence++,
       );
     });
@@ -519,6 +520,8 @@ class _QuestionGeneratorCardState extends State<_QuestionGeneratorCard> {
           isExpanded: true,
           decoration: const InputDecoration(labelText: 'Assunto'),
           items: [
+            const DropdownMenuItem(value: '__applied__',
+              child: Text('Exercício aplicado da disciplina')), 
             for (final unit in QuestionGenerator.unitsFor(_topic))
               DropdownMenuItem(
                 value: unit.label,
@@ -563,8 +566,12 @@ class _QuestionGeneratorCardState extends State<_QuestionGeneratorCard> {
                     ),
                   ),
                 const SizedBox(height: 8),
-                Text('Visual: ${_visualLabel(draft.visual)}',
-                    style: Theme.of(context).textTheme.bodySmall),
+                Text('Explicação: ${draft.explanation}'),
+                if (draft.hint != null) Text('Dica: ${draft.hint}'),
+                if (draft.figure != null || draft.visual != null) ...[
+                  const SizedBox(height: 12),
+                  QuestionVisualCard(figure: draft.figure, visual: draft.visual),
+                ],
               ],
             ),
           ),
@@ -579,14 +586,7 @@ class _QuestionGeneratorCardState extends State<_QuestionGeneratorCard> {
     );
   }
 
-  String _visualLabel(QuestionVisual? visual) => switch (visual) {
-        QuestionVisual.circuitSeries => 'circuito em série',
-        QuestionVisual.circuitParallel => 'circuito em paralelo',
-        QuestionVisual.resistorBands => 'faixas de resistor',
-        QuestionVisual.electricalPlan => 'planta elétrica',
-        QuestionVisual.processControl => 'controle de processo',
-        null => 'sem recurso visual',
-      };
+
 }
 
 class _QuickChallengeCard extends StatefulWidget {
