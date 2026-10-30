@@ -167,6 +167,11 @@ void main() {
     expect(find.textContaining('Explicação:'), findsOneWidget);
     expect(find.textContaining('Dica:'), findsOneWidget);
     expect(find.text('Adicionar ao banco'), findsOneWidget);
+    await tester.ensureVisible(find.text('Adicionar ao banco'));
+    await tester.tap(find.text('Adicionar ao banco'));
+    await tester.pumpAndSettle();
+    expect(find.byType(QuestionVisualCard), findsNothing);
+    expect(find.text('Adicionar ao banco'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 

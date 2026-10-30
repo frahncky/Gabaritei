@@ -531,7 +531,7 @@ class _QuestionGeneratorCardState extends State<_QuestionGeneratorCard> {
           decoration: const InputDecoration(labelText: 'Assunto'),
           items: [
             const DropdownMenuItem(value: '__applied__',
-              child: Text('Exercício aplicado da disciplina')), 
+              child: Text('Exercício aplicado da disciplina')),
             for (final unit in QuestionGenerator.unitsFor(_topic))
               DropdownMenuItem(
                 value: unit.label,
