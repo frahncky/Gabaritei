@@ -19,8 +19,14 @@ void main() {
       ..addFont(rootBundle.load('assets/fonts/IBMPlexSans-600.ttf'));
     final display = FontLoader('BricolageGrotesque')
       ..addFont(rootBundle.load('assets/fonts/BricolageGrotesque-700.ttf'));
+    final technical = FontLoader('GabariteiTechnical')
+      ..addFont(rootBundle.load('assets/fonts/GabariteiTechnical.ttf'));
+    final icons = FontLoader('MaterialIcons')
+      ..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'));
     await body.load();
     await display.load();
+    await technical.load();
+    await icons.load();
   });
 
   testWidgets('figuras renderizam em celular estreito e com texto ampliado', (tester) async {

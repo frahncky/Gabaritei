@@ -15,7 +15,9 @@ class QuestionFigureView extends StatelessWidget {
     final table = figure.kind == FigureKind.truthTable ||
         figure.kind == FigureKind.referenceTable;
     return Card(
-      child: Padding(
+      child: DefaultTextStyle.merge(
+        style: const TextStyle(fontFamilyFallback: ['GabariteiTechnical']),
+        child: Padding(
         padding: const EdgeInsets.all(14),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(figure.title, style: Theme.of(context).textTheme.titleMedium),
@@ -43,8 +45,13 @@ class QuestionFigureView extends StatelessWidget {
           if (figure.traces.isNotEmpty)
             Wrap(spacing: 14, runSpacing: 6, children: [
               for (var i = 0; i < figure.traces.length; i++)
-                Text('● ${figure.traces[i].label}',
-                  style: TextStyle(color: _colors[i % _colors.length])),
+                Row(mainAxisSize: MainAxisSize.min, children: [
+                  Container(width: 8, height: 8, decoration: BoxDecoration(
+                    color: _colors[i % _colors.length], shape: BoxShape.circle)),
+                  const SizedBox(width: 5),
+                  Text(figure.traces[i].label,
+                    style: TextStyle(color: _colors[i % _colors.length])),
+                ]),
             ]),
           ExpansionTile(
             tilePadding: EdgeInsets.zero,
@@ -54,6 +61,7 @@ class QuestionFigureView extends StatelessWidget {
                 child: Text(figure.description)))],
           ),
         ]),
+      ),
       ),
     );
   }
@@ -108,7 +116,7 @@ class FigurePainter extends CustomPainter {
       Color color = AppColors.text, double fontSize = 11}) {
     final p = TextPainter(
       text: TextSpan(text: text, style: TextStyle(color: color,
-          fontSize: fontSize, fontFamily: AppFonts.body, fontWeight: FontWeight.w600)),
+          fontSize: fontSize, fontFamily: 'GabariteiTechnical', fontWeight: FontWeight.w500)),
       textDirection: TextDirection.ltr, textAlign: TextAlign.center,
     )..layout(maxWidth: width);
     p.paint(c, center - Offset(p.width / 2, p.height / 2));
@@ -218,16 +226,22 @@ class FigurePainter extends CustomPainter {
       rect.bottom - (p.y - figure.yMin) / (figure.yMax - figure.yMin) * rect.height);
     final grid = Paint()..color = AppColors.line..strokeWidth = 1;
     String number(double n) => n.abs() < .001 ? '0'
-      : (n - n.round()).abs() < .001 ? '${n.round()}' : n.toStringAsFixed(1);
+      : (n - n.round()).abs() < .001 ? '${n.round()}' : n.toStringAsFixed(1).replaceAll('.', ',');
     for (var i = 0; i <= 4; i++) {
       final x = rect.left + rect.width * i / 4;
-      final y = rect.bottom - rect.height * i / 4;
       c.drawLine(Offset(x, rect.top), Offset(x, rect.bottom), grid);
-      c.drawLine(Offset(rect.left, y), Offset(rect.right, y), grid);
       _text(c, number(figure.xMin + (figure.xMax - figure.xMin) * i / 4),
         Offset(x, rect.bottom + 12), width: 45, fontSize: 10);
-      _text(c, number(figure.yMin + (figure.yMax - figure.yMin) * i / 4),
-        Offset(22, y), width: 42, fontSize: 10);
+    }
+    final ticks = figure.yLabel.toLowerCase().contains('lógico')
+        ? <double>[0,1]
+        : figure.yLabel.toLowerCase().contains('amplitude normalizada')
+          ? <double>[-1,0,1]
+          : [for (var i=0; i<=4; i++) figure.yMin + (figure.yMax-figure.yMin)*i/4];
+    for (final value in ticks) {
+      final y = rect.bottom - (value-figure.yMin)/(figure.yMax-figure.yMin)*rect.height;
+      c.drawLine(Offset(rect.left,y), Offset(rect.right,y), grid);
+      _text(c, number(value), Offset(22,y), width: 42, fontSize: 10);
     }
     c.drawRect(rect, ink);
     c.save(); c.clipRect(rect.inflate(1));
@@ -326,7 +340,10 @@ class FigurePainter extends CustomPainter {
       final height = (baseline - 30) * figure.values[i] / max;
       c.drawRect(Rect.fromLTWH(x - 23, baseline - height, 46, height),
           Paint()..color = _colors[i % _colors.length]);
-      _text(c, '${figure.values[i].toStringAsFixed(1)} ${figure.yLabel}',
+      final value = figure.values[i];
+      final number = value == value.roundToDouble() ? '${value.toInt()}'
+          : value.toStringAsFixed(1).replaceAll('.', ',');
+      _text(c, '$number ${figure.yLabel}',
           Offset(x, baseline - height - 12), width: 100);
       _text(c, figure.labels[i], Offset(x, baseline + 22), width: s.width / figure.values.length - 8);
     }
@@ -338,7 +355,7 @@ class FigurePainter extends CustomPainter {
     switch (figure.kind) {
       case FigureKind.gears:
         final z1 = figure.values[0], z2 = figure.values[1];
-        final scale = math.min((w - 45) / (2 * (z1 + z2)), (h - 70) / (2 * math.max(z1, z2)));
+        final scale = math.min((w - 45) / (2 * (z1 + z2)), (h - 100) / (2 * math.max(z1, z2)));
         final r1 = z1 * scale, r2 = z2 * scale;
         final a = Offset((w - 2 * (r1 + r2)) / 2 + r1, h / 2);
         final b = a + Offset(r1 + r2, 0);
@@ -353,8 +370,8 @@ class FigurePainter extends CustomPainter {
           c.drawPath(path..close(), ink);
           c.drawCircle(item.$1, 4, ink);
         }
-        _text(c, figure.labels[0], a + Offset(0, -r1 - 19), width: 130);
-        _text(c, figure.labels[1], b + Offset(0, r2 + 18), width: 130);
+        _text(c, figure.labels[0], Offset(w / 2, 14), width: w - 12);
+        _text(c, figure.labels[1], Offset(w / 2, h - 14), width: w - 12);
       case FigureKind.lever:
         final a = Offset(35, h * .55), b = Offset(w - 35, h * .55);
         c.drawLine(a, b, ink);

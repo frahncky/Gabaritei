@@ -22,6 +22,8 @@ As figuras não são projetos executivos. Desenhos mecânicos e de escala são e
 
 O cartão usa título, figura e descrição textual acessível. As tabelas usam células nativas e permitem rolagem horizontal. Legendas de curvas ficam fora do desenho. A opção “Descrição da figura” apresenta os dados e as convenções utilizadas.
 
+Os rótulos técnicos usam uma fonte embarcada com suporte a Ω, letras gregas, unidades e sinais matemáticos. A fonte foi derivada de DejaVu Sans e sua licença acompanha o arquivo em `app/assets/fonts/GabariteiTechnical-LICENSE.txt`.
+
 As figuras são estáticas e não mantêm animação contínua durante a leitura. Questões antigas sem dados específicos usam representações conceituais sem valores numéricos inventados.
 
 ## Persistência e compatibilidade
