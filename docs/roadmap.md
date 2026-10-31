@@ -6,7 +6,9 @@ Atualizado em 30/10/2026.
 
 ## 📍 Ponto de partida
 
-O README registra como concluídos o protótipo navegável, os mockups, os laboratórios de eletricidade e automação e a persistência local. Isso descreve a base existente; não certifica prontidão para produção. Ranking e painel docente ainda precisam ser validados com dados de usuários reais.
+A base atual reúne o protótipo navegável, catálogo de cursos e disciplinas, persistência local e interface adaptativa. Os simuladores de eletricidade e automação permanecem no código, mas seus cards foram removidos da tela inicial. Ranking e painel docente usam dados demonstrativos e ainda precisam ser validados com usuários reais.
+
+As melhorias de interface e animação foram publicadas na `main` no [commit 49034ec](https://github.com/frahncky/Gabaritei/commit/49034ec). A análise estática passou e cinco testes direcionados foram aprovados; a suíte completa ainda tem falhas conhecidas após a integração. Isso não certifica prontidão para produção.
 
 As caixas abertas abaixo representam trabalho planejado ou validação pendente. Nenhum recurso futuro deve ser anunciado como entregue apenas por ter uma tela.
 
@@ -14,7 +16,7 @@ As caixas abertas abaixo representam trabalho planejado ou validação pendente.
 
 | Marco | Prioridade | Dependência | Resultado esperado | Situação |
 | --- | --- | --- | --- | --- |
-| M0 — Validar a base | P0 | Base existente | Protótipo reproduzível e regras verificadas | A fazer |
+| M0 — Validar a base | P0 | Base existente | Protótipo reproduzível e regras verificadas | Em andamento |
 | M1 — Contas, backend e turmas | P0 | M0 | Aluno e professor acessam somente seus dados autorizados | A fazer |
 | M2 — Conteúdo e atividades reais | P0 | M1 | Professor publica atividade e aluno recebe conteúdo revisado | A fazer |
 | M3 — Sincronização e gamificação real | P0 | M2 | Tentativas, progresso e XP consistentes entre aparelhos | A fazer |
@@ -26,8 +28,13 @@ P0 = necessário para o fluxo principal; P1 = necessário para o piloto; P2 = po
 
 ## 🧪 M0 — Validar a base
 
-- [ ] Executar `flutter analyze`, `flutter test` e build Android; registrar resultados e corrigir bloqueios.
-- [ ] Percorrer início, trilhas, quiz, resultado, laboratório, ranking, perfil e professor.
+- [x] Executar `flutter analyze` sem apontamentos na atualização de interface ([commit 49034ec](https://github.com/frahncky/Gabaritei/commit/49034ec)).
+- [x] Validar navegação adaptativa, sequência do splash, repetição da animação e desenho da marca com cinco testes direcionados aprovados no mesmo commit.
+- [ ] Corrigir as falhas conhecidas em testes de conteúdo, gerador e telas; executar a suíte completa e registrar o resultado na CI.
+- [ ] Gerar e instalar um build Android da versão atual; registrar versão, commit e resultado.
+- [ ] Percorrer início, cursos, disciplinas, quiz, resultado, ranking, perfil e professor no aparelho.
+- [ ] Validar splash em abertura completa do app, retorno do segundo plano e preferência por reduzir animações.
+- [ ] Revisar testes e documentação que ainda pressupõem os atalhos de laboratórios na tela inicial.
 - [ ] Conferir XP, dicas, combos, níveis, medalhas, sequência diária e desbloqueio de módulos com as [regras de gamificação](gamificacao.md).
 - [ ] Verificar persistência após fechar e reabrir o app; definir como preservar ou migrar o progresso local na entrada de uma conta.
 - [ ] Identificar dados demonstrativos na interface e documentar limitações do protótipo.
@@ -126,9 +133,23 @@ Uma etapa só termina quando seu critério de conclusão for atendido. Ao inicia
 
 Esses avanços não concluem M2: edição completa, revisão docente, versionamento e publicação para turmas ainda estão pendentes.
 
+## 🎨 Interface e abertura entregues
+
+Implementação no [commit 49034ec](https://github.com/frahncky/Gabaritei/commit/49034ec):
+
+- [x] Barra inferior em celulares e navegação lateral a partir de 840 px lógicos, preservando a aba selecionada ao redimensionar.
+- [x] Conteúdo centralizado com largura limitada em telas grandes.
+- [x] Cartões de cursos com ícones destacados, espaçamento e altura flexível; cabeçalhos preparados para textos longos.
+- [x] Destaque visual para a próxima atividade, mantendo a identidade azul-marinho e âmbar.
+- [x] Remoção dos cards de laboratórios da tela inicial.
+- [x] Abertura animada após o splash nativo estático: elementos orbitam o círculo com o ✓ fixo e desaceleram até suas posições em 1,8 segundo.
+- [x] Giro periódico na tela de entrada, com pausas de seis segundos e respeito à preferência por reduzir animações.
+
+A navegação adaptativa e a sequência de animação têm testes automatizados. A conferência em aparelho, a ampliação de texto nas demais telas e os fluxos completos de acessibilidade continuam pendentes em M0 e M4.
+
 ## ⏭️ Próxima entrega
 
-**M0 — Validar a base.** A primeira decisão técnica subsequente é a arquitetura do backend em M1. A escolha deve considerar custo, autenticação, autorização, operação offline e capacidade de manutenção; este roadmap não pressupõe fornecedor contratado.
+**M0 — Estabilizar e validar a base integrada.** Priorizar as falhas da suíte completa, atualizar os testes afetados pela navegação atual e gerar um APK para validar interface e abertura em aparelho. A primeira decisão técnica subsequente é a arquitetura do backend em M1. A escolha deve considerar custo, autenticação, autorização, operação offline e capacidade de manutenção; este roadmap não pressupõe fornecedor contratado.
 
 ## 🧭 Fora do primeiro piloto
 
