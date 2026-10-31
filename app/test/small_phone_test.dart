@@ -79,24 +79,20 @@ void main() {
     await _sweep(tester, 'Início');
 
     await _tab(tester, 'Trilhas');
-    for (final trail in [
-      'Eletricidade Básica',
-      'Instalações Elétricas',
-      'CLP e Automação',
-    ]) {
-      await tester.drag(find.byType(Scrollable).first, const Offset(0, 5000));
+    await tester.tap(find.byKey(const ValueKey('course-electrotechnics')));
+    await tester.pumpAndSettle();
+    for (final id in ['eletricidade-basica', 'instalacoes-eletricas']) {
+      final option = find.byKey(ValueKey('discipline-$id'));
+      await tester.scrollUntilVisible(option, 200, scrollable: find.byType(Scrollable).first);
+      await tester.ensureVisible(option);
+      await tester.tap(option);
       await tester.pumpAndSettle();
-      await tester.tap(find.text(trail).first);
+      await _sweep(tester, 'Módulos / $id');
+      final back = find.byKey(const ValueKey('back-to-disciplines'));
+      await tester.scrollUntilVisible(back, -300, scrollable: find.byType(Scrollable).first);
+      await tester.tap(back);
       await tester.pumpAndSettle();
-      expect(tester.takeException(), isNull, reason: trail);
-      await _sweep(tester, 'Trilhas / $trail');
     }
-    await tester.ensureVisible(find.text('Ver disciplinas e unidades'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Ver disciplinas e unidades'));
-    await tester.pumpAndSettle();
-    await _sweep(tester, 'Mapa do curso');
-
     await _tab(tester, 'Ranking');
     await _sweep(tester, 'Ranking');
     await tester.drag(find.byType(Scrollable).first, const Offset(0, 5000));
@@ -109,16 +105,21 @@ void main() {
     await _sweep(tester, 'Perfil');
   });
 
-  testWidgets('desafio da planta do quarto cabe em 360 × 780', (tester) async {
+  testWidgets('atividade de instalações cabe em 360 × 780', (tester) async {
     await _start(tester, 'Entrar como aluno');
     await _tab(tester, 'Trilhas');
-    await tester.tap(find.text('Instalações Elétricas'));
+    await tester.tap(find.byKey(const ValueKey('course-electrotechnics')));
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(find.text('Começar'), 200,
+    final discipline = find.byKey(const ValueKey('discipline-instalacoes-eletricas'));
+    await tester.scrollUntilVisible(discipline, 200, scrollable: find.byType(Scrollable).first);
+    await tester.ensureVisible(discipline);
+    await tester.tap(discipline);
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.text('Continuar lição'), 200,
         scrollable: find.byType(Scrollable).first);
-    await tester.ensureVisible(find.text('Começar'));
+    await tester.ensureVisible(find.text('Continuar lição'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Começar'));
+    await tester.tap(find.text('Continuar lição'));
     for (var i = 0; i < 4; i++) {
       await tester.pump(const Duration(milliseconds: 150));
     }
