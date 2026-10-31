@@ -5,7 +5,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:gabaritei/app/app.dart';
 import 'package:gabaritei/app/dependencies.dart';
 import 'package:gabaritei/data/memory/sample_content.dart';
-import 'package:gabaritei/domain/services/question_generator.dart';
 import 'package:gabaritei/features/quiz/quiz_screen.dart';
 import 'package:gabaritei/features/quiz/result_screen.dart';
 import 'package:gabaritei/shared/drawings/bedroom_plan.dart';
@@ -58,10 +57,15 @@ Future<void> _pumpQuiz(WidgetTester tester) async {
 /// Abre a trilha de Instalações e começa o desafio da planta do quarto.
 Future<void> _openBedroomQuiz(WidgetTester tester) async {
   await _openTab(tester, 'Trilhas');
-  await tester.tap(find.text('Instalações Elétricas'));
+  await tester.tap(find.byKey(const ValueKey('course-electrotechnics')));
   await tester.pumpAndSettle();
-  await _scrollTo(tester, find.text('Começar'));
-  await tester.tap(find.text('Começar'));
+  final discipline = find.byKey(const ValueKey('discipline-instalacoes-eletricas'));
+  await _scrollTo(tester, discipline);
+  await tester.tap(discipline);
+  await tester.pumpAndSettle();
+  // O desafio extra é independente da atividade curricular ie-1.
+  final context = tester.element(find.byType(NavigationBar));
+  openQuiz(context, SampleContent.plantaDoQuarto.id);
   await _pumpQuiz(tester);
 }
 
@@ -107,18 +111,18 @@ const _weekdayNames = [
 
 void main() {
   group('Início', () {
-    testWidgets('"Continue de onde parou" abre o desafio do módulo atual',
+    testWidgets('"Comece por aqui" abre a primeira atividade',
         (tester) async {
       await _enterAsStudent(tester);
-      expect(find.text('Continue de onde parou'), findsOneWidget);
-      expect(find.text('Eletricidade Básica · Módulo 4'), findsOneWidget);
-      expect(find.text('2 de 4 lições'), findsOneWidget);
+      expect(find.text('Comece por aqui'), findsOneWidget);
+      expect(find.text('Eletricidade Básica · Módulo 1'), findsOneWidget);
+      expect(find.text('0 de 1 lições'), findsOneWidget);
 
-      await _scrollTo(tester, find.text('Continuar lição'));
-      await tester.tap(find.text('Continuar lição'));
+      await _scrollTo(tester, find.text('Começar').first);
+      await tester.tap(find.text('Começar').first);
       await _pumpQuiz(tester);
       expect(find.byType(QuizScreen), findsOneWidget);
-      expect(_inAppBar('Associação de resistores'), findsOneWidget);
+      expect(_inAppBar('Grandezas elétricas'), findsOneWidget);
 
       // Sair sem responder volta direto para o início.
       await tester.tap(find.byTooltip('Sair do desafio'));
@@ -127,21 +131,13 @@ void main() {
       expect(find.text('Olá, Ana'), findsOneWidget);
     });
 
-    testWidgets('Laboratórios é uma seção com os dois laboratórios',
-        (tester) async {
+    testWidgets('início não exibe os cards de laboratórios removidos', (tester) async {
       await _enterAsStudent(tester);
-      final header = find.text('Laboratórios');
-      await _scrollTo(tester, find.text('Sensor, CLP e válvula'));
-      expect(_hasSemantics(tester, header, (p) => p.header == true), isTrue);
-      expect(
-          find.text('Mexa nos valores e veja o que acontece.'), findsOneWidget);
-
-      final headerY = tester.getTopLeft(header).dy;
-      expect(
-          tester.getTopLeft(find.text('Veja a eletricidade em movimento')).dy,
-          greaterThan(headerY));
-      expect(tester.getTopLeft(find.text('Sensor, CLP e válvula')).dy,
-          greaterThan(headerY));
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -2000));
+      await tester.pumpAndSettle();
+      expect(find.text('Laboratórios'), findsNothing);
+      expect(find.text('Veja a eletricidade em movimento'), findsNothing);
+      expect(find.text('Sensor, CLP e válvula'), findsNothing);
     });
 
     testWidgets('tocar no avatar abre o Perfil', (tester) async {
@@ -176,101 +172,38 @@ void main() {
   });
 
   group('Trilhas', () {
-    testWidgets('a grade troca a trilha e marca a escolhida', (tester) async {
+    testWidgets('curso abre disciplinas, módulos e permite voltar', (tester) async {
       await _enterAsStudent(tester);
       await _openTab(tester, 'Trilhas');
-      expect(find.text('4. Associação de resistores'), findsOneWidget);
-
-      final option = find.text('Instalações Elétricas');
-      expect(option, findsOneWidget);
-      await tester.tap(option);
+      await tester.tap(find.byKey(const ValueKey('course-electrotechnics')));
       await tester.pumpAndSettle();
-
-      // O nome aparece na grade e no título da trilha.
-      expect(find.text('Instalações Elétricas'), findsNWidgets(2));
-      expect(find.text('1. Simbologia e diagramas'), findsOneWidget);
-      expect(find.text('4. Associação de resistores'), findsNothing);
-      expect(
-        _hasSemantics(tester, find.text('Instalações Elétricas').first,
-            (p) => p.selected == true),
-        isTrue,
-      );
-      expect(
-        _hasSemantics(tester, find.text('Eletricidade Básica'),
-            (p) => p.selected == true),
-        isFalse,
-      );
-    });
-
-    testWidgets('módulo ie-1 abre a planta do quarto pelo botão "Começar"',
-        (tester) async {
-      await _enterAsStudent(tester);
-      await _openBedroomQuiz(tester);
-      expect(_inAppBar('Planta elétrica do quarto'), findsOneWidget);
-      expect(find.byType(BedroomPlan), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    });
-
-    testWidgets('trilha bloqueada mostra o cadeado e o requisito',
-        (tester) async {
-      await _enterAsStudent(tester);
-      await _openTab(tester, 'Trilhas');
-      expect(find.text('Bloqueada'), findsOneWidget);
-
-      await tester.tap(find.text('CLP e Automação'));
-      await tester.pumpAndSettle();
-      expect(find.text('CLP e Automação'), findsNWidgets(2));
-      expect(
-          find.text(
-              'Conclua a trilha Eletricidade Básica para desbloquear esta.'),
-          findsOneWidget);
-      expect(find.textContaining('Bloqueado · '), findsOneWidget);
-      // Módulo bloqueado não tem botão de começar.
-      expect(find.text('Começar'), findsNothing);
-    });
-
-    testWidgets('o mapa do curso abre como sanfona e troca de curso',
-        (tester) async {
-      await _enterAsStudent(tester);
-      await _openTab(tester, 'Trilhas');
-
-      String summaryOf(TechnicalCourse c) {
-        final topics = QuestionGenerator.topicsFor(c);
-        final units = topics.fold<int>(
-            0, (sum, t) => sum + QuestionGenerator.unitsFor(t).length);
-        return '${topics.length} disciplinas · $units unidades';
-      }
-
-      final tile = find.text('Ver disciplinas e unidades');
-      await _scrollTo(tester, tile);
-      expect(find.text(summaryOf(TechnicalCourse.electronics)), findsOneWidget);
-      // Fechada: as disciplinas não aparecem.
-      expect(find.text('Telecomunicações'), findsNothing);
-
-      await tester.tap(tile);
-      await tester.pumpAndSettle();
-      await _scrollTo(tester, find.text('Circuitos CA'));
-      expect(find.text('Telecomunicações', skipOffstage: false), findsWidgets);
-
-      // Cada disciplina abre as unidades logo abaixo e fecha no 2º toque.
-      const objective = 'calcula grandezas usando V = R · I';
-      final discipline = find.text('Eletricidade básica');
-      expect(find.text(objective), findsNothing);
+      final discipline = find.byKey(const ValueKey('discipline-instalacoes-eletricas'));
       await _scrollTo(tester, discipline);
       await tester.tap(discipline);
       await tester.pumpAndSettle();
-      expect(find.text(objective), findsOneWidget);
-      expect(
-          _hasSemantics(tester, discipline, (p) => p.expanded == true), isTrue);
+      expect(find.text('1. Simbologia e diagramas'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('back-to-disciplines')));
+      await tester.pumpAndSettle();
+      expect(discipline, findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('back-to-courses')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('course-electronics')), findsOneWidget);
+    });
+
+    testWidgets('trilha bloqueada informa o pré-requisito real', (tester) async {
+      await _enterAsStudent(tester);
+      await _openTab(tester, 'Trilhas');
+      await tester.tap(find.byKey(const ValueKey('course-automation')));
+      await tester.pumpAndSettle();
+      final discipline = find.byKey(const ValueKey('discipline-clp-automacao'));
+      await _scrollTo(tester, discipline);
       await tester.tap(discipline);
       await tester.pumpAndSettle();
-      expect(find.text(objective), findsNothing);
-
-      await _scrollTo(tester, find.text('Eletrotécnica'), delta: -200);
-      await tester.tap(find.text('Eletrotécnica'));
-      await tester.pumpAndSettle();
-      expect(find.text(summaryOf(TechnicalCourse.electrotechnics)),
-          findsOneWidget);
+      expect(find.text('Conclua a trilha Eletrônica Digital para desbloquear esta.'), findsOneWidget);
+      expect(find.widgetWithText(FilledButton, 'Continuar lição'), findsWidgets);
+      for (final button in tester.widgetList<FilledButton>(find.byType(FilledButton))) {
+        expect(button.onPressed, isNull);
+      }
     });
   });
 
@@ -311,24 +244,15 @@ void main() {
       semantics.dispose();
     });
 
-    testWidgets('medalhas conquistadas vêm antes das bloqueadas',
-        (tester) async {
+    testWidgets('medalhas mostram grupos por disciplina e constância', (tester) async {
       await _enterAsStudent(tester);
       await _openTab(tester, 'Perfil');
       await _scrollTo(tester, find.text('2 de ${SampleContent.medals.length}'));
       expect(find.text('2 de ${SampleContent.medals.length}'), findsOneWidget);
-      await _scrollTo(tester, find.text('Olho de Resistor'));
-
-      expect(find.text('Conquistada'), findsNWidgets(2));
-      final earnedY = [
-        tester.getTopLeft(find.text('Potência Total')).dy,
-        tester.getTopLeft(find.text('7 dias seguidos')).dy,
-      ];
-      // "Mestre de Ohm" é a primeira do catálogo, mas não foi conquistada.
-      final lockedY = tester.getTopLeft(find.text('Mestre de Ohm')).dy;
-      for (final y in earnedY) {
-        expect(y, lessThan(lockedY));
-      }
+      expect(find.text('Eletricidade Básica'), findsOneWidget);
+      await _scrollTo(tester, find.text('Constância'));
+      expect(find.text('Constância'), findsOneWidget);
+      expect(tester.takeException(), isNull);
     });
   });
 
@@ -441,7 +365,7 @@ void main() {
       // A aba é recriada para recarregar o progresso, mas continua na trilha
       // que o aluno tinha escolhido.
       // O nome aparece no seletor e no título da trilha aberta.
-      expect(find.text('Instalações Elétricas'), findsNWidgets(2));
+      expect(find.text('Instalações Elétricas'), findsOneWidget);
       expect(find.text('4. Associação de resistores'), findsNothing);
       expect(find.byType(ResultScreen), findsNothing);
     });

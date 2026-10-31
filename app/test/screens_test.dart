@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:gabaritei/app/app.dart';
 import 'package:gabaritei/app/dependencies.dart';
 import 'package:gabaritei/features/quiz/question_visual.dart';
+import 'package:gabaritei/features/lab/lab_screen.dart';
 
 void main() {
   Future<void> pumpApp(WidgetTester tester, Size size) async {
@@ -133,11 +134,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('1.000 XP'), findsOneWidget);
 
-    await tester.scrollUntilVisible(find.text('Começar'), 200);
+    await tester.scrollUntilVisible(find.text('Começar').first, 200);
     // A lista constrói itens além da borda: rola até o botão estar na tela.
-    await tester.ensureVisible(find.text('Começar'));
+    await tester.ensureVisible(find.text('Começar').first);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Começar'));
+    await tester.tap(find.text('Começar').first);
     await tester.pumpAndSettle();
 
     // Responde sempre a primeira alternativa até o fim.
@@ -185,8 +186,15 @@ void main() {
     await tester.tap(find.text('Entrar como professor'));
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('Gerar questão'));
-    await tester.tap(find.text('Gerar questão'));
+    final subject = find.widgetWithText(DropdownButtonFormField<String>, 'Assunto');
+    await tester.ensureVisible(subject);
+    await tester.tap(subject);
     await tester.pumpAndSettle();
+    await tester.tap(find.text('Exercício aplicado da disciplina').last);
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Gerar questão'));
+    await tester.tap(find.text('Gerar questão'));
+    await tester.pump(const Duration(milliseconds: 500));
     expect(find.byType(QuestionVisualCard), findsOneWidget);
     expect(find.textContaining('Explicação:'), findsOneWidget);
     expect(find.textContaining('Dica:'), findsOneWidget);
@@ -205,9 +213,8 @@ void main() {
     await tester.tap(find.text('Entrar como aluno'));
     await tester.pumpAndSettle();
 
-    await tester.scrollUntilVisible(
-        find.text('Veja a eletricidade em movimento'), 200);
-    await tester.tap(find.text('Veja a eletricidade em movimento'));
+    final context = tester.element(find.byType(NavigationBar));
+    Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const LabScreen()));
     // O laboratório anima sem parar: avança quadros em vez de pumpAndSettle.
     for (var i = 0; i < 10; i++) {
       await tester.pump(const Duration(milliseconds: 100));
@@ -253,6 +260,6 @@ void main() {
     for (var i = 0; i < 5; i++) {
       await tester.pump(const Duration(milliseconds: 100));
     }
-    expect(find.text('Veja a eletricidade em movimento'), findsOneWidget);
+    expect(find.text('Olá, Ana'), findsOneWidget);
   });
 }
