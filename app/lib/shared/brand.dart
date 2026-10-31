@@ -15,12 +15,10 @@ class AnimatedGabariteiMark extends StatefulWidget {
     super.key,
     this.size = 108,
     this.repeat = false,
-    this.onCompleted,
   });
 
   final double size;
   final bool repeat;
-  final VoidCallback? onCompleted;
 
   @override
   State<AnimatedGabariteiMark> createState() => _AnimatedGabariteiMarkState();
@@ -28,17 +26,41 @@ class AnimatedGabariteiMark extends StatefulWidget {
 
 class _AnimatedGabariteiMarkState extends State<AnimatedGabariteiMark>
     with SingleTickerProviderStateMixin {
+  static const _spinMs = 1800;
+  static const _checkMs = 350;
+
+  /// Fração da animação em que os pilares param e o ✓ começa a se traçar.
+  static const _spinEnd = _spinMs / (_spinMs + _checkMs);
+
   late final AnimationController _controller = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 1800),
+    duration: const Duration(milliseconds: _spinMs + _checkMs),
   )..addStatusListener(_onStatus);
   Timer? _pause;
 
+  /// A partir do segundo giro o ✓ já está na tela e precisa sair antes.
+  bool _checkShown = false;
+
+  double get _rotation =>
+      (1 -
+          const Interval(
+            0,
+            _spinEnd,
+            curve: Curves.easeOutCubic,
+          ).transform(_controller.value)) *
+      -2 *
+      math.pi;
+
+  double get _checkProgress {
+    final value = _controller.value;
+    if (value >= _spinEnd) return (value - _spinEnd) / (1 - _spinEnd);
+    // Recolhe no início do giro, em vez de sumir de um quadro para o outro.
+    return _checkShown ? (1 - value / (1 - _spinEnd)).clamp(0.0, 1.0) : 0;
+  }
+
   void _onStatus(AnimationStatus status) {
     if (status != AnimationStatus.completed) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) widget.onCompleted?.call();
-    });
+    _checkShown = true;
     if (widget.repeat && !MediaQuery.disableAnimationsOf(context)) {
       _pause?.cancel();
       _pause = Timer(const Duration(seconds: 6), () {
@@ -77,10 +99,8 @@ class _AnimatedGabariteiMarkState extends State<AnimatedGabariteiMark>
           size: Size.square(widget.size),
           painter: GabariteiMarkPainter(
             withBackground: false,
-            rotation:
-                (1 - Curves.easeOutCubic.transform(_controller.value)) *
-                -2 *
-                math.pi,
+            rotation: _rotation,
+            checkProgress: _checkProgress,
           ),
         ),
       ),
@@ -126,6 +146,7 @@ class GabariteiMarkPainter extends CustomPainter {
     this.fullBleed = false,
     this.bubbleScale = defaultBubbleScale,
     this.rotation = 0,
+    this.checkProgress = 1,
   });
 
   /// Bolha que deixa os três pilares dentro do quadrado do ícone.
@@ -150,6 +171,9 @@ class GabariteiMarkPainter extends CustomPainter {
   /// Diâmetro da bolha em relação ao lado do quadrado.
   final double bubbleScale;
   final double rotation;
+
+  /// Quanto do ✓ já foi traçado, de 0 a 1.
+  final double checkProgress;
 
   /// A bolha desce um pouco do centro para equilibrar o livro no alto com
   /// os dois pilares de baixo.
@@ -207,8 +231,12 @@ class GabariteiMarkPainter extends CustomPainter {
       ..moveTo(at(-0.44, 0.04).dx, at(-0.44, 0.04).dy)
       ..lineTo(at(-0.12, 0.36).dx, at(-0.12, 0.36).dy)
       ..lineTo(at(0.48, -0.30).dx, at(0.48, -0.30).dy);
+    if (checkProgress <= 0) return;
+    final metric = check.computeMetrics().first;
     canvas.drawPath(
-      check,
+      checkProgress >= 1
+          ? check
+          : metric.extractPath(0, metric.length * checkProgress),
       Paint()
         ..color = AppColors.ink
         ..style = PaintingStyle.stroke
@@ -221,6 +249,7 @@ class GabariteiMarkPainter extends CustomPainter {
   @override
   bool shouldRepaint(GabariteiMarkPainter oldDelegate) =>
       oldDelegate.rotation != rotation ||
+      oldDelegate.checkProgress != checkProgress ||
       oldDelegate.withBackground != withBackground ||
       oldDelegate.fullBleed != fullBleed ||
       oldDelegate.bubbleScale != bubbleScale;

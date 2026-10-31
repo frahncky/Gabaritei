@@ -33,7 +33,7 @@ P0 = necessário para o fluxo principal; P1 = necessário para o piloto; P2 = po
 - [ ] Corrigir as falhas conhecidas em testes de conteúdo, gerador e telas; executar a suíte completa e registrar o resultado na CI.
 - [ ] Gerar e instalar um build Android da versão atual; registrar versão, commit e resultado.
 - [ ] Percorrer início, cursos, disciplinas, quiz, resultado, ranking, perfil e professor no aparelho.
-- [ ] Validar splash em abertura completa do app, retorno do segundo plano e preferência por reduzir animações.
+- [ ] Validar a tela de entrada em abertura completa do app, retorno do segundo plano e preferência por reduzir animações.
 - [ ] Revisar testes e documentação que ainda pressupõem os atalhos de laboratórios na tela inicial.
 - [ ] Conferir XP, dicas, combos, níveis, medalhas, sequência diária e desbloqueio de módulos com as [regras de gamificação](gamificacao.md).
 - [ ] Verificar persistência após fechar e reabrir o app; definir como preservar ou migrar o progresso local na entrada de uma conta.
@@ -142,8 +142,8 @@ Implementação no [commit 49034ec](https://github.com/frahncky/Gabaritei/commit
 - [x] Cartões de cursos com ícones destacados, espaçamento e altura flexível; cabeçalhos preparados para textos longos.
 - [x] Destaque visual para a próxima atividade, mantendo a identidade azul-marinho e âmbar.
 - [x] Remoção dos cards de laboratórios da tela inicial.
-- [x] Abertura animada após o splash nativo estático: elementos orbitam o círculo com o ✓ fixo e desaceleram até suas posições em 1,8 segundo.
-- [x] Giro periódico na tela de entrada, com pausas de seis segundos e respeito à preferência por reduzir animações.
+- [x] Abertura direta: o splash nativo estático leva à tela de entrada, sem etapa animada intermediária.
+- [x] Giro periódico na tela de entrada: elementos orbitam o círculo e o ✓ se traça ao final, com pausas de seis segundos e respeito à preferência por reduzir animações.
 
 A navegação adaptativa e a sequência de animação têm testes automatizados. A conferência em aparelho, a ampliação de texto nas demais telas e os fluxos completos de acessibilidade continuam pendentes em M0 e M4.
 

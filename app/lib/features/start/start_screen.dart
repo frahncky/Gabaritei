@@ -65,7 +65,7 @@ class StartScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const Spacer(flex: 2),
-          const Center(child: AnimatedGabariteiMark(size: 108, repeat: true)),
+          const Center(child: AnimatedGabariteiMark(size: 96, repeat: true)),
           const SizedBox(height: 24),
           const Text(
             'Estude · Jogue · Domine',
