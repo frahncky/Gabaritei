@@ -1,6 +1,6 @@
 # 🗺️ Roadmap do Gabaritei
 
-Atualizado em 30/10/2026.
+Atualizado em 31/10/2026.
 
 **Objetivo:** evoluir do protótipo local para uma plataforma de aprendizagem com turmas reais, acompanhamento docente e progresso sincronizado, começando por um piloto de Eletrotécnica.
 
@@ -128,7 +128,7 @@ Uma etapa só termina quando seu critério de conclusão for atendido. Ao inicia
 
 ## 📌 Avanços locais em M2
 
-- Banco local: 464 questões, com 141 figuras nas 26 disciplinas ([PR #12](https://github.com/frahncky/Gabaritei/pull/12)).
+- Banco curricular: 464 questões, com 141 figuras nas 26 disciplinas ([PR #12](https://github.com/frahncky/Gabaritei/pull/12)). O desafio adicional da planta do quarto acrescenta cinco questões: total atual de 469.
 - Autoria assistida: prévia da figura, explicação e dica antes de salvar; modelos aplicados de Ohm e paralelo com figuras parametrizadas ([issue #13](https://github.com/frahncky/Gabaritei/issues/13)).
 
 Esses avanços não concluem M2: edição completa, revisão docente, versionamento e publicação para turmas ainda estão pendentes.
@@ -148,6 +148,18 @@ Implementação no [commit 49034ec](https://github.com/frahncky/Gabaritei/commit
 A navegação adaptativa e a sequência de animação têm testes automatizados. A conferência em aparelho, a ampliação de texto nas demais telas e os fluxos completos de acessibilidade continuam pendentes em M0 e M4.
 
 ## ⏭️ Próxima entrega
+
+### Andamento da estabilização de M0 — 31/10/2026
+
+- Diagnóstico inicial da suíte integrada: 216 testes aprovados e 37 falhas.
+- Restaurada a geração de questões de instalações com a planta do quarto e IDs determinísticos; removidos desenhos sem relação com o assunto, preservando figuras parametrizadas de Ohm e paralelo.
+- Validada a deduplicação ao gerar novamente a mesma questão, com persistência e salvamentos concorrentes.
+- Corrigido o vínculo do avatar da tela inicial com a aba Perfil.
+- Atualizada a contagem para 469 questões e preservada a atividade curricular `q-ie-1`, independente do desafio adicional da planta.
+- Validação do conjunto de conteúdo, gerador, banco e salvamento: 80 testes aprovados. Mais sete testes aprovados para avatar, acessibilidade do avatar, tema, navegação adaptativa e splash: total de 87 verificações direcionadas. `flutter analyze` sem apontamentos.
+- Teste de tema atualizado para usar o botão inicial “Começar”, preservando a verificação do fundo das rotas.
+- Build `flutter build apk --debug` iniciado e interrompido após vários minutos sem conclusão do Gradle. O APK existente era anterior à tentativa; não há novo build validado nem instalação em aparelho nesta etapa.
+- Pendências: adaptar os testes de telas à navegação curso → disciplina → módulos e à remoção dos laboratórios; tratar esperas de animação contínua nos testes; executar novamente a suíte completa. M0 permanece em andamento.
 
 **M0 — Estabilizar e validar a base integrada.** Priorizar as falhas da suíte completa, atualizar os testes afetados pela navegação atual e gerar um APK para validar interface e abertura em aparelho. A primeira decisão técnica subsequente é a arquitetura do backend em M1. A escolha deve considerar custo, autenticação, autorização, operação offline e capacidade de manutenção; este roadmap não pressupõe fornecedor contratado.
 

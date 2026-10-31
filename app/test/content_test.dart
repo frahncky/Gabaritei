@@ -17,17 +17,22 @@ void _expectValidQuestion(Question q, String where) {
   expect(q.prompt.trim(), isNotEmpty, reason: where);
   expect(q.explanation.trim(), isNotEmpty, reason: where);
   expect(q.options.length, greaterThanOrEqualTo(2), reason: where);
-  expect(q.correctIndex, inInclusiveRange(0, q.options.length - 1),
-      reason: where);
+  expect(
+    q.correctIndex,
+    inInclusiveRange(0, q.options.length - 1),
+    reason: where,
+  );
   expect(q.options.every((o) => o.trim().isNotEmpty), isTrue, reason: where);
-  expect(q.options.toSet(), hasLength(q.options.length),
-      reason: '$where: opções repetidas ${q.options}');
+  expect(
+    q.options.toSet(),
+    hasLength(q.options.length),
+    reason: '$where: opções repetidas ${q.options}',
+  );
 }
 
 void main() {
   group('conteúdo de exemplo', () {
-    test(
-        'toda questão dos desafios tem gabarito válido, tópico e opções '
+    test('toda questão dos desafios tem gabarito válido, tópico e opções '
         'distintas', () {
       for (final quiz in SampleContent.quizzes) {
         expect(quiz.questions, isNotEmpty, reason: quiz.id);
@@ -83,33 +88,40 @@ void main() {
       expect(moduleIds.toSet(), hasLength(moduleIds.length));
     });
 
-    test(
-      'trilha bloqueada exige uma trilha que existe no catálogo',
-      () {
-        final trailIds = SampleContent.trails.map((t) => t.id).toSet();
-        for (final t in SampleContent.trails) {
-          if (t.requiresTrailId != null) {
-            expect(trailIds, contains(t.requiresTrailId), reason: t.id);
-          }
+    test('trilha bloqueada exige uma trilha que existe no catálogo', () {
+      final trailIds = SampleContent.trails.map((t) => t.id).toSet();
+      for (final t in SampleContent.trails) {
+        if (t.requiresTrailId != null) {
+          expect(trailIds, contains(t.requiresTrailId), reason: t.id);
         }
-      },
-    );
+      }
+    });
 
     test('desafio da planta do quarto tem 5 questões, todas com a planta', () {
-      final quiz =
-          SampleContent.quizzes.singleWhere((q) => q.id == 'q-planta-quarto');
+      final quiz = SampleContent.quizzes.singleWhere(
+        (q) => q.id == 'q-planta-quarto',
+      );
       expect(quiz.topic, _installations);
       expect(quiz.questions, hasLength(5));
-      expect(quiz.questions.map((q) => q.visual),
-          everyElement(QuestionVisual.bedroomPlan));
+      expect(
+        quiz.questions.map((q) => q.visual),
+        everyElement(QuestionVisual.bedroomPlan),
+      );
       expect(quiz.questions.map((q) => q.hint), everyElement(isNotNull));
     });
 
-    test('módulo ie-1 abre o desafio da planta do quarto', () {
-      final trail = SampleContent.trails
-          .singleWhere((t) => t.id == 'instalacoes-eletricas');
+    test('módulo ie-1 abre sua atividade curricular de simbologia', () {
+      final trail = SampleContent.trails.singleWhere(
+        (t) => t.id == 'instalacoes-eletricas',
+      );
       final module = trail.modules.singleWhere((m) => m.id == 'ie-1');
-      expect(module.quizId, 'q-planta-quarto');
+      expect(module.quizId, 'q-ie-1');
+      expect(
+        SampleContent.quizzes
+            .singleWhere((q) => q.id == module.quizId)
+            .questions,
+        isNotEmpty,
+      );
       expect(module.status, ModuleStatus.current);
       expect(trail.unlocked, isTrue);
     });
@@ -121,7 +133,10 @@ void main() {
         final questions = [
           for (final s in _sequences)
             QuestionGenerator.generate(
-                topic: _installations, unit: unit, sequence: s),
+              topic: _installations,
+              unit: unit,
+              sequence: s,
+            ),
         ];
         for (final q in questions) {
           expect(q.visual, QuestionVisual.bedroomPlan, reason: q.id);
@@ -129,8 +144,11 @@ void main() {
           expect(q.prompt, startsWith('$unit: '));
           _expectValidQuestion(q, q.id);
         }
-        expect(questions.map((q) => q.prompt).toSet().length, greaterThan(1),
-            reason: 'enunciado não muda com a sequência');
+        expect(
+          questions.map((q) => q.prompt).toSet().length,
+          greaterThan(1),
+          reason: 'enunciado não muda com a sequência',
+        );
         final ids = questions.map((q) => q.id).toList();
         expect(ids.toSet(), hasLength(ids.length));
       });
@@ -139,7 +157,10 @@ void main() {
     test('"Comandos elétricos" não mostra a planta do quarto', () {
       for (final s in _sequences) {
         final q = QuestionGenerator.generate(
-            topic: _installations, unit: 'Comandos elétricos', sequence: s);
+          topic: _installations,
+          unit: 'Comandos elétricos',
+          sequence: s,
+        );
         expect(q.visual, isNot(QuestionVisual.bedroomPlan), reason: q.id);
         expect(q.visual, isNull, reason: q.id);
         _expectValidQuestion(q, q.id);
@@ -165,63 +186,71 @@ void main() {
     test('sequência negativa não quebra o gerador', () {
       for (final unit in [..._planUnits, 'Comandos elétricos']) {
         final q = QuestionGenerator.generate(
-            topic: _installations, unit: unit, sequence: -7);
+          topic: _installations,
+          unit: unit,
+          sequence: -7,
+        );
         _expectValidQuestion(q, q.id);
       }
     });
   });
 
   group('gerador: varredura de todas as disciplinas', () {
-    test(
-        'com assunto, toda unidade gera questão válida e sem opções '
+    test('com assunto, toda unidade gera questão válida e sem opções '
         'repetidas (sequência 0 a 12)', () {
       for (final topic in QuestionGenerator.topics) {
         for (final unit in QuestionGenerator.unitsFor(topic)) {
           final ids = <String>{};
           for (final s in _sequences) {
             final q = QuestionGenerator.generate(
-                topic: topic, unit: unit.label, sequence: s);
+              topic: topic,
+              unit: unit.label,
+              sequence: s,
+            );
             _expectValidQuestion(q, '$topic/${unit.label}/$s');
-            expect(ids.add(q.id), isTrue,
-                reason: 'id repetido ${q.id} em $topic/${unit.label}');
+            expect(
+              ids.add(q.id),
+              isTrue,
+              reason: 'id repetido ${q.id} em $topic/${unit.label}',
+            );
           }
         }
       }
     });
 
     for (final topic in QuestionGenerator.topics) {
-      test(
-        'sem assunto, "$topic" gera questão válida e sem opções repetidas '
-        '(sequência 0 a 12)',
-        () {
-          final ids = <String>{};
-          for (final s in _sequences) {
-            final q = QuestionGenerator.generate(topic: topic, sequence: s);
-            _expectValidQuestion(q, '$topic/$s');
-            expect(ids.add(q.id), isTrue, reason: 'id repetido ${q.id}');
-          }
-        },
-      );
+      test('sem assunto, "$topic" gera questão válida e sem opções repetidas '
+          '(sequência 0 a 12)', () {
+        final ids = <String>{};
+        for (final s in _sequences) {
+          final q = QuestionGenerator.generate(topic: topic, sequence: s);
+          _expectValidQuestion(q, '$topic/$s');
+          expect(ids.add(q.id), isTrue, reason: 'id repetido ${q.id}');
+        }
+      });
     }
 
     test('Lei de Ohm gerada não repete opções fora do caso de 100 Ω', () {
       for (final s in _sequences.where((s) => s % 4 != 0)) {
         final q = QuestionGenerator.generate(
-            topic: 'Eletricidade básica', sequence: s);
+          topic: 'Eletricidade básica',
+          sequence: s,
+        );
         _expectValidQuestion(q, 'ohm/$s');
       }
     });
 
-    test(
-      'Lei de Ohm com 100 Ω não repete a resposta entre os distratores',
-      () {
-        final q = QuestionGenerator.generate(
-            topic: 'Eletricidade básica', sequence: 4);
-        expect(q.prompt, contains('100 Ω'));
-        expect(q.options.where((o) => o == q.options[q.correctIndex]),
-            hasLength(1),
-            reason: 'opções: ${q.options}');
-      },
-    );
+    test('Lei de Ohm com 100 Ω não repete a resposta entre os distratores', () {
+      final q = QuestionGenerator.generate(
+        topic: 'Eletricidade básica',
+        sequence: 4,
+      );
+      expect(q.prompt, contains('100 Ω'));
+      expect(
+        q.options.where((o) => o == q.options[q.correctIndex]),
+        hasLength(1),
+        reason: 'opções: ${q.options}',
+      );
+    });
   });
 }

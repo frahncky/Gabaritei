@@ -38,11 +38,11 @@ O catálogo atual atende **Eletrotécnica, Eletrônica, Automação Industrial e
 
 | 🎓 Cursos | 📚 Disciplinas | 🧩 Unidades de estudo | ❓ Questões distintas |
 | :---: | :---: | :---: | :---: |
-| **4** | **26** | **86** | **464** |
+| **4** | **26** | **86** | **469** |
 
 **26 provas finais · 116 medalhas · progresso salvo localmente**
 
-> O banco possui **354 questões de estudo e 110 exclusivas das provas finais**. Cada unidade tem pelo menos quatro questões. A revisão pedagógica por docentes e a ampliação com novos recursos visuais continuam previstas.
+> O banco possui **354 questões de estudo, cinco no desafio adicional da planta do quarto e 110 exclusivas das provas finais**. Cada unidade tem pelo menos quatro questões. A revisão pedagógica por docentes e a ampliação com novos recursos visuais continuam previstas.
 
 ## 🎓 Cursos
 
@@ -76,7 +76,7 @@ A melhor nota de cada atividade fica salva. Uma tentativa pior não desfaz o ava
 | --- | --- |
 | 🏠 **Início do aluno** | Nível, XP, sequência, missões de exemplo e desafio relâmpago |
 | 📚 **Cursos e disciplinas** | Quatro cursos, 26 trilhas, resumos e atividades em todas as unidades de estudo |
-| 🧩 **Questões e explicações** | 464 questões; 141 possuem figuras, gráficos ou tabelas específicos, cobrindo as 26 disciplinas |
+| 🧩 **Questões e explicações** | 469 questões; 141 têm figuras específicas nas 26 disciplinas, além das cinco questões com a planta do quarto |
 | 📱 **Interface adaptativa** | Barra inferior no celular e navegação lateral em telas a partir de 840 px lógicos |
 | ✨ **Marca animada** | Abertura com giro dos elementos ao redor do ✓ e repetição com pausas na tela de entrada |
 | 👤 **Perfil** | Estatísticas, calendário de estudo e medalhas agrupadas por disciplina |
@@ -257,7 +257,7 @@ Os arquivos em `design/mockup` são referências de design, não capturas das te
 **Protótipo local em desenvolvimento ativo.** O catálogo e a progressão funcionam no aparelho; a plataforma com turmas reais é a próxima frente.
 
 - [x] Quatro cursos com disciplinas vinculadas
-- [x] 26 disciplinas, 86 unidades de estudo e 464 questões distintas
+- [x] 26 disciplinas, 86 unidades de estudo e 469 questões distintas
 - [x] Resumos, atividades e 26 provas finais
 - [x] Figuras, gráficos e tabelas específicos em questões das 26 disciplinas
 - [x] 87 medalhas por assunto, 26 de domínio e três de constância

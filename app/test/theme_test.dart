@@ -64,9 +64,9 @@ void main() {
     await tester.tap(find.descendant(
         of: find.byType(NavigationBar), matching: find.text('Início')));
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(find.text('Continuar lição'), 200,
+    await tester.scrollUntilVisible(find.text('Começar').first, 200,
         scrollable: find.byType(Scrollable).first);
-    await tester.tap(find.text('Continuar lição'));
+    await tester.tap(find.text('Começar').first);
     for (var i = 0; i < 4; i++) {
       await tester.pump(const Duration(milliseconds: 150));
     }

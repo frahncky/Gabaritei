@@ -89,6 +89,7 @@ class _StudentShellState extends State<StudentShell> {
                         child: HomeScreen(
                           onDataChanged: _refresh,
                           onOpenTrails: () => _goTo(1),
+                onOpenProfile: () => _goTo(3),
                         ),
                       ),
                       KeyedSubtree(

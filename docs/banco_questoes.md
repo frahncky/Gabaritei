@@ -9,7 +9,8 @@
 | Unidades de estudo | 86 |
 | Questões de estudo | 354 |
 | Questões exclusivas de prova | 110 |
-| Total de questões distintas | 464 |
+| Desafio adicional da planta do quarto | 5 |
+| Total de questões distintas | 469 |
 | Questões novas nesta ampliação | 282 |
 
 Cada módulo de estudo recebeu duas questões novas, totalizando 172 questões adicionais de prática. Nenhum dos 86 módulos fica com menos de quatro questões. O desafio independente de código de cores permanece com cinco.
