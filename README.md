@@ -78,7 +78,7 @@ A melhor nota de cada atividade fica salva. Uma tentativa pior não desfaz o ava
 | 📚 **Cursos e disciplinas** | Quatro cursos, 26 trilhas, resumos e atividades em todas as unidades de estudo |
 | 🧩 **Questões e explicações** | 469 questões; 141 têm figuras específicas nas 26 disciplinas, além das cinco questões com a planta do quarto |
 | 📱 **Interface adaptativa** | Barra inferior no celular e navegação lateral em telas a partir de 840 px lógicos |
-| ✨ **Marca animada** | Abertura com giro dos elementos ao redor do ✓ e repetição com pausas na tela de entrada |
+| ✨ **Marca animada** | Na tela de entrada, os elementos giram ao redor do círculo e o ✓ se traça ao final, com repetição após uma pausa |
 | 👤 **Perfil** | Estatísticas, calendário de estudo e medalhas agrupadas por disciplina |
 | 💾 **Persistência local** | Notas, XP, sequência, medalhas, missões e questões criadas pelo professor |
 | 🏆 **Ranking demonstrativo** | Filtros de semana, mês e geral, com participantes de exemplo |
@@ -95,10 +95,8 @@ A tela inicial destaca a próxima atividade, o nível e as missões do dia. Os c
 - **Celular:** navegação inferior com Início, Trilhas, Ranking e Perfil.
 - **Tablets e computadores:** navegação lateral a partir de 840 px lógicos, com conteúdo centralizado e largura limitada para facilitar a leitura. A aba selecionada é preservada ao redimensionar a janela.
 - **Cursos:** cartões com ícones destacados, espaçamento entre opções e descrições com altura flexível. Cabeçalhos acomodam textos longos.
-- **Abertura animada:** após a imagem estática do splash nativo, o livro, as engrenagens e a lâmpada dão uma volta ao redor do círculo de marcação. O ✓ permanece fixo; o giro desacelera e termina nas posições finais em 1,8 segundo.
-- **Tela de entrada:** a animação se repete com uma pausa de seis segundos após cada giro. A preferência do sistema por reduzir animações é respeitada.
-
-Para conferir a abertura, encerre e abra o aplicativo novamente. O hot reload não reproduz o splash.
+- **Abertura:** o splash nativo é uma imagem estática e leva direto à tela de entrada.
+- **Tela de entrada:** o livro, as engrenagens e a lâmpada dão uma volta ao redor do círculo de marcação e, ao pararem, o ✓ se traça. O ciclo se repete com uma pausa de seis segundos. A preferência do sistema por reduzir animações é respeitada.
 
 ## 🖼️ Questões com recursos visuais
 
@@ -220,7 +218,7 @@ Para executar somente os testes direcionados às mudanças recentes:
 
 ```bash
 cd app
-flutter test test/adaptive_navigation_test.dart test/splash_animation_test.dart test/brand_test.dart
+flutter test test/adaptive_navigation_test.dart test/start_mark_animation_test.dart test/brand_test.dart
 ```
 
 Essa validação não equivale a build Android ou teste manual em aparelho da entrega mais recente.
