@@ -1,7 +1,11 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
 import '../../app/theme.dart';
+import '../../shared/drawings/circuit_symbols.dart';
+import 'lab_screen.dart' show labSliderTheme;
 
 /// Laboratório de automação: uma malha fechada simples de nível.
 class ProcessLabScreen extends StatefulWidget {
@@ -45,65 +49,77 @@ class _ProcessLabScreenState extends State<ProcessLabScreen>
   @override
   Widget build(BuildContext context) {
     final error = _setpoint - _level;
+    String percent(double v) => '${(v * 100).round()}%';
     return Scaffold(
-      backgroundColor: AppColors.ink,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white,
-        title: const Text('LABORATÓRIO DE PROCESSO'),
-      ),
+      appBar: AppBar(title: const Text('Laboratório de processo')),
       body: SafeArea(
         top: false,
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 4, 20, 32),
           children: [
-            const Text('MALHA DE NÍVEL',
-                style: TextStyle(
-                    color: AppColors.amberOnInk,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 1.5)),
-            const SizedBox(height: 6),
+            const Text(
+              'Malha de nível',
+              style: TextStyle(
+                color: AppColors.skyOnInk,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 4),
             const Text(
               'Sensor → CLP → válvula → tanque',
-              style: TextStyle(color: Colors.white, fontSize: 20),
+              style: TextStyle(
+                color: AppColors.text,
+                fontFamily: AppFonts.display,
+                fontWeight: FontWeight.w700,
+                fontSize: 20,
+              ),
             ),
             const SizedBox(height: 4),
             const Text(
               'Ajuste a referência e veja o controlador compensar a saída.',
-              style: TextStyle(color: AppColors.mutedOnInk),
+              style: TextStyle(color: AppColors.muted),
             ),
             const SizedBox(height: 18),
-            SizedBox(
-              height: 250,
-              child: CustomPaint(
-                painter: _ProcessPainter(
-                  level: _level,
-                  setpoint: _setpoint,
-                  valve: _valve,
-                  automatic: _automatic,
+            Semantics(
+              label: 'Malha de controle de nível: o transmissor de nível LT '
+                  'mede ${percent(_level)} no tanque e manda o sinal de 4 a '
+                  '20 mA ao CLP, em modo '
+                  '${_automatic ? 'automático' : 'manual'}; o CLP abre a '
+                  'válvula de entrada em ${percent(_valve)}. A referência '
+                  'está em ${percent(_setpoint)}.',
+              excludeSemantics: true,
+              child: SizedBox(
+                height: 250,
+                // Muda a cada quadro do ticker: isolado do resto da página.
+                child: RepaintBoundary(
+                  child: CustomPaint(
+                    painter: ProcessPainter(
+                      level: _level,
+                      setpoint: _setpoint,
+                      valve: _valve,
+                      automatic: _automatic,
+                    ),
+                  ),
                 ),
               ),
             ),
             const SizedBox(height: 12),
-            _ValueRow('Nível medido', '${(_level * 100).round()}%',
-                AppColors.skyOnInk),
-            _ValueRow('Referência', '${(_setpoint * 100).round()}%',
-                AppColors.amberOnInk),
-            _ValueRow('Abertura da válvula', '${(_valve * 100).round()}%',
-                Colors.white),
+            _ValueRow('Nível medido', percent(_level), AppColors.skyOnInk),
+            _ValueRow('Referência', percent(_setpoint), AppColors.text),
+            _ValueRow('Abertura da válvula', percent(_valve), AppColors.text),
             const SizedBox(height: 18),
             SwitchListTile.adaptive(
               contentPadding: EdgeInsets.zero,
               value: _automatic,
-              activeTrackColor: AppColors.amber,
               title: const Text('Controle automático',
                   style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.w700)),
+                      color: AppColors.text, fontWeight: FontWeight.w600)),
               subtitle: Text(
                 _automatic
                     ? 'O CLP ajusta a válvula pelo erro de nível.'
                     : 'Você controla diretamente a abertura da válvula.',
-                style: const TextStyle(color: AppColors.mutedOnInk),
+                style: const TextStyle(color: AppColors.muted),
               ),
               onChanged: (value) => setState(() => _automatic = value),
             ),
@@ -125,9 +141,8 @@ class _ProcessLabScreenState extends State<ProcessLabScreen>
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: AppColors.inkRaised,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppColors.inkLine),
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(AppRadii.medium),
               ),
               child: Text(
                 error.abs() < .04
@@ -135,7 +150,7 @@ class _ProcessLabScreenState extends State<ProcessLabScreen>
                     : error > 0
                         ? 'O nível está abaixo da referência; o CLP abre mais a válvula.'
                         : 'O nível está acima da referência; o CLP reduz a abertura.',
-                style: const TextStyle(color: Colors.white),
+                style: const TextStyle(color: AppColors.text),
               ),
             ),
           ],
@@ -159,16 +174,18 @@ class _ControlSlider extends StatelessWidget {
           Row(children: [
             Expanded(
                 child: Text(label,
-                    style: const TextStyle(color: AppColors.mutedOnInk))),
+                    style: const TextStyle(color: AppColors.muted))),
             Text('${(value * 100).round()}%',
                 style: const TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.w700)),
+                    color: AppColors.text, fontWeight: FontWeight.w700)),
           ]),
-          Slider(
-            value: value,
-            activeColor: AppColors.amber,
-            inactiveColor: AppColors.inkLine,
-            onChanged: onChanged,
+          SliderTheme(
+            data: labSliderTheme(context),
+            child: Slider(
+              value: value,
+              semanticFormatterCallback: (v) => '${(v * 100).round()}%',
+              onChanged: onChanged,
+            ),
           ),
         ],
       );
@@ -185,107 +202,243 @@ class _ValueRow extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 4),
         child: Row(children: [
           Expanded(
-              child: Text(label,
-                  style: const TextStyle(color: AppColors.mutedOnInk))),
+              child:
+                  Text(label, style: const TextStyle(color: AppColors.muted))),
           Text(value,
               style: TextStyle(
-                  color: color, fontSize: 18, fontWeight: FontWeight.w800)),
+                  fontFamily: AppFonts.display,
+                  color: color,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700)),
         ]),
       );
 }
 
-class _ProcessPainter extends CustomPainter {
-  const _ProcessPainter(
-      {required this.level,
-      required this.setpoint,
-      required this.valve,
-      required this.automatic});
+/// Malha de nível com a simbologia da ISA 5.1: tubulação de processo em
+/// linha cheia, sinal elétrico tracejado, instrumentos em círculo (LT =
+/// transmissor de nível), válvula de controle em "gravata" com atuador de
+/// diafragma e o CLP em retângulo. Só a água tem cor.
+class ProcessPainter extends CustomPainter {
+  const ProcessPainter({
+    required this.level,
+    required this.setpoint,
+    required this.valve,
+    required this.automatic,
+  });
+
+  /// Nível, referência e abertura da válvula, de 0 a 1.
   final double level, setpoint, valve;
   final bool automatic;
 
+  static const _pipe = AppColors.muted;
+  static const _signal = AppColors.skyOnInk;
+  static const _instrument = AppColors.text;
+
   @override
   void paint(Canvas canvas, Size size) {
-    final line = Paint()
-      ..color = AppColors.mutedOnInk
+    final w = size.width, h = size.height;
+    final layout = ProcessLayout(size);
+    final tank = layout.tank;
+
+    final pipe = Paint()
+      ..color = _pipe
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 3;
-    final tank =
-        Rect.fromLTWH(size.width * .58, 25, size.width * .27, size.height - 54);
+      ..strokeWidth = 3
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    // Água (cor física) e tanque.
+    final waterHeight = (tank.height - 6) * level.clamp(0.0, 1.0);
     canvas.drawRRect(
-        RRect.fromRectAndRadius(tank, const Radius.circular(10)), line);
-    final waterHeight = (tank.height - 6) * level;
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
+      RRect.fromRectAndCorners(
           Rect.fromLTWH(tank.left + 3, tank.bottom - waterHeight - 3,
               tank.width - 6, waterHeight),
-          const Radius.circular(7)),
-      Paint()..color = AppColors.skyOnInk.withValues(alpha: .68),
+          bottomLeft: const Radius.circular(6),
+          bottomRight: const Radius.circular(6)),
+      Paint()..color = AppColors.skyOnInk.withValues(alpha: .45),
     );
-    final setY = tank.bottom - tank.height * setpoint;
-    canvas.drawLine(
-        Offset(tank.left - 8, setY),
-        Offset(tank.right + 8, setY),
-        Paint()
-          ..color = AppColors.amberOnInk
-          ..strokeWidth = 2);
-    _label(
-        canvas, 'SP', Offset(tank.right + 18, setY - 7), AppColors.amberOnInk);
-
-    final clp = Rect.fromLTWH(
-        size.width * .08, size.height * .36, size.width * .25, 62);
-    canvas.drawRRect(RRect.fromRectAndRadius(clp, const Radius.circular(10)),
-        Paint()..color = AppColors.inkRaised);
     canvas.drawRRect(
-        RRect.fromRectAndRadius(clp, const Radius.circular(10)), line);
-    _label(canvas, 'CLP', clp.center - const Offset(0, 8), Colors.white,
-        center: true);
-    _label(canvas, automatic ? 'AUTO' : 'MANUAL',
-        clp.center + const Offset(0, 13), AppColors.amberOnInk,
-        center: true, size: 10);
+        RRect.fromRectAndRadius(tank, const Radius.circular(8)), pipe);
 
-    final valveCenter = Offset(size.width * .47, size.height * .25);
-    canvas.drawCircle(valveCenter, 19, Paint()..color = AppColors.inkRaised);
-    canvas.drawCircle(valveCenter, 19, line);
-    canvas.drawLine(
-        valveCenter - const Offset(12, 0),
-        valveCenter + const Offset(12, 0),
+    // Referência: tracejada, para não depender da cor.
+    final setY = tank.bottom - tank.height * setpoint.clamp(0.0, 1.0);
+    _dashed(
+        canvas,
+        Offset(tank.left - 6, setY),
+        Offset(tank.right + 6, setY),
         Paint()
-          ..color = AppColors.amberOnInk
-          ..strokeWidth = 4 + valve * 4);
-    _label(canvas, 'Válvula', valveCenter + const Offset(0, 34), Colors.white,
-        center: true, size: 11);
+          ..color = AppColors.text
+          ..strokeWidth = 1.6);
+    paintText(canvas, _label('SP', size: 11), Offset(tank.right + 9, setY),
+        Alignment.centerLeft);
 
+    // Entrada: tubulação passando pela válvula até o topo do tanque.
+    final valve = layout.valve;
+    final inletY = valve.dy;
+    canvas.drawPath(
+      Path()
+        ..moveTo(4, inletY)
+        ..lineTo(valve.dx - 13, inletY)
+        ..moveTo(valve.dx + 13, inletY)
+        ..lineTo(tank.left + tank.width * .3, inletY)
+        ..lineTo(tank.left + tank.width * .3, tank.top + 2),
+      pipe,
+    );
+    paintText(canvas, _label('entrada', size: 10, color: AppColors.muted),
+        Offset(4, inletY - 6), Alignment.bottomLeft);
+
+    // Saída pelo fundo do tanque.
+    final outY = tank.bottom - 12;
+    canvas.drawLine(
+        Offset(tank.right, outY), Offset(w - 2, outY), pipe..strokeWidth = 3);
+
+    _controlValve(canvas, valve);
+    paintText(
+        canvas,
+        _label('${(this.valve * 100).round()}%',
+            size: 10, color: AppColors.muted),
+        valve + const Offset(0, 12),
+        Alignment.topCenter);
+
+    // Transmissor de nível no costado do tanque.
+    final lt = layout.transmitter;
+    canvas.drawLine(Offset(lt.dx + 14, lt.dy), Offset(tank.left, lt.dy),
+        pipe..strokeWidth = 2);
+    _bubble(canvas, lt, 'LT');
+
+    // CLP.
+    final clp = layout.clp;
+    canvas.drawRRect(RRect.fromRectAndRadius(clp, const Radius.circular(6)),
+        Paint()..color = AppColors.surface);
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(clp, const Radius.circular(6)),
+        Paint()
+          ..color = _instrument
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.6);
+    paintText(canvas, _label('CLP', size: 13, weight: FontWeight.w700),
+        clp.center - const Offset(0, 8));
+    paintText(
+        canvas,
+        _label(automatic ? 'auto' : 'manual',
+            size: 10.5, color: AppColors.skyOnInk),
+        clp.center + const Offset(0, 10));
+
+    // Sinais elétricos (4–20 mA): do LT ao CLP e do CLP ao atuador.
     final signal = Paint()
-      ..color = AppColors.successOnInk
-      ..strokeWidth = 2;
-    canvas.drawLine(Offset(clp.right, clp.center.dy),
-        Offset(valveCenter.dx - 20, valveCenter.dy), signal);
-    canvas.drawLine(Offset(valveCenter.dx + 20, valveCenter.dy),
-        Offset(tank.left, valveCenter.dy), signal);
-    canvas.drawLine(Offset(tank.left, tank.bottom - 15),
-        Offset(clp.right, clp.bottom + 24), signal);
-    _label(canvas, 'sensor 4–20 mA', Offset(size.width * .24, size.height - 17),
-        AppColors.skyOnInk,
-        center: true, size: 10);
+      ..color = _signal
+      ..strokeWidth = 1.6;
+    final toClp = [
+      Offset(lt.dx - 14, lt.dy),
+      Offset(clp.center.dx, lt.dy),
+      Offset(clp.center.dx, clp.bottom),
+    ];
+    final toValve = [
+      Offset(clp.center.dx, clp.top),
+      Offset(clp.center.dx, layout.actuatorTop.dy),
+      layout.actuatorTop - const Offset(11, 0),
+    ];
+    for (final line in [toClp, toValve]) {
+      for (var i = 0; i < line.length - 1; i++) {
+        _dashed(canvas, line[i], line[i + 1], signal);
+      }
+    }
+    CircuitSymbols.arrowHead(canvas, clp.bottomCenter, const Offset(0, -1),
+        color: _signal, size: 6);
+    CircuitSymbols.arrowHead(
+        canvas, layout.actuatorTop - const Offset(11, 0), const Offset(1, 0),
+        color: _signal, size: 6);
+    paintText(canvas, _label('4–20 mA', size: 10, color: AppColors.skyOnInk),
+        Offset((lt.dx + clp.center.dx) / 2, lt.dy + 5), Alignment.topCenter);
+
+    paintText(canvas, _label('tanque', size: 10, color: AppColors.muted),
+        Offset(tank.center.dx, h - 2), Alignment.bottomCenter);
   }
 
-  static void _label(Canvas canvas, String text, Offset at, Color color,
-      {bool center = false, double size = 12}) {
-    final painter = TextPainter(
-      text: TextSpan(
-          text: text,
-          style: TextStyle(
-              color: color, fontSize: size, fontWeight: FontWeight.w700)),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    painter.paint(canvas,
-        center ? at - Offset(painter.width / 2, painter.height / 2) : at);
+  /// Válvula de controle: gravata (dois triângulos) com haste e atuador de
+  /// diafragma em cima.
+  void _controlValve(Canvas canvas, Offset c) {
+    const s = 10.0;
+    final body = Path()
+      ..moveTo(c.dx - s * 1.3, c.dy - s)
+      ..lineTo(c.dx + s * 1.3, c.dy + s)
+      ..lineTo(c.dx + s * 1.3, c.dy - s)
+      ..lineTo(c.dx - s * 1.3, c.dy + s)
+      ..close();
+    final stroke = Paint()
+      ..color = _instrument
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.6
+      ..strokeJoin = StrokeJoin.round;
+    canvas
+      ..drawPath(body, Paint()..color = AppColors.surface)
+      ..drawPath(body, stroke)
+      ..drawLine(c, c - const Offset(0, 18), stroke);
+    final dome =
+        Rect.fromCenter(center: c - const Offset(0, 18), width: 24, height: 20);
+    canvas
+      ..drawArc(
+          dome, math.pi, math.pi, true, Paint()..color = AppColors.surface)
+      ..drawArc(dome, math.pi, math.pi, true, stroke);
+  }
+
+  void _bubble(Canvas canvas, Offset c, String tag) {
+    canvas
+      ..drawCircle(c, 14, Paint()..color = AppColors.surface)
+      ..drawCircle(
+          c,
+          14,
+          Paint()
+            ..color = _instrument
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 1.6);
+    paintText(canvas, _label(tag, size: 10.5, weight: FontWeight.w700), c);
+  }
+
+  static TextPainter _label(String text,
+          {double size = 12,
+          FontWeight weight = FontWeight.w600,
+          Color color = AppColors.text}) =>
+      drawingText(text, size: size, weight: weight, color: color);
+
+  static void _dashed(Canvas canvas, Offset a, Offset b, Paint paint) {
+    final length = (b - a).distance;
+    if (length == 0) return;
+    final dir = (b - a) / length;
+    for (var d = 0.0; d < length; d += 8) {
+      final end = d + 4.5 > length ? length : d + 4.5;
+      canvas.drawLine(a + dir * d, a + dir * end, paint);
+    }
   }
 
   @override
-  bool shouldRepaint(_ProcessPainter old) =>
+  bool shouldRepaint(ProcessPainter old) =>
       old.level != level ||
       old.setpoint != setpoint ||
       old.valve != valve ||
       old.automatic != automatic;
+}
+
+/// Posições da malha de nível para um tamanho, escaladas pela largura.
+class ProcessLayout {
+  ProcessLayout(this.size);
+
+  final Size size;
+
+  /// O topo fica abaixo da tubulação de entrada, que desce para dentro dele.
+  Rect get tank => Rect.fromLTWH(
+      size.width * .6, 72, size.width * .25, size.height - 72 - 22);
+
+  Offset get valve => Offset(size.width * .4, 52);
+
+  /// Topo do atuador da válvula, onde chega o sinal do CLP.
+  Offset get actuatorTop => valve - const Offset(0, 28);
+
+  Offset get transmitter =>
+      Offset(tank.left - 30, tank.bottom - tank.height * .22);
+
+  Rect get clp => Rect.fromCenter(
+      center: Offset(size.width * .16, size.height * .52),
+      width: (size.width * .22).clamp(64.0, 96.0),
+      height: 52);
 }

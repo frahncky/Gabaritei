@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../features/start/start_screen.dart';
-import '../shared/widgets.dart';
 import 'dependencies.dart';
 import 'theme.dart';
 
@@ -23,9 +22,10 @@ class GabariteiApp extends StatelessWidget {
           value: SystemUiOverlayStyle.light.copyWith(
             systemNavigationBarColor: AppColors.ink,
           ),
-          child: Stack(
-            children: [child!, const Positioned.fill(child: BlueprintGrid())],
-          ),
+          // A grade fica atrás do conteúdo: cada rota a recebe do tema
+          // (BlueprintPageTransitionsBuilder). Aqui só o ground, por baixo
+          // de tudo, para nunca haver um quadro sem fundo.
+          child: ColoredBox(color: AppColors.ground, child: child!),
         ),
         home: const StartScreen(),
       ),

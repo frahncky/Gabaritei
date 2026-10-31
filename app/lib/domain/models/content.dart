@@ -54,6 +54,10 @@ enum QuestionVisual {
   circuitParallel,
   resistorBands,
   electricalPlan,
+
+  /// Planta elétrica de um quarto, com a simbologia usada nas questões de
+  /// instalações.
+  bedroomPlan,
   processControl,
 }
 

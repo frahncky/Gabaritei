@@ -48,9 +48,9 @@ class _QuizScreenState extends State<QuizScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Material garante fundo enquanto o desafio carrega.
+    // O fundo vem da rota; o Material só dá estilo de texto ao "carregando".
     return Material(
-      color: AppColors.ground,
+      type: MaterialType.transparency,
       child: AsyncView<Quiz>(
         future: _quiz!,
         onRetry: () => setState(
@@ -164,10 +164,8 @@ class _QuizBodyState extends State<_QuizBody> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        question.topic.toUpperCase(),
-                        style: const TextStyle(
-                          fontSize: 11,
-                          letterSpacing: 1,
+                        question.topic,
+                        style: AppTextStyles.labelSmall.copyWith(
                           fontWeight: FontWeight.w600,
                           color: AppColors.skyOnInk,
                         ),
@@ -288,13 +286,15 @@ class _ProgressDots extends StatelessWidget {
                 height: 6,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(3),
+                  // Respondidas em verde/vermelho (o ícone e o texto da
+                  // resposta já disseram qual); a atual em azul suave.
                   color: i < answers.length
                       ? (answers[i].correct
                           ? AppColors.success
                           : AppColors.error)
                       : i == controller.index
-                          ? AppColors.blue
-                          : AppColors.line,
+                          ? AppColors.progress
+                          : AppColors.track,
                 ),
               ),
             ),
@@ -323,46 +323,44 @@ class _OptionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Tonal em repouso, sem borda; a borda aparece só para dizer o estado
+    // (marcada, correta, errada), sempre junto de outro sinal (letra
+    // destacada, ícone ✓ ou ✗).
     final (border, fill, badge, badgeText) = switch (state) {
       _OptionState.idle => (
-          AppColors.line,
+          BorderSide.none,
           AppColors.surface,
           AppColors.track,
           AppColors.text
         ),
       _OptionState.selected => (
-          AppColors.blue,
+          AppTheme.selectedBorder,
           AppColors.blueSoft,
-          AppColors.blue,
-          Colors.white
+          AppColors.skyOnInk,
+          AppColors.ink
         ),
       _OptionState.correct => (
-          AppColors.success,
+          const BorderSide(color: AppColors.success, width: 1.5),
           AppColors.successSoft,
           AppColors.success,
           AppColors.ink
         ),
       _OptionState.wrong => (
-          AppColors.error,
+          const BorderSide(color: AppColors.error, width: 1.5),
           AppColors.errorSoft,
           AppColors.error,
           AppColors.ink
         ),
     };
+    const radius = BorderRadius.all(Radius.circular(AppRadii.medium));
     return Semantics(
       button: true,
       selected: state == _OptionState.selected,
       child: Material(
         color: fill,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
-          side: BorderSide(
-            color: border,
-            width: state == _OptionState.idle ? 1 : 2,
-          ),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: radius, side: border),
         child: InkWell(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: radius,
           onTap: onTap,
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 56),
@@ -393,9 +391,11 @@ class _OptionTile extends StatelessWidget {
                     ),
                   ),
                   if (state == _OptionState.correct)
-                    const Icon(Icons.check_circle, color: AppColors.success),
+                    const Icon(Icons.check_circle,
+                        color: AppColors.success, semanticLabel: 'correta'),
                   if (state == _OptionState.wrong)
-                    const Icon(Icons.cancel, color: AppColors.error),
+                    const Icon(Icons.cancel,
+                        color: AppColors.error, semanticLabel: 'errada'),
                 ],
               ),
             ),
@@ -414,21 +414,29 @@ class _Feedback extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final correct = controller.lastAnswerCorrect ?? false;
+    final color = correct ? AppColors.success : AppColors.error;
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: correct ? AppColors.successSoft : AppColors.errorSoft,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppRadii.medium),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            correct ? 'Mandou bem!' : 'Quase lá.',
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-              color: correct ? AppColors.success : AppColors.error,
-            ),
+          Row(
+            children: [
+              Icon(
+                correct ? Icons.check_circle : Icons.cancel,
+                size: 18,
+                color: color,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                correct ? 'Mandou bem!' : 'Quase lá.',
+                style: TextStyle(fontWeight: FontWeight.w700, color: color),
+              ),
+            ],
           ),
           const SizedBox(height: 4),
           Text(controller.current.explanation),

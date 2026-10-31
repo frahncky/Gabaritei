@@ -11,6 +11,108 @@ import 'expanded_question_bank.dart';
 import 'question_figure_catalog.dart';
 
 class SampleContent {
+  static const Quiz plantaDoQuarto = Quiz(
+    id: 'q-planta-quarto',
+    title: 'Planta elétrica do quarto',
+    topic: 'Instalações elétricas',
+    rewardXp: 50,
+    // Sem cronômetro: ler a planta toma mais tempo que uma conta direta.
+    questions: [
+      Question(
+        id: 'planta-1',
+        topic: 'Instalações elétricas',
+        prompt: 'Pela planta, quantos circuitos terminais atendem o quarto?',
+        options: ['1 circuito', '2 circuitos', '3 circuitos', '4 circuitos'],
+        correctIndex: 2,
+        explanation: 'Cada ponto traz o número do seu circuito: 1 (ponto de '
+            'luz e interruptor "a"), 2 (as três TUGs) e 3 (a TUE do '
+            'ar-condicionado). São 3 circuitos.',
+        hint: 'Conte os números de circuito diferentes, não a quantidade '
+            'de pontos.',
+        visual: QuestionVisual.bedroomPlan,
+      ),
+      Question(
+        id: 'planta-2',
+        topic: 'Instalações elétricas',
+        prompt: 'O ponto de luz do teto e o interruptor ao lado da porta '
+            'têm a mesma letra "a". O que ela indica?',
+        options: [
+          'Que o interruptor "a" acende e apaga o ponto de luz "a"',
+          'O número do circuito que alimenta os dois pontos',
+          'A potência do ponto de luz, em VA',
+          'Que o interruptor é do tipo paralelo (three-way)',
+        ],
+        correctIndex: 0,
+        explanation: 'Na planta, a letra minúscula liga o comando à carga: o '
+            'interruptor "a" comanda o ponto de luz "a". O circuito vem em '
+            'número (aqui, 1) e a potência, em VA (160 VA).',
+        hint: 'Na planta, letras e números têm papéis diferentes: um indica '
+            'o circuito; o outro, o comando.',
+        visual: QuestionVisual.bedroomPlan,
+      ),
+      Question(
+        id: 'planta-3',
+        topic: 'Instalações elétricas',
+        prompt: 'A planta prevê 160 VA de iluminação para o quarto de '
+            '3,50 m × 3,00 m. Pelo critério de área da NBR 5410, esse é o '
+            'mínimo correto?',
+        options: [
+          'Não: os 4,50 m² além dos 6 m² contam como 2 blocos de 4 m², '
+              'então 220 VA',
+          'Sim: 100 VA pelos primeiros 6 m² e 60 VA pelo único bloco de '
+              '4 m² inteiro',
+          'Não: o acréscimo é proporcional, 100 + 60 × 4,50 / 4 = 167,5 VA',
+          'Sim: a norma fixa 160 VA para qualquer dormitório',
+        ],
+        correctIndex: 1,
+        explanation: 'Área = 3,50 × 3,00 = 10,50 m². Os primeiros 6 m² valem '
+            '100 VA; sobram 4,50 m², com um só bloco de 4 m² inteiro '
+            '(+60 VA). Total: 160 VA.',
+        hint: 'Calcule a área e conte só os blocos de 4 m² completos depois '
+            'dos primeiros 6 m².',
+        visual: QuestionVisual.bedroomPlan,
+      ),
+      Question(
+        id: 'planta-4',
+        topic: 'Instalações elétricas',
+        prompt: 'Pela NBR 5410, qual conta dá o número mínimo de TUGs do '
+            'dormitório da planta?',
+        options: [
+          'Área: 10,50 m² ÷ 5 = 2,1 → 3 TUGs',
+          'Perímetro: 13,00 m ÷ 5 m = 2,6 → 2 TUGs',
+          'Perímetro: 13,00 m ÷ 3,5 m = 3,7 → 4 TUGs',
+          'Perímetro: 13,00 m ÷ 5 m = 2,6 → 3 TUGs',
+        ],
+        correctIndex: 3,
+        explanation: 'Em dormitórios, a NBR 5410 pede 1 ponto de tomada a '
+            'cada 5 m, ou fração, de perímetro. Perímetro = 2 × (3,50 + '
+            '3,00) = 13,00 m; 13,00 ÷ 5 = 2,6, e a fração conta: 3 TUGs.',
+        hint: 'Em dormitórios, a regra das TUGs usa o contorno do cômodo, '
+            'não a área.',
+        visual: QuestionVisual.bedroomPlan,
+      ),
+      Question(
+        id: 'planta-5',
+        topic: 'Instalações elétricas',
+        prompt: 'Considere 127 V e fator de potência 1. Por que a TUE do '
+            'ar-condicionado (1.500 W) tem o circuito 3 só para ela?',
+        options: [
+          'Toda tomada alta precisa de circuito próprio',
+          'O circuito 2 já tem 3 TUGs, o máximo de tomadas por circuito',
+          'Corrente de cerca de 11,8 A, acima de 10 A: a NBR 5410 pede '
+              'circuito independente',
+          'Corrente de cerca de 0,08 A, baixa demais para dividir circuito',
+        ],
+        correctIndex: 2,
+        explanation: 'I = P / V = 1.500 / 127 ≈ 11,8 A. Pela NBR 5410, '
+            'equipamento com corrente nominal acima de 10 A tem circuito '
+            'independente. A altura da tomada não decide isso, e a norma não '
+            'fixa um máximo de tomadas por circuito.',
+        hint: 'Calcule a corrente do ar-condicionado com P = V · I.',
+        visual: QuestionVisual.bedroomPlan,
+      ),
+    ],
+  );
   SampleContent._();
 
   // ---------------------------------------------------------------------------
@@ -326,6 +428,7 @@ class SampleContent {
   };
 
   static final List<Quiz> quizzes = [
+    plantaDoQuarto,
     ...lessons,
     for (final trail in trails)
       ExpandedQuestionBank.finalExam(

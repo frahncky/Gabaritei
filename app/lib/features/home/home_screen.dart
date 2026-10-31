@@ -17,18 +17,23 @@ typedef _HomeData = ({
   List<Trail> trails,
 });
 
-/// Tela inicial do aluno: nível, sequência, missões do dia, desafio
-/// relâmpago e atalho para a trilha em andamento.
+/// Tela inicial do aluno, na ordem do que ele precisa: quem é e em que nível
+/// está, o que continuar agora (ação principal), as missões do dia e os
+/// laboratórios para explorar.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
     super.key,
     required this.onDataChanged,
     required this.onOpenTrails,
+    this.onOpenProfile,
   });
 
   /// Chamado depois de um desafio, para recarregar XP e missões.
   final VoidCallback onDataChanged;
   final VoidCallback onOpenTrails;
+
+  /// Toque no avatar.
+  final VoidCallback? onOpenProfile;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -57,6 +62,9 @@ class _HomeScreenState extends State<HomeScreen> {
     widget.onDataChanged();
   }
 
+  void _openLab(Widget screen) => Navigator.of(context)
+      .push(MaterialPageRoute<void>(builder: (_) => screen));
+
   @override
   Widget build(BuildContext context) {
     return AsyncView<_HomeData>(
@@ -69,73 +77,32 @@ class _HomeScreenState extends State<HomeScreen> {
         final current = _currentModule(data.trails);
 
         return ListView(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+          padding: AppSpacing.screen,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Gabaritei · ${student.className}',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                      Text(
-                        'Olá, ${student.firstName}',
-                        style: Theme.of(context).textTheme.headlineMedium,
-                      ),
-                    ],
-                  ),
-                ),
-                Avatar(
-                  initials: student.initials,
-                  size: 44,
-                  background: AppColors.blue,
-                  foreground: Colors.white,
-                ),
-              ],
-            ),
+            _Greeting(student: student, onAvatarTap: widget.onOpenProfile),
             const SizedBox(height: 16),
             LevelCard(level: student.level),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: StatTile(
-                    value: '${student.streakDays} '
-                        '${student.streakDays == 1 ? 'dia' : 'dias'}',
-                    label: 'de sequência',
-                    icon: Icons.local_fire_department,
-                    iconColor: AppColors.amberText,
-                    iconBackground: AppColors.amberSoft,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: StatTile(
-                    value: '${student.earnedBadgeIds.length}',
-                    label: 'medalhas',
-                    icon: Icons.military_tech_outlined,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
+            if (current != null) ...[
+              const SizedBox(height: 12),
+              _ContinueCard(
+                trail: current.$1,
+                module: current.$2,
+                onContinue: current.$2.quizId == null
+                    ? widget.onOpenTrails
+                    : () => _startQuiz(current.$2.quizId!),
+              ),
+            ],
+            const SizedBox(height: AppSpacing.section),
             const SectionHeader('Missões de hoje',
                 trailing: 'renovam à meia-noite'),
-            const SizedBox(height: 10),
-            for (final mission in missions) ...[
-              _MissionTile(
-                mission: mission,
-                onTap: mission.quizId == null || mission.isDone
-                    ? null
-                    : () => _startQuiz(mission.quizId!),
+            const SizedBox(height: AppSpacing.header),
+            if (missions.isNotEmpty)
+              _MissionList(
+                missions: missions,
+                onStart: (mission) => _startQuiz(mission.quizId!),
               ),
-              const SizedBox(height: 10),
-            ],
             if (flash != null) ...[
-              const SizedBox(height: 6),
+              const SizedBox(height: AppSpacing.item),
               _FlashCard(
                 mission: flash,
                 onStart: flash.quizId == null || flash.isDone
@@ -143,27 +110,23 @@ class _HomeScreenState extends State<HomeScreen> {
                     : () => _startQuiz(flash.quizId!),
               ),
             ],
-            const SizedBox(height: 16),
-            _LabCard(
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(builder: (_) => const LabScreen()),
-              ),
+            const SizedBox(height: AppSpacing.section),
+            const SectionHeader('Laboratórios',
+                subtitle: 'Mexa nos valores e veja o que acontece.'),
+            const SizedBox(height: AppSpacing.header),
+            _LabTile(
+              icon: Icons.electric_bolt,
+              title: 'Veja a eletricidade em movimento',
+              subtitle: 'Ohm, série, paralelo e potência',
+              onTap: () => _openLab(const LabScreen()),
             ),
-            const SizedBox(height: 12),
-            _ProcessLabCard(
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                    builder: (_) => const ProcessLabScreen()),
-              ),
+            const SizedBox(height: AppSpacing.item),
+            _LabTile(
+              icon: Icons.account_tree_outlined,
+              title: keepLastWordsTogether('Controle o nível de um tanque'),
+              subtitle: 'Sensor, CLP e válvula',
+              onTap: () => _openLab(const ProcessLabScreen()),
             ),
-            if (current != null) ...[
-              const SizedBox(height: 16),
-              _ContinueTrailCard(
-                trail: current.$1,
-                module: current.$2,
-                onTap: widget.onOpenTrails,
-              ),
-            ],
           ],
         );
       },
@@ -181,8 +144,189 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class _MissionTile extends StatelessWidget {
-  const _MissionTile({required this.mission, this.onTap});
+class _Greeting extends StatelessWidget {
+  const _Greeting({required this.student, this.onAvatarTap});
+
+  final Student student;
+  final VoidCallback? onAvatarTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final days = student.streakDays;
+    final badges = student.earnedBadgeIds.length;
+    final avatar = Avatar(
+      initials: student.initials,
+      size: 48,
+      background: AppColors.blueSoft,
+      foreground: AppColors.skyOnInk,
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Gabaritei · ${student.className}',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  Text(
+                    'Olá, ${student.firstName}',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                ],
+              ),
+            ),
+            if (onAvatarTap == null)
+              avatar
+            else
+              // Nó próprio (container) com a ação de toque: sem isso o botão
+              // se funde com a saudação e o leitor de tela não o aciona.
+              Semantics(
+                container: true,
+                button: true,
+                label: 'Abrir perfil',
+                onTap: onAvatarTap,
+                excludeSemantics: true,
+                child:
+                    InkResponse(onTap: onAvatarTap, radius: 28, child: avatar),
+              ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            InfoPill(
+              icon: Icons.local_fire_department,
+              iconColor: AppColors.amberText,
+              label: '$days ${days == 1 ? 'dia' : 'dias'} de sequência',
+            ),
+            InfoPill(
+              icon: Icons.military_tech_outlined,
+              label: '$badges ${badges == 1 ? 'medalha' : 'medalhas'}',
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+/// Ação principal da tela: retomar o módulo em andamento.
+class _ContinueCard extends StatelessWidget {
+  const _ContinueCard({
+    required this.trail,
+    required this.module,
+    required this.onContinue,
+  });
+
+  final Trail trail;
+  final TrailModule module;
+  final VoidCallback onContinue;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasQuiz = module.quizId != null;
+    final fresh = module.lessonsDone == 0;
+    return Card(
+      child: Padding(
+        padding: AppSpacing.card,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              fresh ? 'Comece por aqui' : 'Continue de onde parou',
+              style: const TextStyle(
+                color: AppColors.skyOnInk,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              module.title,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(fontSize: 20, height: 1.2),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              '${trail.title} · Módulo ${module.order}',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            if (module.lessonsTotal > 0) ...[
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Expanded(
+                    child: ProgressBar(
+                      value: module.lessonFraction,
+                      height: 6,
+                      semanticsLabel: 'Lições do módulo',
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    '${module.lessonsDone} de ${module.lessonsTotal} lições',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ],
+            const SizedBox(height: 14),
+            FilledButton.icon(
+              onPressed: onContinue,
+              icon: Icon(hasQuiz ? Icons.play_arrow_rounded : Icons.route),
+              label: Text(switch (hasQuiz) {
+                false => 'Ver trilha',
+                true when fresh => 'Começar',
+                true => 'Continuar lição',
+              }),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Missões do dia num único cartão, uma por linha. Só as que abrem um
+/// desafio têm seta e respondem ao toque.
+class _MissionList extends StatelessWidget {
+  const _MissionList({required this.missions, required this.onStart});
+
+  final List<Mission> missions;
+  final ValueChanged<Mission> onStart;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          for (var i = 0; i < missions.length; i++) ...[
+            if (i > 0) const Divider(indent: 64),
+            _MissionRow(
+              mission: missions[i],
+              onTap: missions[i].quizId == null || missions[i].isDone
+                  ? null
+                  : () => onStart(missions[i]),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _MissionRow extends StatelessWidget {
+  const _MissionRow({required this.mission, this.onTap});
 
   final Mission mission;
   final VoidCallback? onTap;
@@ -190,73 +334,90 @@ class _MissionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final done = mission.isDone;
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Row(
-            children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: done ? AppColors.successSoft : AppColors.blueSoft,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  done ? Icons.check : Icons.flag_outlined,
-                  size: 20,
-                  color: done ? AppColors.success : AppColors.skyOnInk,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(mission.title,
-                        style: const TextStyle(fontWeight: FontWeight.w600)),
-                    const SizedBox(height: 6),
-                    if (done)
-                      const Text(
-                        'Concluída',
-                        style:
-                            TextStyle(color: AppColors.success, fontSize: 13),
-                      )
-                    else
-                      Row(
-                        children: [
-                          Expanded(
-                              child: ProgressBar(
-                                  value: mission.fraction, height: 6)),
-                          const SizedBox(width: 10),
-                          Text(
-                            '${mission.progress}/${mission.goal}',
-                            style: Theme.of(context).textTheme.bodySmall,
+    final xp = Text(
+      '+${mission.rewardXp} XP',
+      style: TextStyle(
+        fontSize: 13,
+        fontWeight: FontWeight.w600,
+        color: done ? AppColors.muted : AppColors.amberText,
+      ),
+    );
+
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
+        child: Row(
+          children: [
+            IconBadge(
+              icon: done ? Icons.check : Icons.flag_outlined,
+              color: done ? AppColors.success : AppColors.skyOnInk,
+              background: done ? AppColors.successSoft : AppColors.blueSoft,
+              size: 36,
+              circle: true,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    keepLastWordsTogether(mission.title),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: done ? AppColors.muted : AppColors.text,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      if (done)
+                        const Expanded(
+                          child: Text(
+                            'Concluída',
+                            style: TextStyle(
+                              color: AppColors.success,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
-                        ],
-                      ),
-                  ],
-                ),
+                        )
+                      else ...[
+                        Expanded(
+                          child: ProgressBar(
+                            value: mission.fraction,
+                            height: 6,
+                            semanticsLabel: 'Progresso da missão',
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          '${mission.progress}/${mission.goal}',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                      const SizedBox(width: 12),
+                      xp,
+                    ],
+                  ),
+                ],
               ),
-              const SizedBox(width: 12),
-              Text(
-                '+${mission.rewardXp} XP',
-                style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  color: done ? AppColors.muted : AppColors.amberText,
-                ),
-              ),
-            ],
-          ),
+            ),
+            SizedBox(
+              width: 28,
+              child: onTap == null
+                  ? null
+                  : const Icon(Icons.chevron_right, color: AppColors.muted),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
+/// Desafio cronometrado do dia: o âmbar fica no ícone e no XP; o botão é
+/// secundário para não competir com "Continuar lição".
 class _FlashCard extends StatelessWidget {
   const _FlashCard({required this.mission, this.onStart});
 
@@ -265,71 +426,82 @@ class _FlashCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.amberSoft,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.amber),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Row(
-            children: [
-              Icon(Icons.bolt, size: 18, color: AppColors.amberText),
-              SizedBox(width: 4),
-              Text(
-                'DESAFIO RELÂMPAGO',
-                style: TextStyle(
-                  fontSize: 12,
-                  letterSpacing: 1,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.amberText,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              Expanded(
-                child: Text(mission.title,
-                    style: Theme.of(context).textTheme.titleMedium),
-              ),
-              Text(
-                '+${mission.rewardXp} XP',
-                style: const TextStyle(
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.amberText,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: AppColors.amber,
-              foregroundColor: AppColors.ink,
+    final done = mission.isDone;
+    return Card(
+      child: Padding(
+        padding: AppSpacing.card,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const IconBadge(
+              icon: Icons.bolt,
+              color: AppColors.amberText,
+              background: AppColors.amberSoft,
+              size: 36,
+              circle: true,
             ),
-            onPressed: onStart,
-            child: Text(mission.isDone ? 'Concluído' : 'Começar'),
-          ),
-        ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Expanded(
+                        child: Text(
+                          'Desafio relâmpago',
+                          style: TextStyle(
+                            color: AppColors.amberText,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        '+${mission.rewardXp} XP',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: done ? AppColors.muted : AppColors.amberText,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    keepLastWordsTogether(mission.title),
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 12),
+                  FilledButton.icon(
+                    style: AppTheme.tonalButton,
+                    onPressed: onStart,
+                    icon: Icon(done ? Icons.check : Icons.timer_outlined,
+                        size: 18),
+                    label: Text(done ? 'Concluído' : 'Começar'),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-class _ContinueTrailCard extends StatelessWidget {
-  const _ContinueTrailCard({
-    required this.trail,
-    required this.module,
+/// Atalho para um laboratório; os dois têm o mesmo desenho, como irmãos.
+class _LabTile extends StatelessWidget {
+  const _LabTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
     required this.onTap,
   });
 
-  final Trail trail;
-  final TrailModule module;
+  final IconData icon;
+  final String title;
+  final String subtitle;
   final VoidCallback onTap;
 
   @override
@@ -339,28 +511,33 @@ class _ContinueTrailCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
           child: Row(
             children: [
+              IconBadge(icon: icon, size: 44),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'PRÓXIMA CONEXÃO · ${trail.title}',
-                      style: Theme.of(context).textTheme.bodySmall,
+                      title,
+                      style: const TextStyle(
+                        fontFamily: AppFonts.display,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                        height: 1.25,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Módulo ${module.order} — ${module.title}',
-                      style: const TextStyle(fontWeight: FontWeight.w600),
+                      subtitle,
+                      style: Theme.of(context).textTheme.bodySmall,
                     ),
-                    const SizedBox(height: 8),
-                    ProgressBar(value: trail.fraction, height: 6),
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 4),
               const Icon(Icons.chevron_right, color: AppColors.muted),
             ],
           ),
@@ -368,114 +545,4 @@ class _ContinueTrailCard extends StatelessWidget {
       ),
     );
   }
-}
-
-/// Atalho para o Laboratório.
-class _LabCard extends StatelessWidget {
-  const _LabCard({required this.onTap});
-
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.blueSoft,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: AppColors.skyOnInk.withValues(alpha: 0.5)),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(18),
-          child: Row(
-            children: [
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: AppColors.inkRaised,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.skyOnInk, width: 1.5),
-                ),
-                child: const Icon(Icons.electric_bolt,
-                    color: AppColors.amberOnInk, size: 28),
-              ),
-              const SizedBox(width: 14),
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'LABORATÓRIO',
-                      style: TextStyle(
-                        color: AppColors.skyOnInk,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 1.5,
-                      ),
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      'Veja a eletricidade em movimento',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontFamily: AppFonts.display,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      'Ohm, série, paralelo e potência',
-                      style:
-                          TextStyle(color: AppColors.mutedOnInk, fontSize: 13),
-                    ),
-                  ],
-                ),
-              ),
-              const Icon(Icons.chevron_right, color: AppColors.mutedOnInk),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ProcessLabCard extends StatelessWidget {
-  const _ProcessLabCard({required this.onTap});
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) => Card(
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          child: const Padding(
-            padding: EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Icon(Icons.account_tree_outlined, color: AppColors.blue),
-                SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Laboratório de automação',
-                          style: TextStyle(fontWeight: FontWeight.w700)),
-                      SizedBox(height: 2),
-                      Text('Controle de nível com sensor, CLP e válvula',
-                          style:
-                              TextStyle(color: AppColors.muted, fontSize: 13)),
-                    ],
-                  ),
-                ),
-                Icon(Icons.chevron_right, color: AppColors.muted),
-              ],
-            ),
-          ),
-        ),
-      );
 }

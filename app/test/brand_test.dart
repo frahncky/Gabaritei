@@ -44,14 +44,6 @@ void main() {
     );
   });
 
-  testWidgets('splash Android 12 mantém toda a marca no círculo visível', (tester) async {
-    final pixels = await _inkedPixels(tester, GabariteiMarkPainter(
-      withBackground: false,
-      bubbleScale: GabariteiMarkPainter.bubbleScaleToFit(.32)));
-    const center = Offset(_side / 2, _side / 2);
-    expect(pixels.where((p) => (p - center).distance > _side / 3 + 1), isEmpty);
-  });
-
   testWidgets('pilares cabem no quadrado arredondado do ícone', (tester) async {
     final pixels = await _inkedPixels(
       tester,

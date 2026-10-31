@@ -2,9 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-const _brandInk = Color(0xFF0F1D33);
-const _brandAmber = Color(0xFFF59E0B);
-const _brandTrace = Color(0xFF93B4FA);
+import '../app/theme.dart';
 
 /// Símbolo do Gabaritei: a bolha do gabarito marcada, com um ✓, alimentada
 /// pelos três pilares do domínio de um assunto.
@@ -51,7 +49,7 @@ class GabariteiMarkPainter extends CustomPainter {
   });
 
   /// Bolha que deixa os três pilares dentro do quadrado do ícone.
-  static const defaultBubbleScale = 0.44;
+  static const defaultBubbleScale = 0.54;
 
   /// Raio, em raios da bolha, do círculo que contém a composição inteira
   /// em volta do centro do quadrado (medido: 2,13). Serve para caber em
@@ -82,7 +80,7 @@ class GabariteiMarkPainter extends CustomPainter {
 
     if (withBackground) {
       final rect = Offset.zero & size;
-      final paint = Paint()..color = _brandInk;
+      final paint = Paint()..color = AppColors.ink;
       if (fullBleed) {
         canvas.drawRect(rect, paint);
       } else {
@@ -102,11 +100,11 @@ class GabariteiMarkPainter extends CustomPainter {
 
     // Trilhas: cada pilar se conecta à bolha do gabarito.
     final trace = Paint()
-      ..color = _brandTrace.withValues(alpha: 0.72)
+      ..color = AppColors.markTrace.withValues(alpha: 0.72)
       ..style = PaintingStyle.stroke
       ..strokeWidth = radius * 0.09
       ..strokeCap = StrokeCap.round;
-    final pillar = Paint()..color = _brandTrace;
+    final pillar = Paint()..color = AppColors.markTrace;
     for (final p in _pillars) {
       canvas.drawLine(polar(p.angle, 1.0), polar(p.angle, p.traceEnd), trace);
       canvas.save();
@@ -117,7 +115,7 @@ class GabariteiMarkPainter extends CustomPainter {
       canvas.restore();
     }
 
-    canvas.drawCircle(center, radius, Paint()..color = _brandAmber);
+    canvas.drawCircle(center, radius, Paint()..color = AppColors.markAmber);
 
     // ✓ desenhado em coordenadas relativas ao raio da bolha.
     Offset at(double dx, double dy) =>
@@ -129,7 +127,7 @@ class GabariteiMarkPainter extends CustomPainter {
     canvas.drawPath(
       check,
       Paint()
-        ..color = _brandInk
+        ..color = AppColors.ink
         ..style = PaintingStyle.stroke
         ..strokeWidth = radius * 0.3
         ..strokeCap = StrokeCap.round
