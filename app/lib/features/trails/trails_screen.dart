@@ -31,14 +31,16 @@ class _TrailsScreenState extends State<TrailsScreen> {
     super.didChangeDependencies();
     _trails ??= Dependencies.of(context).content.getTrails();
     if (!_restored) {
-      final saved = PageStorage.of(context).readState(context,
-          identifier: 'course-selection');
+      final saved = PageStorage.of(
+        context,
+      ).readState(context, identifier: 'course-selection');
       if (saved is TechnicalCourse) {
         _course = saved;
         _courseOpened = true;
       }
-      final discipline = PageStorage.of(context).readState(context,
-          identifier: 'discipline-selection');
+      final discipline = PageStorage.of(
+        context,
+      ).readState(context, identifier: 'discipline-selection');
       if (discipline is String) _selectedId = discipline;
       _restored = true;
     }
@@ -50,8 +52,12 @@ class _TrailsScreenState extends State<TrailsScreen> {
       _courseOpened = true;
       _selectedId = null;
     });
-    PageStorage.of(context).writeState(context, value, identifier: 'course-selection');
-    PageStorage.of(context).writeState(context, null, identifier: 'discipline-selection');
+    PageStorage.of(
+      context,
+    ).writeState(context, value, identifier: 'course-selection');
+    PageStorage.of(
+      context,
+    ).writeState(context, null, identifier: 'discipline-selection');
   }
 
   void _showCourses() {
@@ -59,13 +65,19 @@ class _TrailsScreenState extends State<TrailsScreen> {
       _courseOpened = false;
       _selectedId = null;
     });
-    PageStorage.of(context).writeState(context, null, identifier: 'course-selection');
-    PageStorage.of(context).writeState(context, null, identifier: 'discipline-selection');
+    PageStorage.of(
+      context,
+    ).writeState(context, null, identifier: 'course-selection');
+    PageStorage.of(
+      context,
+    ).writeState(context, null, identifier: 'discipline-selection');
   }
 
   void _selectDiscipline(String? value) {
     setState(() => _selectedId = value);
-    PageStorage.of(context).writeState(context, value, identifier: 'discipline-selection');
+    PageStorage.of(
+      context,
+    ).writeState(context, value, identifier: 'discipline-selection');
   }
 
   Future<void> _startQuiz(String quizId) async {
@@ -95,58 +107,106 @@ class _TrailsScreenState extends State<TrailsScreen> {
               const Text('Escolha um curso para ver suas disciplinas.'),
               const SizedBox(height: 16),
               for (final item in CourseCatalog.courses)
-                Card(child: ListTile(
-                  key: ValueKey('course-${item.id}'),
-                  leading: Icon(switch (item.type) {
-                    TechnicalCourse.electrotechnics => Icons.electrical_services,
-                    TechnicalCourse.electronics => Icons.memory,
-                    TechnicalCourse.automation => Icons.settings_remote,
-                    TechnicalCourse.mechatronics => Icons.precision_manufacturing,
-                  }),
-                  title: Text(item.title),
-                  subtitle: Text('${item.description}\n'
-                      '${CourseCatalog.trailsFor(item.type, trails).length} disciplinas'),
-                  isThreeLine: true,
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => _openCourse(item.type),
-                )),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.header),
+                  child: Card(
+                    child: ListTile(
+                      key: ValueKey('course-${item.id}'),
+                      leading: IconBadge(
+                        color: AppColors.skyOnInk,
+                        background: AppColors.blueSoft,
+                        size: 48,
+                        icon: switch (item.type) {
+                          TechnicalCourse.electrotechnics =>
+                            Icons.electrical_services,
+                          TechnicalCourse.electronics => Icons.memory,
+                          TechnicalCourse.automation => Icons.settings_remote,
+                          TechnicalCourse.mechatronics =>
+                            Icons.precision_manufacturing,
+                        },
+                      ),
+                      title: Text(
+                        item.title,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      subtitle: Text(
+                        '${item.description}\n'
+                        '${CourseCatalog.trailsFor(item.type, trails).length} disciplinas',
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => _openCourse(item.type),
+                    ),
+                  ),
+                ),
             ],
           );
         }
         final course = CourseCatalog.forType(_course);
         final courseTrails = CourseCatalog.trailsFor(_course, trails);
-        final completed = courseTrails.where((t) =>
-            t.modules.every((m) => m.status == ModuleStatus.done)).length;
-        if (courseTrails.isEmpty) return const Text('Nenhuma disciplina disponível.');
-        if (_selectedId == null || !courseTrails.any((t) => t.id == _selectedId)) {
+        final completed = courseTrails
+            .where((t) => t.modules.every((m) => m.status == ModuleStatus.done))
+            .length;
+        if (courseTrails.isEmpty) {
+          return const Text('Nenhuma disciplina disponível.');
+        }
+        if (_selectedId == null ||
+            !courseTrails.any((t) => t.id == _selectedId)) {
           return ListView(
             key: PageStorageKey('disciplines-${course.id}'),
             padding: const EdgeInsets.all(20),
             children: [
-              Align(alignment: Alignment.centerLeft, child: TextButton.icon(
-                key: const ValueKey('back-to-courses'),
-                onPressed: _showCourses, icon: const Icon(Icons.arrow_back),
-                label: const Text('Todos os cursos'))),
-              Text(course.title, style: Theme.of(context).textTheme.headlineMedium),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  key: const ValueKey('back-to-courses'),
+                  onPressed: _showCourses,
+                  icon: const Icon(Icons.arrow_back),
+                  label: const Text('Todos os cursos'),
+                ),
+              ),
+              Text(
+                course.title,
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
               const SizedBox(height: 8),
               Text(course.description),
-              Text(course.objective, style: Theme.of(context).textTheme.bodySmall),
+              Text(
+                course.objective,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
               const SizedBox(height: 12),
-              Text('$completed de ${courseTrails.length} disciplinas concluídas'),
+              Text(
+                '$completed de ${courseTrails.length} disciplinas concluídas',
+              ),
               ProgressBar(value: completed / courseTrails.length),
               const SizedBox(height: 16),
-              Text('Disciplinas do curso', style: Theme.of(context).textTheme.titleLarge),
+              Text(
+                'Disciplinas do curso',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               const SizedBox(height: 8),
               for (final item in courseTrails)
-                Card(child: ListTile(
-                  key: ValueKey('discipline-${item.id}'),
-                  leading: Icon(item.unlocked ? Icons.menu_book_outlined : Icons.lock_outline),
-                  title: Text(item.title),
-                  subtitle: Text('${item.modulesDone} de ${item.modulesTotal} módulos'
-                      '${item.unlocked ? '' : ' · Bloqueada'}'),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => _selectDiscipline(item.id),
-                )),
+                Card(
+                  child: ListTile(
+                    key: ValueKey('discipline-${item.id}'),
+                    leading: Icon(
+                      item.unlocked
+                          ? Icons.menu_book_outlined
+                          : Icons.lock_outline,
+                    ),
+                    title: Text(item.title),
+                    subtitle: Text(
+                      '${item.modulesDone} de ${item.modulesTotal} módulos'
+                      '${item.unlocked ? '' : ' · Bloqueada'}',
+                    ),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => _selectDiscipline(item.id),
+                  ),
+                ),
             ],
           );
         }
@@ -158,17 +218,24 @@ class _TrailsScreenState extends State<TrailsScreen> {
           key: PageStorageKey('modules-${trail.id}'),
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
           children: [
-            Align(alignment: Alignment.centerLeft, child: TextButton.icon(
-              key: const ValueKey('back-to-disciplines'),
-              onPressed: () => _selectDiscipline(null),
-              icon: const Icon(Icons.arrow_back), label: const Text('Disciplinas do curso'))),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                key: const ValueKey('back-to-disciplines'),
+                onPressed: () => _selectDiscipline(null),
+                icon: const Icon(Icons.arrow_back),
+                label: const Text('Disciplinas do curso'),
+              ),
+            ),
             Text(course.title, style: Theme.of(context).textTheme.bodySmall),
             const SizedBox(height: 12),
             Row(
               children: [
                 Expanded(
-                  child: Text(trail.title,
-                      style: Theme.of(context).textTheme.titleLarge),
+                  child: Text(
+                    trail.title,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
                 ),
                 Text(
                   '${trail.modulesDone} de ${trail.modulesTotal} módulos',
@@ -188,7 +255,9 @@ class _TrailsScreenState extends State<TrailsScreen> {
             for (final module in trail.modules) ...[
               _ModuleTile(
                 module: module,
-                onStart: !trail.unlocked || module.quizId == null ||
+                onStart:
+                    !trail.unlocked ||
+                        module.quizId == null ||
                         module.status == ModuleStatus.locked
                     ? null
                     : () => _startQuiz(module.quizId!),
@@ -210,8 +279,9 @@ class _LockedTrailNotice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final required =
-        trails.where((t) => t.id == trail.requiresTrailId).firstOrNull;
+    final required = trails
+        .where((t) => t.id == trail.requiresTrailId)
+        .firstOrNull;
     final message = required == null
         ? 'Conclua a trilha anterior para desbloquear esta.'
         : 'Conclua a trilha ${required.title} para desbloquear esta.';
@@ -257,33 +327,37 @@ class _ModuleTile extends StatelessWidget {
     } else {
       leading = switch (status) {
         ModuleStatus.done => const _Badge(
-            background: AppColors.successSoft,
-            child: Icon(Icons.check, size: 20, color: AppColors.success),
-          ),
+          background: AppColors.successSoft,
+          child: Icon(Icons.check, size: 20, color: AppColors.success),
+        ),
         ModuleStatus.current => _Badge(
-            background: AppColors.blue,
-            child: Text(
-              '${module.order}',
-              style: const TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.w700),
+          background: AppColors.blue,
+          child: Text(
+            '${module.order}',
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
             ),
           ),
+        ),
         ModuleStatus.locked => const _Badge(
-            background: AppColors.track,
-            child: Icon(Icons.lock_outline, size: 18, color: AppColors.muted),
-          ),
+          background: AppColors.track,
+          child: Icon(Icons.lock_outline, size: 18, color: AppColors.muted),
+        ),
       };
     }
 
-    final title =
-        module.isFinalExam ? module.title : '${module.order}. ${module.title}';
+    final title = module.isFinalExam
+        ? module.title
+        : '${module.order}. ${module.title}';
     final subtitle = switch (status) {
       _ when module.isFinalExam => module.subtitle,
       ModuleStatus.done =>
         'Concluído · ${module.stars} ${module.stars == 1 ? 'estrela' : 'estrelas'}',
-      ModuleStatus.current => module.lessonsTotal == 0
-          ? module.subtitle
-          : '${module.subtitle} · ${module.lessonsDone} de ${module.lessonsTotal} lições',
+      ModuleStatus.current =>
+        module.lessonsTotal == 0
+            ? module.subtitle
+            : '${module.subtitle} · ${module.lessonsDone} de ${module.lessonsTotal} lições',
       ModuleStatus.locked => 'Bloqueado',
     };
 
@@ -320,8 +394,10 @@ class _ModuleTile extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 2),
-                        Text(subtitle,
-                            style: Theme.of(context).textTheme.bodySmall),
+                        Text(
+                          subtitle,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
                       ],
                     ),
                   ),
@@ -356,7 +432,8 @@ class _ModuleTile extends StatelessWidget {
                 FilledButton(
                   onPressed: onStart,
                   child: Text(
-                      onStart == null ? 'Lições em breve' : 'Continuar lição'),
+                    onStart == null ? 'Lições em breve' : 'Continuar lição',
+                  ),
                 ),
               ],
             ],

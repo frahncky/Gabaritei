@@ -43,8 +43,9 @@ class StartScreen extends StatelessWidget {
                 child: LayoutBuilder(
                   builder: (context, constraints) => SingleChildScrollView(
                     child: ConstrainedBox(
-                      constraints:
-                          BoxConstraints(minHeight: constraints.maxHeight),
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight,
+                      ),
                       child: IntrinsicHeight(child: _content(context)),
                     ),
                   ),
@@ -64,9 +65,7 @@ class StartScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const Spacer(flex: 2),
-          const Center(
-            child: GabariteiMark(size: 108, withBackground: false),
-          ),
+          const Center(child: AnimatedGabariteiMark(size: 108, repeat: true)),
           const SizedBox(height: 24),
           const Text(
             'Estude · Jogue · Domine',
@@ -131,7 +130,8 @@ class StartScreen extends StatelessWidget {
           const SizedBox(height: 24),
           Text(
             keepLastWordsTogether(
-                'Versão de desenvolvimento: dados de exemplo, sem login.'),
+              'Versão de desenvolvimento: dados de exemplo, sem login.',
+            ),
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 12, color: AppColors.mutedOnInk),
           ),

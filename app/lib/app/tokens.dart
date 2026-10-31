@@ -64,6 +64,13 @@ class AppColors {
   /// Barra de XP: do âmbar ao dourado claro.
   static const xpGradient = LinearGradient(colors: [amber, amberText]);
 
+  /// Cartão de próxima atividade: distingue a ação principal das missões.
+  static const studyGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [blueSoft, surface],
+  );
+
   static const success = Color(0xFF74C095);
   static const successSoft = Color(0xFF1C3829);
   static const successOnInk = success;

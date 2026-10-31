@@ -164,7 +164,13 @@ class SectionHeader extends StatelessWidget {
         ),
         if (trailing != null) ...[
           const SizedBox(width: 12),
-          Text(trailing!, style: theme.bodySmall),
+          Flexible(
+            child: Text(
+              trailing!,
+              style: theme.bodySmall,
+              textAlign: TextAlign.end,
+            ),
+          ),
         ],
       ],
     );

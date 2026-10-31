@@ -7,5 +7,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Troque `AppDependencies.local()` pela versão com servidor quando
   // o backend for escolhido. Nada mais precisa mudar.
-  runApp(GabariteiApp(dependencies: await AppDependencies.local()));
+  runApp(
+    GabariteiApp(dependencies: await AppDependencies.local(), showSplash: true),
+  );
 }

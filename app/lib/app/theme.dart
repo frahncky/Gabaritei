@@ -28,8 +28,10 @@ class AppTheme {
 
   /// Contorno do estado "selecionado" ou "é você" (alternativa marcada no
   /// desafio, linha do aluno no ranking), sobre [AppColors.blueSoft].
-  static const selectedBorder =
-      BorderSide(color: AppColors.skyOnInk, width: 1.5);
+  static const selectedBorder = BorderSide(
+    color: AppColors.skyOnInk,
+    width: 1.5,
+  );
 
   /// Transições padrão de cada plataforma, com a página sobre o fundo de
   /// grade ([BlueprintPageTransitionsBuilder]). O fundo da transição é o
@@ -37,47 +39,53 @@ class AppTheme {
   static const _pageTransitions = PageTransitionsTheme(
     builders: {
       TargetPlatform.android: BlueprintPageTransitionsBuilder(
-          PredictiveBackPageTransitionsBuilder(
-              fallbackColor: AppColors.ground)),
-      TargetPlatform.iOS:
-          BlueprintPageTransitionsBuilder(CupertinoPageTransitionsBuilder()),
-      TargetPlatform.macOS:
-          BlueprintPageTransitionsBuilder(CupertinoPageTransitionsBuilder()),
+        PredictiveBackPageTransitionsBuilder(fallbackColor: AppColors.ground),
+      ),
+      TargetPlatform.iOS: BlueprintPageTransitionsBuilder(
+        CupertinoPageTransitionsBuilder(),
+      ),
+      TargetPlatform.macOS: BlueprintPageTransitionsBuilder(
+        CupertinoPageTransitionsBuilder(),
+      ),
       TargetPlatform.windows: BlueprintPageTransitionsBuilder(
-          ZoomPageTransitionsBuilder(backgroundColor: AppColors.ground)),
+        ZoomPageTransitionsBuilder(backgroundColor: AppColors.ground),
+      ),
       TargetPlatform.linux: BlueprintPageTransitionsBuilder(
-          ZoomPageTransitionsBuilder(backgroundColor: AppColors.ground)),
+        ZoomPageTransitionsBuilder(backgroundColor: AppColors.ground),
+      ),
       TargetPlatform.fuchsia: BlueprintPageTransitionsBuilder(
-          ZoomPageTransitionsBuilder(backgroundColor: AppColors.ground)),
+        ZoomPageTransitionsBuilder(backgroundColor: AppColors.ground),
+      ),
     },
   );
 
   static ThemeData dark() {
-    final scheme = ColorScheme.fromSeed(
-      seedColor: AppColors.blue,
-      brightness: Brightness.dark,
-    ).copyWith(
-      primary: AppColors.skyOnInk,
-      onPrimary: AppColors.ink,
-      primaryContainer: AppColors.blueSoft,
-      onPrimaryContainer: AppColors.text,
-      secondary: AppColors.amber,
-      onSecondary: AppColors.ink,
-      secondaryContainer: AppColors.blueSoft,
-      onSecondaryContainer: AppColors.text,
-      surface: AppColors.surface,
-      onSurface: AppColors.text,
-      onSurfaceVariant: AppColors.muted,
-      surfaceContainerLowest: AppColors.ground,
-      surfaceContainerLow: AppColors.surface,
-      surfaceContainer: AppColors.surface,
-      surfaceContainerHigh: AppColors.surfaceHigh,
-      surfaceContainerHighest: AppColors.track,
-      error: AppColors.error,
-      onError: AppColors.ink,
-      outline: AppColors.line,
-      outlineVariant: AppColors.line,
-    );
+    final scheme =
+        ColorScheme.fromSeed(
+          seedColor: AppColors.blue,
+          brightness: Brightness.dark,
+        ).copyWith(
+          primary: AppColors.skyOnInk,
+          onPrimary: AppColors.ink,
+          primaryContainer: AppColors.blueSoft,
+          onPrimaryContainer: AppColors.text,
+          secondary: AppColors.amber,
+          onSecondary: AppColors.ink,
+          secondaryContainer: AppColors.blueSoft,
+          onSecondaryContainer: AppColors.text,
+          surface: AppColors.surface,
+          onSurface: AppColors.text,
+          onSurfaceVariant: AppColors.muted,
+          surfaceContainerLowest: AppColors.ground,
+          surfaceContainerLow: AppColors.surface,
+          surfaceContainer: AppColors.surface,
+          surfaceContainerHigh: AppColors.surfaceHigh,
+          surfaceContainerHighest: AppColors.track,
+          error: AppColors.error,
+          onError: AppColors.ink,
+          outline: AppColors.line,
+          outlineVariant: AppColors.line,
+        );
 
     final base = ThemeData(
       useMaterial3: true,
@@ -92,10 +100,10 @@ class AppTheme {
     );
 
     TextStyle? display(TextStyle? style, FontWeight weight) => style?.copyWith(
-          fontFamily: AppFonts.display,
-          fontWeight: weight,
-          color: AppColors.text,
-        );
+      fontFamily: AppFonts.display,
+      fontWeight: weight,
+      color: AppColors.text,
+    );
 
     const cardShape = RoundedRectangleBorder(
       borderRadius: BorderRadius.all(Radius.circular(AppRadii.large)),
@@ -103,13 +111,17 @@ class AppTheme {
     const controlShape = RoundedRectangleBorder(
       borderRadius: BorderRadius.all(Radius.circular(AppRadii.medium)),
     );
-    final textTheme = base.textTheme
-        .apply(bodyColor: AppColors.text, displayColor: AppColors.text);
+    final textTheme = base.textTheme.apply(
+      bodyColor: AppColors.text,
+      displayColor: AppColors.text,
+    );
 
     return base.copyWith(
       textTheme: textTheme.copyWith(
-        headlineMedium: display(textTheme.headlineMedium, FontWeight.w800)
-            ?.copyWith(letterSpacing: -0.5),
+        headlineMedium: display(
+          textTheme.headlineMedium,
+          FontWeight.w800,
+        )?.copyWith(letterSpacing: -0.5),
         headlineSmall: display(textTheme.headlineSmall, FontWeight.w700),
         titleLarge: display(textTheme.titleLarge, FontWeight.w700),
         titleMedium: display(textTheme.titleMedium, FontWeight.w600),
@@ -121,8 +133,10 @@ class AppTheme {
         foregroundColor: AppColors.text,
         elevation: 0,
         scrolledUnderElevation: 0,
-        titleTextStyle: display(textTheme.titleLarge, FontWeight.w700)
-            ?.copyWith(fontSize: 18),
+        titleTextStyle: display(
+          textTheme.titleLarge,
+          FontWeight.w700,
+        )?.copyWith(fontSize: 18),
       ),
       // Cartões tonais: a diferença de tom separa do fundo, sem contorno.
       cardTheme: const CardThemeData(
@@ -173,9 +187,7 @@ class AppTheme {
         style: ButtonStyle(
           textStyle: const WidgetStatePropertyAll(AppTextStyles.label),
           minimumSize: const WidgetStatePropertyAll(Size(48, 48)),
-          side: const WidgetStatePropertyAll(
-            BorderSide(color: AppColors.line),
-          ),
+          side: const WidgetStatePropertyAll(BorderSide(color: AppColors.line)),
           backgroundColor: WidgetStateProperty.resolveWith(
             (states) => states.contains(WidgetState.selected)
                 ? AppColors.blueSoft
@@ -203,8 +215,9 @@ class AppTheme {
           borderRadius: BorderRadius.all(Radius.circular(AppRadii.small)),
         ),
         labelStyle: AppTextStyles.labelSmall.copyWith(color: AppColors.text),
-        secondaryLabelStyle:
-            AppTextStyles.labelSmall.copyWith(color: AppColors.text),
+        secondaryLabelStyle: AppTextStyles.labelSmall.copyWith(
+          color: AppColors.text,
+        ),
         iconTheme: const IconThemeData(color: AppColors.muted, size: 16),
       ),
       dividerTheme: const DividerThemeData(
@@ -297,12 +310,25 @@ class AppTheme {
           ),
         ),
       ),
+      navigationRailTheme: NavigationRailThemeData(
+        backgroundColor: AppColors.surface,
+        indicatorColor: AppColors.blueSoft,
+        selectedIconTheme: const IconThemeData(color: AppColors.skyOnInk),
+        unselectedIconTheme: const IconThemeData(color: AppColors.muted),
+        selectedLabelTextStyle: AppTextStyles.labelSmall.copyWith(
+          color: AppColors.text,
+        ),
+        unselectedLabelTextStyle: AppTextStyles.labelSmall.copyWith(
+          color: AppColors.muted,
+        ),
+      ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.surface,
         labelStyle: AppTextStyles.body.copyWith(color: AppColors.muted),
-        floatingLabelStyle:
-            AppTextStyles.labelSmall.copyWith(color: AppColors.skyOnInk),
+        floatingLabelStyle: AppTextStyles.labelSmall.copyWith(
+          color: AppColors.skyOnInk,
+        ),
         hintStyle: AppTextStyles.body.copyWith(color: AppColors.muted),
         helperStyle: AppTextStyles.labelSmall.copyWith(color: AppColors.muted),
         errorStyle: AppTextStyles.labelSmall.copyWith(color: AppColors.error),
@@ -320,8 +346,9 @@ class AppTheme {
         ),
       ),
       sliderTheme: SliderThemeData(
-        valueIndicatorTextStyle:
-            AppTextStyles.labelSmall.copyWith(color: AppColors.ink),
+        valueIndicatorTextStyle: AppTextStyles.labelSmall.copyWith(
+          color: AppColors.ink,
+        ),
       ),
       textSelectionTheme: const TextSelectionThemeData(
         cursorColor: AppColors.skyOnInk,

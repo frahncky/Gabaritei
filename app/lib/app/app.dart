@@ -2,13 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../features/start/start_screen.dart';
+import '../shared/brand.dart';
 import 'dependencies.dart';
 import 'theme.dart';
 
 class GabariteiApp extends StatelessWidget {
-  const GabariteiApp({super.key, required this.dependencies});
+  const GabariteiApp({
+    super.key,
+    required this.dependencies,
+    this.showSplash = false,
+  });
 
   final AppDependencies dependencies;
+  final bool showSplash;
 
   @override
   Widget build(BuildContext context) {
@@ -27,8 +33,37 @@ class GabariteiApp extends StatelessWidget {
           // de tudo, para nunca haver um quadro sem fundo.
           child: ColoredBox(color: AppColors.ground, child: child!),
         ),
-        home: const StartScreen(),
+        home: showSplash ? const _AnimatedSplash() : const StartScreen(),
       ),
     );
   }
+}
+
+class _AnimatedSplash extends StatelessWidget {
+  const _AnimatedSplash();
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    backgroundColor: AppColors.ground,
+    body: SafeArea(
+      child: Center(
+        child: AnimatedGabariteiMark(
+          size: 160,
+          onCompleted: () {
+            if (!context.mounted) return;
+            Navigator.of(context).pushReplacement(
+              PageRouteBuilder<void>(
+                pageBuilder: (context, animation, secondaryAnimation) =>
+                    const StartScreen(),
+                transitionDuration: const Duration(milliseconds: 250),
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) =>
+                        FadeTransition(opacity: animation, child: child),
+              ),
+            );
+          },
+        ),
+      ),
+    ),
+  );
 }

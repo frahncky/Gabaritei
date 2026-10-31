@@ -7,8 +7,6 @@ import '../../domain/models/gamification.dart';
 import '../../domain/models/student.dart';
 import '../../shared/level_card.dart';
 import '../../shared/widgets.dart';
-import '../lab/lab_screen.dart';
-import '../lab/process_lab_screen.dart';
 import '../quiz/quiz_screen.dart';
 
 typedef _HomeData = ({
@@ -18,8 +16,7 @@ typedef _HomeData = ({
 });
 
 /// Tela inicial do aluno, na ordem do que ele precisa: quem é e em que nível
-/// está, o que continuar agora (ação principal), as missões do dia e os
-/// laboratórios para explorar.
+/// está, o que continuar agora (ação principal) e as missões do dia.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
     super.key,
@@ -62,9 +59,6 @@ class _HomeScreenState extends State<HomeScreen> {
     widget.onDataChanged();
   }
 
-  void _openLab(Widget screen) => Navigator.of(context)
-      .push(MaterialPageRoute<void>(builder: (_) => screen));
-
   @override
   Widget build(BuildContext context) {
     return AsyncView<_HomeData>(
@@ -93,8 +87,10 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
             const SizedBox(height: AppSpacing.section),
-            const SectionHeader('Missões de hoje',
-                trailing: 'renovam à meia-noite'),
+            const SectionHeader(
+              'Missões de hoje',
+              trailing: 'renovam à meia-noite',
+            ),
             const SizedBox(height: AppSpacing.header),
             if (missions.isNotEmpty)
               _MissionList(
@@ -110,23 +106,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     : () => _startQuiz(flash.quizId!),
               ),
             ],
-            const SizedBox(height: AppSpacing.section),
-            const SectionHeader('Laboratórios',
-                subtitle: 'Mexa nos valores e veja o que acontece.'),
-            const SizedBox(height: AppSpacing.header),
-            _LabTile(
-              icon: Icons.electric_bolt,
-              title: 'Veja a eletricidade em movimento',
-              subtitle: 'Ohm, série, paralelo e potência',
-              onTap: () => _openLab(const LabScreen()),
-            ),
-            const SizedBox(height: AppSpacing.item),
-            _LabTile(
-              icon: Icons.account_tree_outlined,
-              title: keepLastWordsTogether('Controle o nível de um tanque'),
-              subtitle: 'Sensor, CLP e válvula',
-              onTap: () => _openLab(const ProcessLabScreen()),
-            ),
           ],
         );
       },
@@ -191,8 +170,11 @@ class _Greeting extends StatelessWidget {
                 label: 'Abrir perfil',
                 onTap: onAvatarTap,
                 excludeSemantics: true,
-                child:
-                    InkResponse(onTap: onAvatarTap, radius: 28, child: avatar),
+                child: InkResponse(
+                  onTap: onAvatarTap,
+                  radius: 28,
+                  child: avatar,
+                ),
               ),
           ],
         ),
@@ -234,62 +216,65 @@ class _ContinueCard extends StatelessWidget {
     final hasQuiz = module.quizId != null;
     final fresh = module.lessonsDone == 0;
     return Card(
-      child: Padding(
-        padding: AppSpacing.card,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              fresh ? 'Comece por aqui' : 'Continue de onde parou',
-              style: const TextStyle(
-                color: AppColors.skyOnInk,
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
+      clipBehavior: Clip.antiAlias,
+      child: DecoratedBox(
+        decoration: const BoxDecoration(gradient: AppColors.studyGradient),
+        child: Padding(
+          padding: AppSpacing.card,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                fresh ? 'Comece por aqui' : 'Continue de onde parou',
+                style: const TextStyle(
+                  color: AppColors.skyOnInk,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              module.title,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.copyWith(fontSize: 20, height: 1.2),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              '${trail.title} · Módulo ${module.order}',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            if (module.lessonsTotal > 0) ...[
-              const SizedBox(height: 14),
-              Row(
-                children: [
-                  Expanded(
-                    child: ProgressBar(
-                      value: module.lessonFraction,
-                      height: 6,
-                      semanticsLabel: 'Lições do módulo',
+              const SizedBox(height: 8),
+              Text(
+                module.title,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontSize: 20, height: 1.2),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                '${trail.title} · Módulo ${module.order}',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              if (module.lessonsTotal > 0) ...[
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ProgressBar(
+                        value: module.lessonFraction,
+                        height: 6,
+                        semanticsLabel: 'Lições do módulo',
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    '${module.lessonsDone} de ${module.lessonsTotal} lições',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
+                    const SizedBox(width: 12),
+                    Text(
+                      '${module.lessonsDone} de ${module.lessonsTotal} lições',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ],
+              const SizedBox(height: 20),
+              FilledButton.icon(
+                onPressed: onContinue,
+                icon: Icon(hasQuiz ? Icons.play_arrow_rounded : Icons.route),
+                label: Text(switch (hasQuiz) {
+                  false => 'Ver trilha',
+                  true when fresh => 'Começar',
+                  true => 'Continuar lição',
+                }),
               ),
             ],
-            const SizedBox(height: 14),
-            FilledButton.icon(
-              onPressed: onContinue,
-              icon: Icon(hasQuiz ? Icons.play_arrow_rounded : Icons.route),
-              label: Text(switch (hasQuiz) {
-                false => 'Ver trilha',
-                true when fresh => 'Começar',
-                true => 'Continuar lição',
-              }),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -476,71 +461,16 @@ class _FlashCard extends StatelessWidget {
                   FilledButton.icon(
                     style: AppTheme.tonalButton,
                     onPressed: onStart,
-                    icon: Icon(done ? Icons.check : Icons.timer_outlined,
-                        size: 18),
+                    icon: Icon(
+                      done ? Icons.check : Icons.timer_outlined,
+                      size: 18,
+                    ),
                     label: Text(done ? 'Concluído' : 'Começar'),
                   ),
                 ],
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Atalho para um laboratório; os dois têm o mesmo desenho, como irmãos.
-class _LabTile extends StatelessWidget {
-  const _LabTile({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
-          child: Row(
-            children: [
-              IconBadge(icon: icon, size: 44),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontFamily: AppFonts.display,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 16,
-                        height: 1.25,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      subtitle,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 4),
-              const Icon(Icons.chevron_right, color: AppColors.muted),
-            ],
-          ),
         ),
       ),
     );

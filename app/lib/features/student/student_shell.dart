@@ -33,59 +33,112 @@ class _StudentShellState extends State<StudentShell> {
 
   @override
   Widget build(BuildContext context) {
+    final wide = MediaQuery.sizeOf(context).width >= 840;
+    const destinations = [
+      NavigationRailDestination(
+        icon: Icon(Icons.home_outlined),
+        selectedIcon: Icon(Icons.home),
+        label: Text('Início'),
+      ),
+      NavigationRailDestination(
+        icon: Icon(Icons.route_outlined),
+        selectedIcon: Icon(Icons.route),
+        label: Text('Trilhas'),
+      ),
+      NavigationRailDestination(
+        icon: Icon(Icons.emoji_events_outlined),
+        selectedIcon: Icon(Icons.emoji_events),
+        label: Text('Ranking'),
+      ),
+      NavigationRailDestination(
+        icon: Icon(Icons.person_outline),
+        selectedIcon: Icon(Icons.person),
+        label: Text('Perfil'),
+      ),
+    ];
     return Scaffold(
       body: SafeArea(
-        child: IndexedStack(
-          index: _tab,
+        child: Row(
           children: [
-            KeyedSubtree(
-              key: ValueKey('home-${_revisions[0]}'),
-              child: HomeScreen(
-                onDataChanged: _refresh,
-                onOpenTrails: () => _goTo(1),
+            if (wide) ...[
+              NavigationRail(
+                selectedIndex: _tab,
+                onDestinationSelected: _goTo,
+                labelType: NavigationRailLabelType.all,
+                leading: const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: Tooltip(
+                    message: 'Gabaritei',
+                    child: Icon(Icons.school_outlined, size: 32),
+                  ),
+                ),
+                destinations: destinations,
               ),
-            ),
-            KeyedSubtree(
-              key: ValueKey('trails-${_revisions[1]}'),
-              child: TrailsScreen(onDataChanged: _refresh),
-            ),
-            KeyedSubtree(
-              key: ValueKey('ranking-${_revisions[2]}'),
-              child: const RankingScreen(),
-            ),
-            KeyedSubtree(
-              key: ValueKey('profile-${_revisions[3]}'),
-              child: const ProfileScreen(),
+              const VerticalDivider(width: 1),
+            ],
+            Expanded(
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1000),
+                  child: IndexedStack(
+                    index: _tab,
+                    children: [
+                      KeyedSubtree(
+                        key: ValueKey('home-${_revisions[0]}'),
+                        child: HomeScreen(
+                          onDataChanged: _refresh,
+                          onOpenTrails: () => _goTo(1),
+                        ),
+                      ),
+                      KeyedSubtree(
+                        key: ValueKey('trails-${_revisions[1]}'),
+                        child: TrailsScreen(onDataChanged: _refresh),
+                      ),
+                      KeyedSubtree(
+                        key: ValueKey('ranking-${_revisions[2]}'),
+                        child: const RankingScreen(),
+                      ),
+                      KeyedSubtree(
+                        key: ValueKey('profile-${_revisions[3]}'),
+                        child: const ProfileScreen(),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ],
         ),
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _tab,
-        onDestinationSelected: _goTo,
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Início',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.route_outlined),
-            selectedIcon: Icon(Icons.route),
-            label: 'Trilhas',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.emoji_events_outlined),
-            selectedIcon: Icon(Icons.emoji_events),
-            label: 'Ranking',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'Perfil',
-          ),
-        ],
-      ),
+      bottomNavigationBar: wide
+          ? null
+          : NavigationBar(
+              selectedIndex: _tab,
+              onDestinationSelected: _goTo,
+              destinations: const [
+                NavigationDestination(
+                  icon: Icon(Icons.home_outlined),
+                  selectedIcon: Icon(Icons.home),
+                  label: 'Início',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.route_outlined),
+                  selectedIcon: Icon(Icons.route),
+                  label: 'Trilhas',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.emoji_events_outlined),
+                  selectedIcon: Icon(Icons.emoji_events),
+                  label: 'Ranking',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.person_outline),
+                  selectedIcon: Icon(Icons.person),
+                  label: 'Perfil',
+                ),
+              ],
+            ),
     );
   }
 }

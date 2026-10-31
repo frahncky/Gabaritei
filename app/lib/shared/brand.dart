@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 
@@ -9,6 +10,84 @@ import '../app/theme.dart';
 ///
 /// O mesmo desenho gera o ícone do app e o splash
 /// (`flutter test tool/brand_assets_test.dart`).
+class AnimatedGabariteiMark extends StatefulWidget {
+  const AnimatedGabariteiMark({
+    super.key,
+    this.size = 108,
+    this.repeat = false,
+    this.onCompleted,
+  });
+
+  final double size;
+  final bool repeat;
+  final VoidCallback? onCompleted;
+
+  @override
+  State<AnimatedGabariteiMark> createState() => _AnimatedGabariteiMarkState();
+}
+
+class _AnimatedGabariteiMarkState extends State<AnimatedGabariteiMark>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1800),
+  )..addStatusListener(_onStatus);
+  Timer? _pause;
+
+  void _onStatus(AnimationStatus status) {
+    if (status != AnimationStatus.completed) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) widget.onCompleted?.call();
+    });
+    if (widget.repeat && !MediaQuery.disableAnimationsOf(context)) {
+      _pause?.cancel();
+      _pause = Timer(const Duration(seconds: 6), () {
+        if (mounted && TickerMode.valuesOf(context).enabled) {
+          _controller.forward(from: 0);
+        }
+      });
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _controller.value = 1;
+    } else if (_controller.status == AnimationStatus.dismissed) {
+      _controller.forward();
+    }
+  }
+
+  @override
+  void dispose() {
+    _pause?.cancel();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    label: GabariteiMark.semanticsLabel,
+    image: true,
+    child: RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) => CustomPaint(
+          size: Size.square(widget.size),
+          painter: GabariteiMarkPainter(
+            withBackground: false,
+            rotation:
+                (1 - Curves.easeOutCubic.transform(_controller.value)) *
+                -2 *
+                math.pi,
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
 class GabariteiMark extends StatelessWidget {
   const GabariteiMark({super.key, this.size = 72, this.withBackground = true});
 
@@ -46,6 +125,7 @@ class GabariteiMarkPainter extends CustomPainter {
     this.withBackground = true,
     this.fullBleed = false,
     this.bubbleScale = defaultBubbleScale,
+    this.rotation = 0,
   });
 
   /// Bolha que deixa os três pilares dentro do quadrado do ícone.
@@ -69,6 +149,7 @@ class GabariteiMarkPainter extends CustomPainter {
 
   /// Diâmetro da bolha em relação ao lado do quadrado.
   final double bubbleScale;
+  final double rotation;
 
   /// A bolha desce um pouco do centro para equilibrar o livro no alto com
   /// os dois pilares de baixo.
@@ -106,10 +187,12 @@ class GabariteiMarkPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
     final pillar = Paint()..color = AppColors.markTrace;
     for (final p in _pillars) {
-      canvas.drawLine(polar(p.angle, 1.0), polar(p.angle, p.traceEnd), trace);
+      final angle = p.angle + rotation * 180 / math.pi;
+      canvas.drawLine(polar(angle, 1.0), polar(angle, p.traceEnd), trace);
       canvas.save();
-      final at = polar(p.angle, p.distance);
+      final at = polar(angle, p.distance);
       canvas.translate(at.dx, at.dy);
+      canvas.rotate(rotation);
       canvas.scale(radius * p.scale);
       canvas.drawPath(p.icon(), pillar);
       canvas.restore();
@@ -137,6 +220,7 @@ class GabariteiMarkPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(GabariteiMarkPainter oldDelegate) =>
+      oldDelegate.rotation != rotation ||
       oldDelegate.withBackground != withBackground ||
       oldDelegate.fullBleed != fullBleed ||
       oldDelegate.bubbleScale != bubbleScale;
@@ -221,13 +305,12 @@ Path _gear(
     for (var i = 0; i < teeth; i++)
       () {
         final a = firstToothDeg * math.pi / 180 + i * step;
-        return Path()
-          ..addPolygon([
-            at(a - rootHalf, body * 0.9),
-            at(a - tipHalf, tip),
-            at(a + tipHalf, tip),
-            at(a + rootHalf, body * 0.9),
-          ], true);
+        return Path()..addPolygon([
+          at(a - rootHalf, body * 0.9),
+          at(a - tipHalf, tip),
+          at(a + tipHalf, tip),
+          at(a + rootHalf, body * 0.9),
+        ], true);
       }(),
   ]);
   return Path.combine(
@@ -266,18 +349,17 @@ Path _bulbIcon() {
   return _union([
     Path()
       ..addOval(Rect.fromCircle(center: const Offset(0, -0.32), radius: 0.62)),
-    Path()
-      ..addPolygon(const [
-        Offset(-0.4, 0.0),
-        Offset(0.4, 0.0),
-        Offset(0.28, 0.5),
-        Offset(-0.28, 0.5),
-      ], true),
-    Path()
-      ..addRRect(
-          RRect.fromLTRBR(-0.3, 0.6, 0.3, 0.74, const Radius.circular(0.07))),
-    Path()
-      ..addRRect(
-          RRect.fromLTRBR(-0.2, 0.84, 0.2, 0.98, const Radius.circular(0.07))),
+    Path()..addPolygon(const [
+      Offset(-0.4, 0.0),
+      Offset(0.4, 0.0),
+      Offset(0.28, 0.5),
+      Offset(-0.28, 0.5),
+    ], true),
+    Path()..addRRect(
+      RRect.fromLTRBR(-0.3, 0.6, 0.3, 0.74, const Radius.circular(0.07)),
+    ),
+    Path()..addRRect(
+      RRect.fromLTRBR(-0.2, 0.84, 0.2, 0.98, const Radius.circular(0.07)),
+    ),
   ]);
 }
