@@ -7,7 +7,14 @@ import '../../domain/models/student.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets.dart';
 
-typedef _RankingData = ({Student student, List<RankingEntry> entries});
+typedef _RankingData = ({
+  Student student,
+  List<RankingEntry> entries,
+  RankingPeriod period,
+});
+
+/// Quantos sobem de liga no domingo (os do pódio da semana).
+const _promotionSlots = 3;
 
 /// Ranking da turma com pódio, filtro de período e aviso da liga.
 class RankingScreen extends StatefulWidget {
@@ -33,7 +40,9 @@ class _RankingScreenState extends State<RankingScreen> {
       deps.students.getCurrentStudent(),
       deps.ranking.getClassRanking(period),
     ).wait;
-    return (student: student, entries: entries);
+    // O período vai junto dos dados para o texto nunca descrever a lista
+    // anterior enquanto a nova carrega.
+    return (student: student, entries: entries, period: period);
   }
 
   void _changePeriod(RankingPeriod period) {
@@ -68,6 +77,7 @@ class _RankingScreenState extends State<RankingScreen> {
           builder: (context, data) => _RankingBody(
             student: data.student,
             entries: data.entries,
+            period: data.period,
           ),
         ),
       ],
@@ -76,10 +86,15 @@ class _RankingScreenState extends State<RankingScreen> {
 }
 
 class _RankingBody extends StatelessWidget {
-  const _RankingBody({required this.student, required this.entries});
+  const _RankingBody({
+    required this.student,
+    required this.entries,
+    required this.period,
+  });
 
   final Student student;
   final List<RankingEntry> entries;
+  final RankingPeriod period;
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +102,7 @@ class _RankingBody extends StatelessWidget {
     final nextLeague = league.index + 1 < League.values.length
         ? League.values[league.index + 1]
         : null;
-    final podium = entries.take(3).toList();
+    final podium = entries.take(_promotionSlots).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -97,7 +112,7 @@ class _RankingBody extends StatelessWidget {
           style: Theme.of(context).textTheme.bodySmall,
         ),
         const SizedBox(height: 12),
-        if (podium.length == 3)
+        if (podium.length == _promotionSlots)
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -109,22 +124,28 @@ class _RankingBody extends StatelessWidget {
             ],
           ),
         const SizedBox(height: 16),
+        // Aviso da liga: tonal neutro, para o 1º lugar do pódio seguir como
+        // o único âmbar cheio da tela.
         Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: AppColors.amberSoft,
-            borderRadius: BorderRadius.circular(12),
+          padding: AppSpacing.card,
+          decoration: const BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.all(Radius.circular(AppRadii.medium)),
           ),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Icon(Icons.trending_up,
                   color: AppColors.amberText, size: 20),
-              const SizedBox(width: 8),
+              const SizedBox(width: 12),
               Expanded(
-                child: Text(
-                  nextLeague == null
-                      ? 'Você está na Liga ${league.label}, a mais alta.'
-                      : 'Os 3 primeiros sobem para a Liga ${nextLeague.label} no domingo.',
+                child: Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(text: _leagueText(league, nextLeague)),
+                      ..._positionSpans(nextLeague),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -137,6 +158,48 @@ class _RankingBody extends StatelessWidget {
         ],
       ],
     );
+  }
+
+  String _leagueText(League league, League? next) {
+    if (next == null) return 'Você está na Liga ${league.label}, a mais alta.';
+    // A subida usa o ranking da semana, mesmo quando o aluno olha outro.
+    final who = period == RankingPeriod.week
+        ? 'Os $_promotionSlots primeiros'
+        : 'Os $_promotionSlots primeiros da semana';
+    return '$who sobem para a Liga ${next.label} no domingo.';
+  }
+
+  /// Onde o aluno está e, na semana, quanto falta para a zona de subida.
+  List<InlineSpan> _positionSpans(League? next) {
+    final me = entries.where((e) => e.isCurrentStudent).firstOrNull;
+    if (me == null) return const [];
+    const bold = TextStyle(fontWeight: FontWeight.w700);
+    final place = [
+      const TextSpan(text: '\nVocê está em '),
+      TextSpan(text: '${me.position}º', style: bold),
+    ];
+    if (period != RankingPeriod.week || next == null) {
+      final where = switch (period) {
+        RankingPeriod.week => 'na semana',
+        RankingPeriod.month => 'no mês',
+        RankingPeriod.all => 'no geral',
+      };
+      return [...place, TextSpan(text: ' $where.')];
+    }
+    if (me.position <= _promotionSlots) {
+      return [...place, const TextSpan(text: ': dentro da zona de subida!')];
+    }
+    // Um XP a mais que o último do pódio garante passar, mesmo no empate.
+    final gap = entries[_promotionSlots - 1].xp - me.xp + 1;
+    return [
+      ...place,
+      const TextSpan(text: '. '),
+      TextSpan(
+        text: '${gap == 1 ? 'Falta' : 'Faltam'} ${formatNumber(gap)} XP',
+        style: bold,
+      ),
+      const TextSpan(text: ' para passar o $_promotionSlotsº lugar.'),
+    ];
   }
 }
 
@@ -151,16 +214,18 @@ class _PodiumPlace extends StatelessWidget {
     final first = entry.position == 1;
     return Column(
       children: [
-        Avatar(
+        _RankAvatar(
           initials: entry.initials,
           size: first ? 56 : 48,
-          background: entry.isCurrentStudent ? AppColors.blue : AppColors.track,
-          foreground: entry.isCurrentStudent ? Colors.white : AppColors.text,
+          me: entry.isCurrentStudent,
         ),
         const SizedBox(height: 6),
         Text(
-          shortName(entry.name),
-          maxLines: 1,
+          entry.isCurrentStudent
+              ? '${shortName(entry.name)} (você)'
+              : shortName(entry.name),
+          maxLines: 2,
+          textAlign: TextAlign.center,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
@@ -174,8 +239,8 @@ class _PodiumPlace extends StatelessWidget {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: first ? AppColors.amber : AppColors.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-            border: first ? null : Border.all(color: AppColors.line),
+            borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(AppRadii.medium)),
           ),
           child: Text(
             '${entry.position}',
@@ -192,6 +257,31 @@ class _PodiumPlace extends StatelessWidget {
   }
 }
 
+/// Avatar do ranking. O do próprio aluno ganha um anel azul-claro em vez
+/// de cor cheia: destaca sem disputar com o pódio âmbar.
+class _RankAvatar extends StatelessWidget {
+  const _RankAvatar({
+    required this.initials,
+    required this.size,
+    required this.me,
+  });
+
+  final String initials;
+  final double size;
+  final bool me;
+
+  @override
+  Widget build(BuildContext context) {
+    return Avatar(
+      initials: initials,
+      size: size,
+      background: me ? AppColors.blueSoft : AppColors.track,
+      foreground: me ? AppColors.skyOnInk : AppColors.text,
+      ring: me ? AppColors.skyOnInk : null,
+    );
+  }
+}
+
 class _RankingRow extends StatelessWidget {
   const _RankingRow({required this.entry});
 
@@ -200,13 +290,15 @@ class _RankingRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final me = entry.isCurrentStudent;
+    // Linhas tonais; a do aluno usa o par "selecionado" do app.
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      constraints: const BoxConstraints(minHeight: 56),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
         color: me ? AppColors.blueSoft : AppColors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-            color: me ? AppColors.blue : AppColors.line, width: me ? 2 : 1),
+        borderRadius: const BorderRadius.all(Radius.circular(AppRadii.medium)),
+        border:
+            me ? const Border.fromBorderSide(AppTheme.selectedBorder) : null,
       ),
       child: Row(
         children: [
@@ -221,12 +313,7 @@ class _RankingRow extends StatelessWidget {
               ),
             ),
           ),
-          Avatar(
-            initials: entry.initials,
-            size: 36,
-            background: me ? AppColors.blue : AppColors.track,
-            foreground: me ? Colors.white : AppColors.text,
-          ),
+          _RankAvatar(initials: entry.initials, size: 36, me: me),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

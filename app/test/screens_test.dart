@@ -113,6 +113,9 @@ void main() {
     expect(find.text('1.000 XP'), findsOneWidget);
 
     await tester.scrollUntilVisible(find.text('Começar'), 200);
+    // A lista constrói itens além da borda: rola até o botão estar na tela.
+    await tester.ensureVisible(find.text('Começar'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Começar'));
     await tester.pumpAndSettle();
 
@@ -188,7 +191,7 @@ void main() {
     for (var i = 0; i < 10; i++) {
       await tester.pump(const Duration(milliseconds: 100));
     }
-    expect(find.text('1 · LEI DE OHM'), findsOneWidget);
+    expect(find.text('1 · Lei de Ohm'), findsOneWidget);
     expect(find.text('0,60 A'), findsWidgets);
     expect(find.text('seguro'), findsOneWidget);
 
@@ -204,10 +207,15 @@ void main() {
 
     // Monta 4,7 kΩ: amarelo, violeta e o vermelho que já está no multiplicador.
     final semantics = tester.ensureSemantics();
-    Future<void> pick(String band, String color, {int index = 0}) async {
+    // Procura a cor dentro do seletor da faixa: a lista é preguiçosa e o
+    // seletor de cima pode já ter saído da árvore.
+    Future<void> pick(String band, String color) async {
       await tester.scrollUntilVisible(find.text(band), 80,
           scrollable: find.byType(Scrollable).last);
-      final swatch = find.bySemanticsLabel(color).at(index);
+      final picker =
+          find.ancestor(of: find.text(band), matching: find.byType(Column));
+      final swatch = find.descendant(
+          of: picker.first, matching: find.bySemanticsLabel(color));
       await tester.ensureVisible(swatch);
       await tester.pump(const Duration(milliseconds: 100));
       await tester.tap(swatch);
@@ -215,7 +223,7 @@ void main() {
     }
 
     await pick('1ª faixa · 1º dígito', 'Amarelo, 4');
-    await pick('2ª faixa · 2º dígito', 'Violeta, 7', index: 1);
+    await pick('2ª faixa · 2º dígito', 'Violeta, 7');
     expect(find.text('4,7 kΩ'), findsWidgets);
     expect(find.text('acertou o desafio!'), findsOneWidget);
     semantics.dispose();

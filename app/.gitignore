@@ -23,3 +23,6 @@ linux/flutter/ephemeral/
 windows/flutter/ephemeral/
 
 .DS_Store
+
+# Sessões do compilador Kotlin (temporárias)
+.kotlin/

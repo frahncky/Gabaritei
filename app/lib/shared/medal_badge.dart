@@ -107,8 +107,9 @@ class _MedalPainter extends CustomPainter {
     final s = size.width;
     final center = Offset(s / 2, s / 2);
 
-    // Fitas, atrás da roseta.
-    final ribbon = Paint()..color = earned ? AppColors.blue : AppColors.line;
+    // Fitas, atrás da roseta: azul suave, para o âmbar ser o único acento.
+    final ribbon = Paint()
+      ..color = earned ? AppColors.progress : AppColors.line;
     for (final dir in [-1.0, 1.0]) {
       final x = s / 2 + dir * s * 0.16;
       canvas.drawPath(

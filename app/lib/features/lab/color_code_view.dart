@@ -20,7 +20,7 @@ const _paint = <BandColor, Color>{
 };
 
 Color _onBand(Color band) =>
-    band.computeLuminance() > 0.35 ? AppColors.ink : Colors.white;
+    band.computeLuminance() > 0.35 ? AppColors.ink : AppColors.text;
 
 /// Resistor grande com as quatro faixas; as cores trocam com animação e o
 /// corpo brilha quando o desafio é cumprido.
@@ -67,8 +67,8 @@ class ResistorView extends StatelessWidget {
                   borderRadius: BorderRadius.circular(38),
                   boxShadow: [
                     BoxShadow(
-                      color:
-                          AppColors.amber.withValues(alpha: matched ? 0.55 : 0),
+                      color: AppColors.success
+                          .withValues(alpha: matched ? 0.45 : 0),
                       blurRadius: matched ? 28 : 0,
                       spreadRadius: matched ? 2 : 0,
                     ),
@@ -170,7 +170,7 @@ class ColorReadout extends StatelessWidget {
                 fontFamily: AppFonts.display,
                 fontWeight: FontWeight.w800,
                 fontSize: 34,
-                color: Colors.white,
+                color: AppColors.text,
               ),
             ),
           ),
@@ -178,19 +178,22 @@ class ColorReadout extends StatelessWidget {
             '±$tolText% · de ${formatOhms(bands.minOhms)} a '
             '${formatOhms(bands.maxOhms)}',
             style: const TextStyle(
-              color: AppColors.amberOnInk,
-              fontWeight: FontWeight.w600,
+              color: AppColors.muted,
+              fontWeight: FontWeight.w500,
               fontSize: 14,
             ),
           ),
           const SizedBox(height: 6),
+          // O AnimatedDefaultTextStyle troca o estilo inteiro: sem a reserva,
+          // o "Ω" da meta sairia fora da fonte do app.
           AnimatedDefaultTextStyle(
             duration: const Duration(milliseconds: 200),
             style: TextStyle(
               fontFamily: AppFonts.display,
+              fontFamilyFallback: AppFonts.fallback,
               fontWeight: FontWeight.w700,
               fontSize: 18,
-              color: matched ? AppColors.successOnInk : AppColors.skyOnInk,
+              color: matched ? AppColors.success : AppColors.skyOnInk,
             ),
             child: Text(
               matched ? 'acertou o desafio!' : 'meta: ${formatOhms(target)}',
@@ -231,8 +234,7 @@ class BandPicker extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style:
-                    const TextStyle(color: AppColors.mutedOnInk, fontSize: 14),
+                style: const TextStyle(color: AppColors.muted, fontSize: 14),
               ),
             ),
             Text(
@@ -241,15 +243,16 @@ class BandPicker extends StatelessWidget {
                 fontFamily: AppFonts.display,
                 fontWeight: FontWeight.w700,
                 fontSize: 15,
-                color: Colors.white,
+                color: AppColors.text,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 4),
+        // Cada cor tem área de toque de 48 dp com o círculo de 32 no meio:
+        // a folga da área já separa os círculos (16 dp), sem espaçamento
+        // extra. Em 360 dp cabem 6 por linha.
         Wrap(
-          spacing: 8,
-          runSpacing: 8,
           children: [
             for (final color in options)
               Semantics(
@@ -258,31 +261,49 @@ class BandPicker extends StatelessWidget {
                 label: '${color.label}, ${meaning(color)}',
                 excludeSemantics: true,
                 child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
                   onTap: () => onSelect(color),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: _paint[color],
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: color == selected
-                            ? AppColors.amberOnInk
-                            : AppColors.inkLine,
-                        width: color == selected ? 3 : 1.5,
+                  child: SizedBox.square(
+                    dimension: 48,
+                    child: Center(
+                      child: _Swatch(
+                        paint: _paint[color]!,
+                        selected: color == selected,
                       ),
                     ),
-                    child: color == selected
-                        ? Icon(Icons.check,
-                            size: 16, color: _onBand(_paint[color]!))
-                        : null,
                   ),
                 ),
               ),
           ],
         ),
       ],
+    );
+  }
+}
+
+/// Círculo de 32 dp com a cor da faixa; a escolhida ganha contorno e ✓.
+class _Swatch extends StatelessWidget {
+  const _Swatch({required this.paint, required this.selected});
+
+  final Color paint;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      width: 32,
+      height: 32,
+      decoration: BoxDecoration(
+        color: paint,
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: selected ? AppColors.skyOnInk : AppColors.line,
+          width: selected ? 3 : 1.5,
+        ),
+      ),
+      child:
+          selected ? Icon(Icons.check, size: 16, color: _onBand(paint)) : null,
     );
   }
 }
@@ -306,11 +327,9 @@ class ColorChallengeCard extends StatelessWidget {
       duration: const Duration(milliseconds: 250),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: matched ? AppColors.successSoft : AppColors.inkRaised,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: matched ? AppColors.successOnInk : AppColors.inkLine,
-        ),
+        // Cartão tonal: o fundo verde já marca o acerto, sem contorno.
+        color: matched ? AppColors.successSoft : AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadii.large),
       ),
       child: Row(
         children: [
@@ -322,7 +341,7 @@ class ColorChallengeCard extends StatelessWidget {
               matched ? Icons.check_circle : Icons.track_changes,
               key: ValueKey(matched),
               size: 32,
-              color: matched ? AppColors.successOnInk : AppColors.amberOnInk,
+              color: matched ? AppColors.success : AppColors.skyOnInk,
             ),
           ),
           const SizedBox(width: 12),
@@ -331,12 +350,11 @@ class ColorChallengeCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'DESAFIO',
+                  'Desafio',
                   style: TextStyle(
-                    color: AppColors.amberOnInk,
-                    fontSize: 12,
+                    color: AppColors.skyOnInk,
+                    fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    letterSpacing: 1.5,
                   ),
                 ),
                 Text(
@@ -344,7 +362,7 @@ class ColorChallengeCard extends StatelessWidget {
                       ? 'Acertou! Esse é o resistor de ${formatOhms(target)}.'
                       : 'Monte um resistor de ${formatOhms(target)}',
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: AppColors.text,
                     fontFamily: AppFonts.display,
                     fontWeight: FontWeight.w700,
                     fontSize: 17,

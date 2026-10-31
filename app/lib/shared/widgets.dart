@@ -2,15 +2,38 @@ import 'package:flutter/material.dart';
 
 import '../app/theme.dart';
 
+// O fundo de grade mora em app/page_transitions.dart (o tema precisa dele);
+// fica exposto aqui junto dos outros widgets reutilizáveis.
+export '../app/page_transitions.dart' show BlueprintBackground, BlueprintGrid;
+
+/// Junta as últimas palavras de um título com espaço inseparável, para a
+/// quebra de linha não deixar uma palavra sozinha ("Lei de / Ohm").
+///
+/// Une a última palavra à anterior e, se esta for curta (de, em, da...),
+/// também à que vem antes: "Resolver 5 questões de / Lei de Ohm".
+String keepLastWordsTogether(String text) {
+  final words = text.split(' ');
+  if (words.length < 3) return text;
+  var glue = 1;
+  if (words[words.length - 2].length <= 3 && words.length > 3) glue = 2;
+  final head = words.sublist(0, words.length - glue - 1).join(' ');
+  final tail = words.sublist(words.length - glue - 1).join(' ');
+  return '$head $tail';
+}
+
 /// Barra de progresso arredondada (XP, trilhas, missões).
+///
+/// O padrão é o azul suave [AppColors.progress]: barra informa, não chama
+/// para a ação. A barra de XP usa [AppColors.xpGradient].
 class ProgressBar extends StatelessWidget {
   const ProgressBar({
     super.key,
     required this.value,
-    this.color = AppColors.blue,
+    this.color = AppColors.progress,
     this.trackColor = AppColors.track,
     this.height = 8,
     this.semanticsLabel,
+    this.gradient,
   });
 
   /// De 0 a 1.
@@ -20,8 +43,31 @@ class ProgressBar extends StatelessWidget {
   final double height;
   final String? semanticsLabel;
 
+  /// Preenchimento em degradê (substitui [color]), como a barra de XP.
+  final Gradient? gradient;
+
   @override
   Widget build(BuildContext context) {
+    final fill = gradient;
+    if (fill != null) {
+      final radius = BorderRadius.circular(height / 2);
+      return Semantics(
+        label: semanticsLabel,
+        value: '${(value.clamp(0, 1) * 100).round()}%',
+        child: Container(
+          height: height,
+          decoration: BoxDecoration(color: trackColor, borderRadius: radius),
+          alignment: Alignment.centerLeft,
+          child: FractionallySizedBox(
+            widthFactor: value.clamp(0, 1).toDouble(),
+            child: DecoratedBox(
+              decoration: BoxDecoration(gradient: fill, borderRadius: radius),
+              child: const SizedBox.expand(),
+            ),
+          ),
+        ),
+      );
+    }
     return ClipRRect(
       borderRadius: BorderRadius.circular(height / 2),
       child: LinearProgressIndicator(
@@ -60,16 +106,13 @@ class StatTile extends StatelessWidget {
         child: Row(
           children: [
             if (icon != null) ...[
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: iconBackground,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, color: iconColor, size: 22),
+              IconBadge(
+                icon: icon!,
+                color: iconColor,
+                background: iconBackground,
+                size: 40,
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
             ],
             Expanded(
               child: Column(
@@ -95,24 +138,125 @@ class StatTile extends StatelessWidget {
   }
 }
 
-/// Título de seção com texto auxiliar opcional à direita.
+/// Título de seção com texto auxiliar opcional à direita e uma linha de
+/// explicação opcional embaixo.
 class SectionHeader extends StatelessWidget {
-  const SectionHeader(this.title, {super.key, this.trailing});
+  const SectionHeader(this.title, {super.key, this.trailing, this.subtitle});
 
   final String title;
   final String? trailing;
 
+  /// Diz para que serve a seção, quando o título sozinho não basta.
+  final String? subtitle;
+
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
+    final theme = Theme.of(context).textTheme;
+    final row = Row(
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
       children: [
         Expanded(
-          child: Text(title, style: Theme.of(context).textTheme.titleMedium),
+          child: Semantics(
+            header: true,
+            child: Text(title, style: theme.titleMedium),
+          ),
         ),
-        if (trailing != null)
-          Text(trailing!, style: Theme.of(context).textTheme.bodySmall),
+        if (trailing != null) ...[
+          const SizedBox(width: 12),
+          Text(trailing!, style: theme.bodySmall),
+        ],
       ],
+    );
+    if (subtitle == null) return row;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        row,
+        const SizedBox(height: 4),
+        Text(subtitle!, style: theme.bodySmall),
+      ],
+    );
+  }
+}
+
+/// Ícone dentro de um fundo tonal arredondado (status, atalho, estatística).
+///
+/// O par de cores segue o significado: azul para ação/navegação, âmbar para
+/// XP e conquistas, verde/vermelho para acerto/erro, neutro para bloqueado.
+class IconBadge extends StatelessWidget {
+  const IconBadge({
+    super.key,
+    required this.icon,
+    this.color = AppColors.skyOnInk,
+    this.background = AppColors.blueSoft,
+    this.size = 40,
+    this.circle = false,
+  });
+
+  final IconData icon;
+  final Color color;
+  final Color background;
+  final double size;
+
+  /// Círculo (nós de trilha, status) em vez de quadrado arredondado.
+  final bool circle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: background,
+        shape: circle ? BoxShape.circle : BoxShape.rectangle,
+        borderRadius: circle ? null : BorderRadius.circular(size * 0.3),
+      ),
+      child: Icon(icon, color: color, size: size * 0.55),
+    );
+  }
+}
+
+/// Pílula tonal com ícone e texto curto (sequência, medalhas, prazos).
+class InfoPill extends StatelessWidget {
+  const InfoPill({
+    super.key,
+    required this.icon,
+    required this.label,
+    this.iconColor = AppColors.skyOnInk,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color iconColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(minHeight: 32),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: const BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.all(Radius.circular(AppRadii.small)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: iconColor),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: AppColors.text,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -125,6 +269,7 @@ class Avatar extends StatelessWidget {
     this.size = 40,
     this.background = AppColors.track,
     this.foreground = AppColors.text,
+    this.ring,
   });
 
   final String initials;
@@ -132,13 +277,21 @@ class Avatar extends StatelessWidget {
   final Color background;
   final Color foreground;
 
+  /// Contorno de destaque (o próprio aluno no ranking), sem encher de cor.
+  final Color? ring;
+
   @override
   Widget build(BuildContext context) {
+    final ring = this.ring;
     return Container(
       width: size,
       height: size,
       alignment: Alignment.center,
-      decoration: BoxDecoration(color: background, shape: BoxShape.circle),
+      decoration: BoxDecoration(
+        color: background,
+        shape: BoxShape.circle,
+        border: ring == null ? null : Border.all(color: ring, width: 2),
+      ),
       child: Text(
         initials,
         style: TextStyle(
@@ -212,39 +365,4 @@ class AsyncView<T> extends StatelessWidget {
       },
     );
   }
-}
-
-/// Grade fina de "planta técnica" desenhada por cima de todas as telas.
-class BlueprintGrid extends StatelessWidget {
-  const BlueprintGrid({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const IgnorePointer(
-      child: ExcludeSemantics(
-        child: CustomPaint(painter: _GridPainter(), size: Size.infinite),
-      ),
-    );
-  }
-}
-
-class _GridPainter extends CustomPainter {
-  const _GridPainter();
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.012)
-      ..strokeWidth = 1;
-    const step = 28.0;
-    for (var x = 0.0; x < size.width; x += step) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
-    }
-    for (var y = 0.0; y < size.height; y += step) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(_GridPainter oldDelegate) => false;
 }
