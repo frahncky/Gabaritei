@@ -19,6 +19,7 @@ Cursos técnicos, disciplinas e atividades com explicações, progresso e medalh
 
 [📚 Cursos](#-cursos) ·
 [🛤️ Como estudar](#-como-estudar) ·
+[📱 Interface](#-interface-e-abertura) ·
 [🏅 Medalhas](#-medalhas-e-progressão) ·
 [📲 Instalar](#-executar-e-instalar) ·
 [🗺️ Roadmap](docs/roadmap.md)
@@ -76,7 +77,8 @@ A melhor nota de cada atividade fica salva. Uma tentativa pior não desfaz o ava
 | 🏠 **Início do aluno** | Nível, XP, sequência, missões de exemplo e desafio relâmpago |
 | 📚 **Cursos e disciplinas** | Quatro cursos, 26 trilhas, resumos e atividades em todas as unidades de estudo |
 | 🧩 **Questões e explicações** | 464 questões; 141 possuem figuras, gráficos ou tabelas específicos, cobrindo as 26 disciplinas |
-| 🔬 **Laboratórios** | Circuitos, Lei de Ohm, potência, código de cores e controle de nível com CLP |
+| 📱 **Interface adaptativa** | Barra inferior no celular e navegação lateral em telas a partir de 840 px lógicos |
+| ✨ **Marca animada** | Abertura com giro dos elementos ao redor do ✓ e repetição com pausas na tela de entrada |
 | 👤 **Perfil** | Estatísticas, calendário de estudo e medalhas agrupadas por disciplina |
 | 💾 **Persistência local** | Notas, XP, sequência, medalhas, missões e questões criadas pelo professor |
 | 🏆 **Ranking demonstrativo** | Filtros de semana, mês e geral, com participantes de exemplo |
@@ -85,6 +87,18 @@ A melhor nota de cada atividade fica salva. Uma tentativa pior não desfaz o ava
 O aluno inicial e os indicadores de turma também usam dados de demonstração. O app ainda não tem contas autenticadas, turmas reais nem sincronização entre aparelhos. Desafios e lembretes simulados no painel não são enviados a alunos reais.
 
 Na aba **Trilhas**, a navegação segue **curso → disciplinas do curso → módulos**. Cada curso mostra sua própria lista; disciplinas compartilhadas mantêm o mesmo progresso.
+
+## 📱 Interface e abertura
+
+A tela inicial destaca a próxima atividade, o nível e as missões do dia. Os cards de laboratórios foram removidos do início; o código dos simuladores permanece no projeto.
+
+- **Celular:** navegação inferior com Início, Trilhas, Ranking e Perfil.
+- **Tablets e computadores:** navegação lateral a partir de 840 px lógicos, com conteúdo centralizado e largura limitada para facilitar a leitura. A aba selecionada é preservada ao redimensionar a janela.
+- **Cursos:** cartões com ícones destacados, espaçamento entre opções e descrições com altura flexível. Cabeçalhos acomodam textos longos.
+- **Abertura animada:** após a imagem estática do splash nativo, o livro, as engrenagens e a lâmpada dão uma volta ao redor do círculo de marcação. O ✓ permanece fixo; o giro desacelera e termina nas posições finais em 1,8 segundo.
+- **Tela de entrada:** a animação se repete com uma pausa de seis segundos após cada giro. A preferência do sistema por reduzir animações é respeitada.
+
+Para conferir a abertura, encerre e abra o aplicativo novamente. O hot reload não reproduz o splash.
 
 ## 🖼️ Questões com recursos visuais
 
@@ -176,7 +190,7 @@ No VS Code, selecione a mesma instalação em **Flutter: Change SDK** e execute 
 
 ### APK publicado
 
-O APK disponível em **[Releases](https://github.com/frahncky/Gabaritei/releases/latest)** é o da **v0.3.0, publicada em 20/10/2026**. Essa publicação é anterior às atualizações de cursos, disciplinas, progresso e medalhas descritas neste README.
+Confira a versão e as notas do APK disponível em **[Releases](https://github.com/frahncky/Gabaritei/releases/latest)**. O código da `main` pode conter alterações posteriores ao APK publicado, incluindo as melhorias de interface e abertura descritas aqui.
 
 Para testar o código atual, execute a `main` ou gere um APK:
 
@@ -190,7 +204,9 @@ O arquivo será gerado em `app/build/app/outputs/flutter-apk/app-release.apk`, c
 
 ## 🧪 Qualidade e testes
 
-O banco de questões e os recursos visuais passaram por **`flutter analyze` sem apontamentos e 109 testes aprovados**, em 30/10/2026. **[Ver execução validada](https://github.com/frahncky/Gabaritei/actions/runs/41123220106)**.
+Na atualização de interface e abertura de 30/10/2026, **`flutter analyze` passou sem apontamentos e cinco testes direcionados foram aprovados**, cobrindo navegação adaptativa, sequência do splash, repetição da animação e desenho da marca.
+
+Essa verificação não representa aprovação da suíte completa: ainda há falhas conhecidas em testes de conteúdo, gerador e telas após a integração das branches. O resultado atual da CI pode ser consultado em **[Flutter checks](https://github.com/frahncky/Gabaritei/actions/workflows/flutter.yml)**. A **[execução histórica com 109 testes aprovados](https://github.com/frahncky/Gabaritei/actions/runs/41123220106)** refere-se a uma versão anterior.
 
 A suíte cobre catálogo e vínculos dos cursos, questões e gabaritos, separação entre estudo e provas, cálculos representativos, progressão, medalhas, reconhecimento de notas antigas, persistência, reset e navegação. O workflow acompanha análise e testes na `main` e nos pull requests.
 
@@ -198,6 +214,13 @@ A suíte cobre catálogo e vínculos dos cursos, questões e gabaritos, separaç
 cd app
 flutter analyze
 flutter test
+```
+
+Para executar somente os testes direcionados às mudanças recentes:
+
+```bash
+cd app
+flutter test test/adaptive_navigation_test.dart test/splash_animation_test.dart test/brand_test.dart
 ```
 
 Essa validação não equivale a build Android ou teste manual em aparelho da entrega mais recente.
@@ -239,8 +262,10 @@ Os arquivos em `design/mockup` são referências de design, não capturas das te
 - [x] Figuras, gráficos e tabelas específicos em questões das 26 disciplinas
 - [x] 87 medalhas por assunto, 26 de domínio e três de constância
 - [x] Reconhecimento de notas antigas e progresso salvo
-- [x] Laboratórios de eletricidade e automação
-- [x] Análise e testes automatizados
+- [x] Interface adaptativa com navegação inferior e lateral
+- [x] Marca animada na abertura e periodicamente na entrada
+- [x] Análise estática e testes direcionados de interface e marca
+- [ ] Corrigir as falhas conhecidas da suíte completa após a integração
 - [ ] Ampliar o conteúdo e concluir revisão pedagógica
 - [ ] Validar build e uso em aparelho para a entrega atual
 - [ ] Publicar um APK com as atualizações da main
