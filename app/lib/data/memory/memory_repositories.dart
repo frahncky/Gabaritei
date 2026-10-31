@@ -12,6 +12,7 @@ import '../../domain/models/quiz_result.dart';
 import '../../domain/models/student.dart';
 import '../../domain/models/teacher.dart';
 import '../../domain/repositories/repositories.dart';
+import '../../domain/rules/question_bank_rules.dart';
 import '../../domain/rules/streak_rules.dart';
 import '../../domain/rules/xp_rules.dart';
 import 'sample_content.dart';
@@ -321,17 +322,22 @@ class MemoryContentRepository implements ContentRepository {
       List.unmodifiable(_createdQuestions);
 
   @override
-  Future<void> saveQuestion(Question question) {
+  Future<Question> saveQuestion(Question question) {
     final save = _pendingSave.then((_) async {
+      final admitted = QuestionBankRules.admit(question, _createdQuestions);
+      if (_createdQuestions.any((item) => item.id == admitted.id)) {
+        return admitted;
+      }
       final updated = [
-        ..._createdQuestions.where((item) => item.id != question.id), question,
+        ..._createdQuestions, admitted,
       ];
       await onChanged?.call(List.unmodifiable(updated));
       _createdQuestions
         ..clear()
         ..addAll(updated);
+      return admitted;
     });
-    _pendingSave = save.catchError((Object _) {});
+    _pendingSave = save.then<void>((_) {}, onError: (Object _) {});
     return save;
   }
 }
